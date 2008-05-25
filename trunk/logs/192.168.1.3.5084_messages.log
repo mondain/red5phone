@@ -1,0 +1,123 @@
+15:42:18.838 Sun 25 May 2008, 192.168.1.20:5060/udp (364 bytes): sent
+REGISTER sip:192.168.1.20 SIP/2.0
+Via: SIP/2.0/UDP 192.168.1.3:5084;rport;branch=z9hG4bK44053
+Max-Forwards: 70
+To: "1001" <sip:1001@192.168.1.20>
+From: "1001" <sip:1001@192.168.1.20>;tag=z9hG4bK63333973
+Call-ID: 951200206420@192.168.1.3
+CSeq: 1 REGISTER
+Contact: <sip:1001@192.168.1.3:5084>
+Expires: 3600
+User-Agent: mjsip stack 1.6
+Content-Length: 0
+
+-----End-of-message-----
+
+15:42:18.848 Sun 25 May 2008, 192.168.1.20:5060/udp (424 bytes): received
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP 192.168.1.3:5084;branch=z9hG4bK44053;received=192.168.1.3;rport=5084
+From: "1001" <sip:1001@192.168.1.20>;tag=z9hG4bK63333973
+To: "1001" <sip:1001@192.168.1.20>
+Call-ID: 951200206420@192.168.1.3
+CSeq: 1 REGISTER
+User-Agent: Asterisk PBX
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY
+Supported: replaces
+Contact: <sip:1001@192.168.1.20>
+Content-Length: 0
+
+-----End-of-message-----
+
+15:42:18.848 Sun 25 May 2008, 192.168.1.20:5060/udp (491 bytes): received
+SIP/2.0 401 Unauthorized
+Via: SIP/2.0/UDP 192.168.1.3:5084;branch=z9hG4bK44053;received=192.168.1.3;rport=5084
+From: "1001" <sip:1001@192.168.1.20>;tag=z9hG4bK63333973
+To: "1001" <sip:1001@192.168.1.20>;tag=as7766332b
+Call-ID: 951200206420@192.168.1.3
+CSeq: 1 REGISTER
+User-Agent: Asterisk PBX
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY
+Supported: replaces
+WWW-Authenticate: Digest algorithm=MD5, realm="192.168.1.20", nonce="71b90d05"
+Content-Length: 0
+
+-----End-of-message-----
+
+15:42:18.858 Sun 25 May 2008, 192.168.1.20:5060/udp (527 bytes): sent
+REGISTER sip:192.168.1.20 SIP/2.0
+Via: SIP/2.0/UDP 192.168.1.3:5084;rport;branch=z9hG4bK44053
+Max-Forwards: 70
+To: "1001" <sip:1001@192.168.1.20>
+From: "1001" <sip:1001@192.168.1.20>;tag=z9hG4bK63333973
+Call-ID: 951200206420@192.168.1.3
+CSeq: 2 REGISTER
+Contact: <sip:1001@192.168.1.3:5084>
+Expires: 3600
+User-Agent: mjsip stack 1.6
+Authorization: Digest username="1001", realm="192.168.1.20", nonce="71b90d05", uri="sip:192.168.1.20", algorithm=MD5, response="c99498d61c7bf08993030dee838cfa09"
+Content-Length: 0
+
+-----End-of-message-----
+
+15:42:18.858 Sun 25 May 2008, 192.168.1.20:5060/udp (424 bytes): received
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP 192.168.1.3:5084;branch=z9hG4bK44053;received=192.168.1.3;rport=5084
+From: "1001" <sip:1001@192.168.1.20>;tag=z9hG4bK63333973
+To: "1001" <sip:1001@192.168.1.20>
+Call-ID: 951200206420@192.168.1.3
+CSeq: 2 REGISTER
+User-Agent: Asterisk PBX
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY
+Supported: replaces
+Contact: <sip:1001@192.168.1.20>
+Content-Length: 0
+
+-----End-of-message-----
+
+15:42:18.858 Sun 25 May 2008, 192.168.1.20:5060/udp (504 bytes): received
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP 192.168.1.3:5084;branch=z9hG4bK44053;received=192.168.1.3;rport=5084
+From: "1001" <sip:1001@192.168.1.20>;tag=z9hG4bK63333973
+To: "1001" <sip:1001@192.168.1.20>;tag=as7766332b
+Call-ID: 951200206420@192.168.1.3
+CSeq: 2 REGISTER
+User-Agent: Asterisk PBX
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY
+Supported: replaces
+Expires: 3600
+Contact: <sip:1001@192.168.1.3:5084>;expires=3600
+Date: Sun, 25 May 2008 14:43:02 GMT
+Content-Length: 0
+
+-----End-of-message-----
+
+15:45:17.344 Sun 25 May 2008, 192.168.1.20:5060/udp (361 bytes): sent
+REGISTER sip:192.168.1.20 SIP/2.0
+Via: SIP/2.0/UDP 192.168.1.3:5084;rport;branch=z9hG4bK26864
+Max-Forwards: 70
+To: "1001" <sip:1001@192.168.1.20>
+From: "1001" <sip:1001@192.168.1.20>;tag=z9hG4bK01097534
+Call-ID: 229045516025@192.168.1.3
+CSeq: 1 REGISTER
+Contact: <sip:1001@192.168.1.3:5084>
+Expires: 0
+User-Agent: mjsip stack 1.6
+Content-Length: 0
+
+-----End-of-message-----
+
+15:45:17.344 Sun 25 May 2008, 192.168.1.20:5060/udp (424 bytes): received
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP 192.168.1.3:5084;branch=z9hG4bK26864;received=192.168.1.3;rport=5084
+From: "1001" <sip:1001@192.168.1.20>;tag=z9hG4bK01097534
+To: "1001" <sip:1001@192.168.1.20>
+Call-ID: 229045516025@192.168.1.3
+CSeq: 1 REGISTER
+User-Agent: Asterisk PBX
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER, SUBSCRIBE, NOTIFY
+Supported: replaces
+Contact: <sip:1001@192.168.1.20>
+Content-Length: 0
+
+-----End-of-message-----
+

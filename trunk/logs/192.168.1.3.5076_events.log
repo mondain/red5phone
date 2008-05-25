@@ -1,0 +1,578 @@
+SipProvider-5076: Date: 15:23:59.737 Sun 25 May 2008
+SipProvider-5076: SipStack: mjsip stack 1.6
+SipProvider-5076: new SipProvider(): 5076/udp/tcp
+SipProvider-5076: udp is up
+SipProvider-5076: tcp is up
+ExtendedInviteDialog#27: changed dialog state: D_INIT
+ExtendedInviteDialog#27: changed dialog state: D_WAITING
+TransactionServer#113: id: INVITE
+TransactionServer#113: created
+TransactionServer#113: start
+TransactionServer#113: changed transaction state: T_Waiting
+SipProvider-5076: adding SipProviderListener: INVITE
+SipProvider-5076: 1 listeners: INVITE, 
+ExtendedInviteDialog#27: inside refuse()
+ExtendedInviteDialog#27: inside refuse(403,Forbidden)
+ExtendedInviteDialog#27: inside respond(403,Forbidden)
+ExtendedInviteDialog#27: WARNING: Dialog isn't in "invited" state: cannot respond (403/D_WAITING/null)
+ExtendedInviteDialog#27: inside cancel()
+SipProvider-5076: removing SipProviderListener: INVITE
+SipProvider-5076: 0 listeners: 
+TransactionServer#113: changed transaction state: T_Terminated
+ExtendedInviteDialog#27: inside bye()
+ExtendedCall: calling <sip:1000@192.168.1.20>
+ExtendedInviteDialog#28: changed dialog state: D_INIT
+ExtendedInviteDialog#28: inside invite(callee,caller,contact,sdp)
+ExtendedInviteDialog#28: inside invite(invite)
+ExtendedInviteDialog#28: changed dialog state: D_INVITING
+ExtendedInviteDialog#28: new dialog id: 711510974227@192.168.1.3-z9hG4bK53907456-null
+SipProvider-5076: adding SipProviderListener: 711510974227@192.168.1.3-z9hG4bK53907456-null
+SipProvider-5076: 1 listeners: 711510974227@192.168.1.3-z9hG4bK53907456-null, 
+TransactionClient#114: id: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789
+TransactionClient#114: created
+TransactionClient#114: start
+TransactionClient#114: changed transaction state: T_Trying
+SipProvider-5076: adding SipProviderListener: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789
+SipProvider-5076: 2 listeners: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-z9hG4bK53907456-null, 
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:03.242 Sun 25 May 2008, 192.168.1.20:5060/udp (521 bytes): INVITE sip:1000@192.168.1.20 SIP/2.0, sent
+
+
+15:24:03.252 Sun 25 May 2008, 192.168.1.20:5060/udp (501 bytes): SIP/2.0 407 Proxy Authentication Required, received
+
+SipProvider-5076: received new SIP message
+SipProvider-5076: DEBUG: transaction-id: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789
+SipProvider-5076: message passed to transaction: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789
+TransactionClient#114: changed transaction state: T_Completed
+ExtendedInviteDialog#28: inside onTransFailureResponse(711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789,msg)
+TransactionClient#115: id: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537
+TransactionClient#115: created
+TransactionClient#115: start
+TransactionClient#115: changed transaction state: T_Trying
+SipProvider-5076: adding SipProviderListener: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537
+SipProvider-5076: 3 listeners: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-z9hG4bK53907456-null, 
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:03.262 Sun 25 May 2008, 192.168.1.20:5060/udp (352 bytes): ACK sip:1000@192.168.1.20 SIP/2.0, sent
+
+TransactionClient#116: id: 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789
+TransactionClient#116: created
+TransactionClient#116: start
+TransactionClient#116: changed transaction state: T_Trying
+SipProvider-5076: adding SipProviderListener: 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789
+SipProvider-5076: 4 listeners: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537, 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-z9hG4bK53907456-null, 
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:03.272 Sun 25 May 2008, 192.168.1.20:5060/udp (695 bytes): INVITE sip:1000@192.168.1.20 SIP/2.0, sent
+
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:03.272 Sun 25 May 2008, 192.168.1.20:5060/udp (314 bytes): ACK sip:1000@192.168.1.20 SIP/2.0, sent
+
+
+15:24:03.272 Sun 25 May 2008, 192.168.1.20:5060/udp (415 bytes): SIP/2.0 100 Trying, received
+
+SipProvider-5076: received new SIP message
+SipProvider-5076: DEBUG: transaction-id: 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789
+SipProvider-5076: message passed to transaction: 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789
+TransactionClient#116: changed transaction state: T_Proceeding
+ExtendedInviteDialog#28: inside onTransProvisionalResponse(tc,mdg)
+
+15:24:03.483 Sun 25 May 2008, 192.168.1.20:5060/udp (431 bytes): SIP/2.0 180 Ringing, received
+
+SipProvider-5076: received new SIP message
+SipProvider-5076: DEBUG: transaction-id: 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789
+SipProvider-5076: message passed to transaction: 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789
+ExtendedInviteDialog#28: inside onTransProvisionalResponse(tc,mdg)
+TransactionClient#115: Retransmission timeout expired
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:03.763 Sun 25 May 2008, 192.168.1.20:5060/udp (352 bytes): ACK sip:1000@192.168.1.20 SIP/2.0, sent
+
+TransactionClient#116: Retransmission timeout expired
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:03.763 Sun 25 May 2008, 192.168.1.20:5060/udp (695 bytes): INVITE sip:1000@192.168.1.20 SIP/2.0, sent
+
+
+15:24:03.773 Sun 25 May 2008, 192.168.1.20:5060/udp (415 bytes): SIP/2.0 100 Trying, received
+
+SipProvider-5076: received new SIP message
+SipProvider-5076: DEBUG: transaction-id: 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789
+SipProvider-5076: message passed to transaction: 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789
+ExtendedInviteDialog#28: inside onTransProvisionalResponse(tc,mdg)
+TransactionClient#115: Retransmission timeout expired
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:04.764 Sun 25 May 2008, 192.168.1.20:5060/udp (352 bytes): ACK sip:1000@192.168.1.20 SIP/2.0, sent
+
+
+15:24:05.065 Sun 25 May 2008, 192.168.1.20:5060/udp (655 bytes): SIP/2.0 183 Session Progress, received
+
+SipProvider-5076: received new SIP message
+SipProvider-5076: DEBUG: transaction-id: 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789
+SipProvider-5076: message passed to transaction: 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789
+ExtendedInviteDialog#28: inside onTransProvisionalResponse(tc,mdg)
+
+15:24:05.105 Sun 25 May 2008, 192.168.1.20:5060/udp (641 bytes): SIP/2.0 200 OK, received
+
+SipProvider-5076: received new SIP message
+SipProvider-5076: DEBUG: transaction-id: 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789
+SipProvider-5076: message passed to transaction: 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789
+TransactionClient#116: changed transaction state: T_Completed
+ExtendedInviteDialog#28: inside onTransSuccessResponse(711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789,msg)
+ExtendedInviteDialog#28: inside onTransSuccessResponse(tc,msg)
+ExtendedInviteDialog#28: changed dialog state: D_CALL
+SipProvider-5076: removing SipProviderListener: 711510974227@192.168.1.3-z9hG4bK53907456-null
+SipProvider-5076: 3 listeners: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537, 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789, 
+ExtendedInviteDialog#28: new dialog id: 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa
+SipProvider-5076: adding SipProviderListener: 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa
+SipProvider-5076: 4 listeners: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537, 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa, 
+AckTransactionClient#117: id: 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK32862
+AckTransactionClient#117: created
+AckTransactionClient#117: start
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:05.115 Sun 25 May 2008, 192.168.1.20:5060/udp (367 bytes): ACK sip:1000@192.168.1.20 SIP/2.0, sent
+
+AckTransactionClient#117: changed transaction state: T_Terminated
+
+15:24:05.215 Sun 25 May 2008, 192.168.1.20:5060/udp (662 bytes): INVITE sip:1001@192.168.1.3:5076 SIP/2.0, received
+
+SipProvider-5076: received new SIP message
+SipProvider-5076: DEBUG: transaction-id: 711510974227@192.168.1.3-102-INVITE-192.168.1.20:5060-z9hG4bK2f76e234
+SipProvider-5076: DEBUG: dialog-id: 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa
+SipProvider-5076: message passed to dialog: 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa
+ExtendedInviteDialog#28: Message received: INVITE sip:1001@192.168.1.3:5076 SIP/2.0
+ExtendedInviteDialog#28: inside onReceivedMessage(sip_provider,message)
+ExtendedInviteDialog#28: changed dialog state: D_ReINVITED
+TransactionServer#118: id: 711510974227@192.168.1.3-102-INVITE-192.168.1.20:5060-z9hG4bK2f76e234
+TransactionServer#118: created
+TransactionServer#118: changed transaction state: T_Trying
+SipProvider-5076: adding SipProviderListener: 711510974227@192.168.1.3-102-INVITE-192.168.1.20:5060-z9hG4bK2f76e234
+SipProvider-5076: 5 listeners: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537, 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-102-INVITE-192.168.1.20:5060-z9hG4bK2f76e234, 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa, 
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:05.215 Sun 25 May 2008, 192.168.1.20:5060/udp (291 bytes): SIP/2.0 100 Trying, sent
+
+TransactionServer#118: changed transaction state: T_Proceeding
+ExtendedInviteDialog#28: inside accept(sdp)
+ExtendedInviteDialog#28: inside respond(200,OK)
+ExtendedInviteDialog#28: inside respond(resp)
+ExtendedInviteDialog#28: inside respond(resp)
+ExtendedInviteDialog#28: changed dialog state: D_ReACCEPTED
+SipProvider-5076: removing SipProviderListener: 711510974227@192.168.1.3-102-INVITE-192.168.1.20:5060-z9hG4bK2f76e234
+SipProvider-5076: 4 listeners: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537, 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa, 
+TransactionServer#118: changed transaction state: T_Terminated
+AckTransactionServer#119: id: ACK
+AckTransactionServer#119: created
+AckTransactionServer#119: start
+AckTransactionServer#119: changed transaction state: T_Proceeding
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:05.345 Sun 25 May 2008, 192.168.1.20:5060/udp (486 bytes): SIP/2.0 200 OK, sent
+
+
+15:24:05.345 Sun 25 May 2008, 192.168.1.20:5060/udp (355 bytes): ACK sip:1001@192.168.1.3:5076 SIP/2.0, received
+
+SipProvider-5076: received new SIP message
+SipProvider-5076: DEBUG: transaction-id: 711510974227@192.168.1.3-102-INVITE-192.168.1.20:5060-z9hG4bK58225571
+SipProvider-5076: DEBUG: dialog-id: 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa
+SipProvider-5076: message passed to dialog: 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa
+ExtendedInviteDialog#28: Message received: ACK sip:1001@192.168.1.3:5076 SIP/2.0
+ExtendedInviteDialog#28: inside onReceivedMessage(sip_provider,message)
+ExtendedInviteDialog#28: changed dialog state: D_CALL
+AckTransactionServer#119: changed transaction state: T_Terminated
+
+15:24:05.345 Sun 25 May 2008, 192.168.1.20:5060/udp (662 bytes): INVITE sip:1001@192.168.1.3:5076 SIP/2.0, received
+
+SipProvider-5076: received new SIP message
+SipProvider-5076: DEBUG: transaction-id: 711510974227@192.168.1.3-103-INVITE-192.168.1.20:5060-z9hG4bK5afea2f3
+SipProvider-5076: DEBUG: dialog-id: 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa
+SipProvider-5076: message passed to dialog: 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa
+ExtendedInviteDialog#28: Message received: INVITE sip:1001@192.168.1.3:5076 SIP/2.0
+ExtendedInviteDialog#28: inside onReceivedMessage(sip_provider,message)
+ExtendedInviteDialog#28: changed dialog state: D_ReINVITED
+TransactionServer#120: id: 711510974227@192.168.1.3-103-INVITE-192.168.1.20:5060-z9hG4bK5afea2f3
+TransactionServer#120: created
+TransactionServer#120: changed transaction state: T_Trying
+SipProvider-5076: adding SipProviderListener: 711510974227@192.168.1.3-103-INVITE-192.168.1.20:5060-z9hG4bK5afea2f3
+SipProvider-5076: 5 listeners: 711510974227@192.168.1.3-103-INVITE-192.168.1.20:5060-z9hG4bK5afea2f3, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537, 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa, 
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:05.355 Sun 25 May 2008, 192.168.1.20:5060/udp (291 bytes): SIP/2.0 100 Trying, sent
+
+TransactionServer#120: changed transaction state: T_Proceeding
+ExtendedInviteDialog#28: inside accept(sdp)
+ExtendedInviteDialog#28: inside respond(200,OK)
+ExtendedInviteDialog#28: inside respond(resp)
+ExtendedInviteDialog#28: inside respond(resp)
+ExtendedInviteDialog#28: changed dialog state: D_ReACCEPTED
+SipProvider-5076: removing SipProviderListener: 711510974227@192.168.1.3-103-INVITE-192.168.1.20:5060-z9hG4bK5afea2f3
+SipProvider-5076: 4 listeners: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537, 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa, 
+TransactionServer#120: changed transaction state: T_Terminated
+AckTransactionServer#121: id: ACK
+AckTransactionServer#121: created
+AckTransactionServer#121: start
+AckTransactionServer#121: changed transaction state: T_Proceeding
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:05.395 Sun 25 May 2008, 192.168.1.20:5060/udp (486 bytes): SIP/2.0 200 OK, sent
+
+
+15:24:05.395 Sun 25 May 2008, 192.168.1.20:5060/udp (355 bytes): ACK sip:1001@192.168.1.3:5076 SIP/2.0, received
+
+SipProvider-5076: received new SIP message
+SipProvider-5076: DEBUG: transaction-id: 711510974227@192.168.1.3-103-INVITE-192.168.1.20:5060-z9hG4bK645675bf
+SipProvider-5076: DEBUG: dialog-id: 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa
+SipProvider-5076: message passed to dialog: 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa
+ExtendedInviteDialog#28: Message received: ACK sip:1001@192.168.1.3:5076 SIP/2.0
+ExtendedInviteDialog#28: inside onReceivedMessage(sip_provider,message)
+ExtendedInviteDialog#28: changed dialog state: D_CALL
+AckTransactionServer#121: changed transaction state: T_Terminated
+TransactionClient#115: Retransmission timeout expired
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:06.767 Sun 25 May 2008, 192.168.1.20:5060/udp (352 bytes): ACK sip:1000@192.168.1.20 SIP/2.0, sent
+
+
+15:24:07.939 Sun 25 May 2008, 192.168.1.20:5060/udp (665 bytes): INVITE sip:1001@192.168.1.3:5076 SIP/2.0, received
+
+SipProvider-5076: received new SIP message
+SipProvider-5076: DEBUG: transaction-id: 711510974227@192.168.1.3-104-INVITE-192.168.1.20:5060-z9hG4bK2a716e38
+SipProvider-5076: DEBUG: dialog-id: 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa
+SipProvider-5076: message passed to dialog: 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa
+ExtendedInviteDialog#28: Message received: INVITE sip:1001@192.168.1.3:5076 SIP/2.0
+ExtendedInviteDialog#28: inside onReceivedMessage(sip_provider,message)
+ExtendedInviteDialog#28: changed dialog state: D_ReINVITED
+TransactionServer#122: id: 711510974227@192.168.1.3-104-INVITE-192.168.1.20:5060-z9hG4bK2a716e38
+TransactionServer#122: created
+TransactionServer#122: changed transaction state: T_Trying
+SipProvider-5076: adding SipProviderListener: 711510974227@192.168.1.3-104-INVITE-192.168.1.20:5060-z9hG4bK2a716e38
+SipProvider-5076: 5 listeners: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537, 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-104-INVITE-192.168.1.20:5060-z9hG4bK2a716e38, 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa, 
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:07.949 Sun 25 May 2008, 192.168.1.20:5060/udp (291 bytes): SIP/2.0 100 Trying, sent
+
+TransactionServer#122: changed transaction state: T_Proceeding
+ExtendedInviteDialog#28: inside accept(sdp)
+ExtendedInviteDialog#28: inside respond(200,OK)
+ExtendedInviteDialog#28: inside respond(resp)
+ExtendedInviteDialog#28: inside respond(resp)
+ExtendedInviteDialog#28: changed dialog state: D_ReACCEPTED
+SipProvider-5076: removing SipProviderListener: 711510974227@192.168.1.3-104-INVITE-192.168.1.20:5060-z9hG4bK2a716e38
+SipProvider-5076: 4 listeners: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537, 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa, 
+TransactionServer#122: changed transaction state: T_Terminated
+AckTransactionServer#123: id: ACK
+AckTransactionServer#123: created
+AckTransactionServer#123: start
+AckTransactionServer#123: changed transaction state: T_Proceeding
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:07.949 Sun 25 May 2008, 192.168.1.20:5060/udp (487 bytes): SIP/2.0 200 OK, sent
+
+
+15:24:07.959 Sun 25 May 2008, 192.168.1.20:5060/udp (321 bytes): BYE sip:1001@192.168.1.3:5076 SIP/2.0, received
+
+SipProvider-5076: received new SIP message
+SipProvider-5076: DEBUG: transaction-id: 711510974227@192.168.1.3-105-BYE-192.168.1.20:5060-z9hG4bK1b87f4f9
+SipProvider-5076: DEBUG: dialog-id: 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa
+SipProvider-5076: message passed to dialog: 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa
+ExtendedInviteDialog#28: Message received: BYE sip:1001@192.168.1.3:5076 SIP/2.0
+ExtendedInviteDialog#28: inside onReceivedMessage(sip_provider,message)
+ExtendedInviteDialog#28: changed dialog state: D_BYED
+TransactionServer#124: id: 711510974227@192.168.1.3-105-BYE-192.168.1.20:5060-z9hG4bK1b87f4f9
+TransactionServer#124: created
+TransactionServer#124: start
+TransactionServer#124: changed transaction state: T_Trying
+SipProvider-5076: adding SipProviderListener: 711510974227@192.168.1.3-105-BYE-192.168.1.20:5060-z9hG4bK1b87f4f9
+SipProvider-5076: 5 listeners: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537, 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-105-BYE-192.168.1.20:5060-z9hG4bK1b87f4f9, 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa, 
+ExtendedInviteDialog#28: inside respond(resp)
+ExtendedInviteDialog#28: inside respond(resp)
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:07.959 Sun 25 May 2008, 192.168.1.20:5060/udp (284 bytes): SIP/2.0 200 OK, sent
+
+TransactionServer#124: changed transaction state: T_Completed
+ExtendedInviteDialog#29: changed dialog state: D_INIT
+ExtendedInviteDialog#29: changed dialog state: D_WAITING
+TransactionServer#125: id: INVITE
+TransactionServer#125: created
+TransactionServer#125: start
+TransactionServer#125: changed transaction state: T_Waiting
+SipProvider-5076: adding SipProviderListener: INVITE
+SipProvider-5076: 6 listeners: INVITE, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537, 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-105-BYE-192.168.1.20:5060-z9hG4bK1b87f4f9, 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa, 
+ExtendedInviteDialog#28: changed dialog state: D_CLOSE
+SipProvider-5076: removing SipProviderListener: 711510974227@192.168.1.3-z9hG4bK53907456-as4f19d5fa
+SipProvider-5076: 5 listeners: INVITE, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537, 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-105-BYE-192.168.1.20:5060-z9hG4bK1b87f4f9, 
+AckTransactionServer#123: Retransmission timeout expired
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:08.470 Sun 25 May 2008, 192.168.1.20:5060/udp (487 bytes): SIP/2.0 200 OK, sent
+
+AckTransactionServer#123: Retransmission timeout expired
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:09.471 Sun 25 May 2008, 192.168.1.20:5060/udp (487 bytes): SIP/2.0 200 OK, sent
+
+TransactionClient#116: Clearing timeout expired
+SipProvider-5076: removing SipProviderListener: 711510974227@192.168.1.3-2-INVITE-192.168.1.3:5076-z9hG4bK31789
+SipProvider-5076: 4 listeners: INVITE, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-105-BYE-192.168.1.20:5060-z9hG4bK1b87f4f9, 
+TransactionClient#116: changed transaction state: T_Terminated
+TransactionClient#115: Retransmission timeout expired
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:10.773 Sun 25 May 2008, 192.168.1.20:5060/udp (352 bytes): ACK sip:1000@192.168.1.20 SIP/2.0, sent
+
+AckTransactionServer#123: Retransmission timeout expired
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:11.474 Sun 25 May 2008, 192.168.1.20:5060/udp (487 bytes): SIP/2.0 200 OK, sent
+
+TransactionClient#115: Retransmission timeout expired
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:14.779 Sun 25 May 2008, 192.168.1.20:5060/udp (352 bytes): ACK sip:1000@192.168.1.20 SIP/2.0, sent
+
+AckTransactionServer#123: Retransmission timeout expired
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:15.480 Sun 25 May 2008, 192.168.1.20:5060/udp (487 bytes): SIP/2.0 200 OK, sent
+
+TransactionClient#115: Retransmission timeout expired
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:18.785 Sun 25 May 2008, 192.168.1.20:5060/udp (352 bytes): ACK sip:1000@192.168.1.20 SIP/2.0, sent
+
+AckTransactionServer#123: Retransmission timeout expired
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+
+15:24:19.486 Sun 25 May 2008, 192.168.1.20:5060/udp (487 bytes): SIP/2.0 200 OK, sent
+
+ExtendedInviteDialog#29: inside refuse()
+ExtendedInviteDialog#29: inside refuse(403,Forbidden)
+ExtendedInviteDialog#29: inside respond(403,Forbidden)
+ExtendedInviteDialog#29: WARNING: Dialog isn't in "invited" state: cannot respond (403/D_WAITING/null)
+ExtendedInviteDialog#29: inside cancel()
+SipProvider-5076: removing SipProviderListener: INVITE
+SipProvider-5076: 3 listeners: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537, 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789, 711510974227@192.168.1.3-105-BYE-192.168.1.20:5060-z9hG4bK1b87f4f9, 
+TransactionServer#125: changed transaction state: T_Terminated
+ExtendedInviteDialog#29: inside bye()
+SipProvider-5076: halt: SipProvider is going down
+TransactionClient#115: Retransmission timeout expired
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+Exception: java.lang.NullPointerException
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:682)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:663)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:814)
+	at org.zoolu.sip.transaction.TransactionClient.onTimeout(TransactionClient.java:127)
+	at org.zoolu.tools.Timer.onInnerTimeout(Timer.java:126)
+	at org.zoolu.tools.InnerTimer.run(InnerTimer.java:43)
+
+AckTransactionServer#123: Retransmission timeout expired
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+Exception: java.lang.NullPointerException
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:682)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:663)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:814)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:843)
+	at org.zoolu.sip.transaction.AckTransactionServer.onTimeout(AckTransactionServer.java:110)
+	at org.zoolu.tools.Timer.onInnerTimeout(Timer.java:126)
+	at org.zoolu.tools.InnerTimer.run(InnerTimer.java:43)
+
+SipProvider-5076: transport udp:null:5076 terminated
+TransactionClient#115: Retransmission timeout expired
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+Exception: java.lang.NullPointerException
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:682)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:663)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:814)
+	at org.zoolu.sip.transaction.TransactionClient.onTimeout(TransactionClient.java:127)
+	at org.zoolu.tools.Timer.onInnerTimeout(Timer.java:126)
+	at org.zoolu.tools.InnerTimer.run(InnerTimer.java:43)
+
+AckTransactionServer#123: Retransmission timeout expired
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+Exception: java.lang.NullPointerException
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:682)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:663)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:814)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:843)
+	at org.zoolu.sip.transaction.AckTransactionServer.onTimeout(AckTransactionServer.java:110)
+	at org.zoolu.tools.Timer.onInnerTimeout(Timer.java:126)
+	at org.zoolu.tools.InnerTimer.run(InnerTimer.java:43)
+
+TransactionClient#115: Retransmission timeout expired
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+Exception: java.lang.NullPointerException
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:682)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:663)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:814)
+	at org.zoolu.sip.transaction.TransactionClient.onTimeout(TransactionClient.java:127)
+	at org.zoolu.tools.Timer.onInnerTimeout(Timer.java:126)
+	at org.zoolu.tools.InnerTimer.run(InnerTimer.java:43)
+
+AckTransactionServer#123: Retransmission timeout expired
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+Exception: java.lang.NullPointerException
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:682)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:663)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:814)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:843)
+	at org.zoolu.sip.transaction.AckTransactionServer.onTimeout(AckTransactionServer.java:110)
+	at org.zoolu.tools.Timer.onInnerTimeout(Timer.java:126)
+	at org.zoolu.tools.InnerTimer.run(InnerTimer.java:43)
+
+TransactionClient#115: Retransmission timeout expired
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+Exception: java.lang.NullPointerException
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:682)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:663)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:814)
+	at org.zoolu.sip.transaction.TransactionClient.onTimeout(TransactionClient.java:127)
+	at org.zoolu.tools.Timer.onInnerTimeout(Timer.java:126)
+	at org.zoolu.tools.InnerTimer.run(InnerTimer.java:43)
+
+TransactionClient#115: Transaction timeout expired
+SipProvider-5076: removing SipProviderListener: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537
+SipProvider-5076: WARNING: trying to remove a missed SipProviderListener.
+SipProvider-5076: 0 listeners: 
+TransactionClient#115: changed transaction state: T_Terminated
+ExtendedInviteDialog#28: inside onTransTimeout(711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK59537,msg)
+TransactionClient#114: End timeout expired
+SipProvider-5076: removing SipProviderListener: 711510974227@192.168.1.3-1-INVITE-192.168.1.3:5076-z9hG4bK31789
+SipProvider-5076: WARNING: trying to remove a missed SipProviderListener.
+SipProvider-5076: 0 listeners: 
+TransactionClient#114: changed transaction state: T_Terminated
+AckTransactionServer#123: Retransmission timeout expired
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+Exception: java.lang.NullPointerException
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:682)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:663)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:814)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:843)
+	at org.zoolu.sip.transaction.AckTransactionServer.onTimeout(AckTransactionServer.java:110)
+	at org.zoolu.tools.Timer.onInnerTimeout(Timer.java:126)
+	at org.zoolu.tools.InnerTimer.run(InnerTimer.java:43)
+
+AckTransactionServer#123: Retransmission timeout expired
+SipProvider-5076: Sending message through conn null
+SipProvider-5076: no active connection found matching null
+SipProvider-5076: using transport udp
+SipProvider-5076: Resolving host address '192.168.1.20'
+SipProvider-5076: Sending message to udp:192.168.1.20:5060
+Exception: java.lang.NullPointerException
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:682)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:663)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:814)
+	at org.zoolu.sip.provider.SipProvider.sendMessage(SipProvider.java:843)
+	at org.zoolu.sip.transaction.AckTransactionServer.onTimeout(AckTransactionServer.java:110)
+	at org.zoolu.tools.Timer.onInnerTimeout(Timer.java:126)
+	at org.zoolu.tools.InnerTimer.run(InnerTimer.java:43)
+
+AckTransactionServer#123: Transaction timeout expired
+AckTransactionServer#123: changed transaction state: T_Terminated
+ExtendedInviteDialog#28: inside onAckSrvTimeout(ts)
+ExtendedInviteDialog#28: WARNING: dialog state mismatching
+TransactionServer#124: Clearing timeout expired
+SipProvider-5076: removing SipProviderListener: 711510974227@192.168.1.3-105-BYE-192.168.1.20:5060-z9hG4bK1b87f4f9
+SipProvider-5076: WARNING: trying to remove a missed SipProviderListener.
+SipProvider-5076: 0 listeners: 
+TransactionServer#124: changed transaction state: T_Terminated

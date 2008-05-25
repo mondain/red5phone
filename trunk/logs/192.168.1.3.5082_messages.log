@@ -1,0 +1,176 @@
+15:36:22.165 Sun 25 May 2008, 85.234.143.115:5060/udp (361 bytes): sent
+REGISTER sip:dev.4ng.net SIP/2.0
+Via: SIP/2.0/UDP 192.168.1.3:5082;rport;branch=z9hG4bK78291
+Max-Forwards: 70
+To: "3003" <sip:3003@dev.4ng.net>
+From: "3003" <sip:3003@dev.4ng.net>;tag=z9hG4bK09478924
+Call-ID: 005142937835@192.168.1.3
+CSeq: 1 REGISTER
+Contact: <sip:3003@192.168.1.3:5082>
+Expires: 3600
+User-Agent: mjsip stack 1.6
+Content-Length: 0
+
+-----End-of-message-----
+
+15:36:22.205 Sun 25 May 2008, 85.234.143.115:5060/udp (354 bytes): received
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP 192.168.1.3:5082;branch=z9hG4bK78291
+From: "3003" <sip:3003@dev.4ng.net>;tag=z9hG4bK09478924
+To: "3003" <sip:3003@dev.4ng.net>
+Call-ID: 005142937835@192.168.1.3
+CSeq: 1 REGISTER
+User-Agent: Asterisk PBX
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER
+Contact: <sip:3003@192.168.1.3:5082>
+Content-Length: 0
+
+-----End-of-message-----
+
+15:36:22.205 Sun 25 May 2008, 85.234.143.115:5060/udp (430 bytes): received
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP 192.168.1.3:5082;branch=z9hG4bK78291
+From: "3003" <sip:3003@dev.4ng.net>;tag=z9hG4bK09478924
+To: "3003" <sip:3003@dev.4ng.net>;tag=as567ce6a8
+Call-ID: 005142937835@192.168.1.3
+CSeq: 1 REGISTER
+User-Agent: Asterisk PBX
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER
+Expires: 3600
+Contact: <sip:3003@192.168.1.3:5082>;expires=3600
+Date: Sun, 25 May 2008 14:36:34 GMT
+Content-Length: 0
+
+-----End-of-message-----
+
+15:36:22.225 Sun 25 May 2008, 85.234.143.115:5060/udp (481 bytes): received
+NOTIFY sip:3003@192.168.1.3:5082 SIP/2.0
+Via: SIP/2.0/UDP 85.234.143.115:5060;branch=z9hG4bK7468e013
+From: "asterisk" <sip:asterisk@85.234.143.115>;tag=as54d6961a
+To: <sip:3003@86.129.87.141:5082>
+Contact: <sip:asterisk@85.234.143.115>
+Call-ID: 7abc588b4853091b6db967232912e9fa@85.234.143.115
+CSeq: 102 NOTIFY
+User-Agent: Asterisk PBX
+Event: message-summary
+Content-Type: application/simple-message-summary
+Content-Length: 42
+
+Messages-Waiting: no
+Voice-Message: 0/0
+-----End-of-message-----
+
+15:36:23.216 Sun 25 May 2008, 85.234.143.115:5060/udp (481 bytes): received
+NOTIFY sip:3003@192.168.1.3:5082 SIP/2.0
+Via: SIP/2.0/UDP 85.234.143.115:5060;branch=z9hG4bK7468e013
+From: "asterisk" <sip:asterisk@85.234.143.115>;tag=as54d6961a
+To: <sip:3003@86.129.87.141:5082>
+Contact: <sip:asterisk@85.234.143.115>
+Call-ID: 7abc588b4853091b6db967232912e9fa@85.234.143.115
+CSeq: 102 NOTIFY
+User-Agent: Asterisk PBX
+Event: message-summary
+Content-Type: application/simple-message-summary
+Content-Length: 42
+
+Messages-Waiting: no
+Voice-Message: 0/0
+-----End-of-message-----
+
+15:36:24.218 Sun 25 May 2008, 85.234.143.115:5060/udp (481 bytes): received
+NOTIFY sip:3003@192.168.1.3:5082 SIP/2.0
+Via: SIP/2.0/UDP 85.234.143.115:5060;branch=z9hG4bK7468e013
+From: "asterisk" <sip:asterisk@85.234.143.115>;tag=as54d6961a
+To: <sip:3003@86.129.87.141:5082>
+Contact: <sip:asterisk@85.234.143.115>
+Call-ID: 7abc588b4853091b6db967232912e9fa@85.234.143.115
+CSeq: 102 NOTIFY
+User-Agent: Asterisk PBX
+Event: message-summary
+Content-Type: application/simple-message-summary
+Content-Length: 42
+
+Messages-Waiting: no
+Voice-Message: 0/0
+-----End-of-message-----
+
+15:36:25.219 Sun 25 May 2008, 85.234.143.115:5060/udp (481 bytes): received
+NOTIFY sip:3003@192.168.1.3:5082 SIP/2.0
+Via: SIP/2.0/UDP 85.234.143.115:5060;branch=z9hG4bK7468e013
+From: "asterisk" <sip:asterisk@85.234.143.115>;tag=as54d6961a
+To: <sip:3003@86.129.87.141:5082>
+Contact: <sip:asterisk@85.234.143.115>
+Call-ID: 7abc588b4853091b6db967232912e9fa@85.234.143.115
+CSeq: 102 NOTIFY
+User-Agent: Asterisk PBX
+Event: message-summary
+Content-Type: application/simple-message-summary
+Content-Length: 42
+
+Messages-Waiting: no
+Voice-Message: 0/0
+-----End-of-message-----
+
+15:36:26.221 Sun 25 May 2008, 85.234.143.115:5060/udp (481 bytes): received
+NOTIFY sip:3003@192.168.1.3:5082 SIP/2.0
+Via: SIP/2.0/UDP 85.234.143.115:5060;branch=z9hG4bK7468e013
+From: "asterisk" <sip:asterisk@85.234.143.115>;tag=as54d6961a
+To: <sip:3003@86.129.87.141:5082>
+Contact: <sip:asterisk@85.234.143.115>
+Call-ID: 7abc588b4853091b6db967232912e9fa@85.234.143.115
+CSeq: 102 NOTIFY
+User-Agent: Asterisk PBX
+Event: message-summary
+Content-Type: application/simple-message-summary
+Content-Length: 42
+
+Messages-Waiting: no
+Voice-Message: 0/0
+-----End-of-message-----
+
+15:36:27.212 Sun 25 May 2008, 85.234.143.115:5060/udp (481 bytes): received
+NOTIFY sip:3003@192.168.1.3:5082 SIP/2.0
+Via: SIP/2.0/UDP 85.234.143.115:5060;branch=z9hG4bK7468e013
+From: "asterisk" <sip:asterisk@85.234.143.115>;tag=as54d6961a
+To: <sip:3003@86.129.87.141:5082>
+Contact: <sip:asterisk@85.234.143.115>
+Call-ID: 7abc588b4853091b6db967232912e9fa@85.234.143.115
+CSeq: 102 NOTIFY
+User-Agent: Asterisk PBX
+Event: message-summary
+Content-Type: application/simple-message-summary
+Content-Length: 42
+
+Messages-Waiting: no
+Voice-Message: 0/0
+-----End-of-message-----
+
+15:36:30.106 Sun 25 May 2008, 85.234.143.115:5060/udp (358 bytes): sent
+REGISTER sip:dev.4ng.net SIP/2.0
+Via: SIP/2.0/UDP 192.168.1.3:5082;rport;branch=z9hG4bK52136
+Max-Forwards: 70
+To: "3003" <sip:3003@dev.4ng.net>
+From: "3003" <sip:3003@dev.4ng.net>;tag=z9hG4bK85154199
+Call-ID: 992158225187@192.168.1.3
+CSeq: 1 REGISTER
+Contact: <sip:3003@192.168.1.3:5082>
+Expires: 0
+User-Agent: mjsip stack 1.6
+Content-Length: 0
+
+-----End-of-message-----
+
+15:36:30.156 Sun 25 May 2008, 85.234.143.115:5060/udp (354 bytes): received
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP 192.168.1.3:5082;branch=z9hG4bK52136
+From: "3003" <sip:3003@dev.4ng.net>;tag=z9hG4bK85154199
+To: "3003" <sip:3003@dev.4ng.net>
+Call-ID: 992158225187@192.168.1.3
+CSeq: 1 REGISTER
+User-Agent: Asterisk PBX
+Allow: INVITE, ACK, CANCEL, OPTIONS, BYE, REFER
+Contact: <sip:3003@192.168.1.3:5082>
+Content-Length: 0
+
+-----End-of-message-----
+
