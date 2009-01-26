@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.io.IOException;
 import java.net.*;
 
 import org.slf4j.Logger;
@@ -40,21 +41,36 @@ public class Application extends ApplicationAdapter implements
 	private int startRTPPort = 3000;
 	private int stopRTPPort = 3029;
 	private int rtpPort;
+	
+	public static String webAppPath = "";
 
 	private Map<String, String> userNames = new HashMap<String, String>();
 
 	@Override
 	public boolean appStart(IScope scope) {
-		loginfo("Red5SIP starting in scope " + scope.getName() + " " + System.getProperty("user.dir"));
-		sipManager = SIPManager.getInstance();
-
-		//startSIPPort = Integer.parseInt(PacketHandler.getInstance().getStartSIPPort());
-		//stopSIPPort = Integer.parseInt(PacketHandler.getInstance().getEndSIPPort());
-		//startRTPPort = Integer.parseInt(PacketHandler.getInstance().getStartRTPPort());
-		//stopRTPPort = Integer.parseInt(PacketHandler.getInstance().getEndRTPPort());
-
-		sipPort = startSIPPort;
-		rtpPort = startRTPPort;
+		try {
+		
+			webAppPath = scope.getResource("/").getFile().getAbsolutePath();
+		
+			loginfo("webAppPath : "+webAppPath);
+			
+			loginfo("Red5SIP starting in scope " + scope.getName() + " " + System.getProperty("user.dir"));
+			sipManager = SIPManager.getInstance();
+	
+			//startSIPPort = Integer.parseInt(PacketHandler.getInstance().getStartSIPPort());
+			//stopSIPPort = Integer.parseInt(PacketHandler.getInstance().getEndSIPPort());
+			//startRTPPort = Integer.parseInt(PacketHandler.getInstance().getStartRTPPort());
+			//stopRTPPort = Integer.parseInt(PacketHandler.getInstance().getEndRTPPort());
+	
+			sipPort = startSIPPort;
+			rtpPort = startRTPPort;
+			
+		
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		return true;
 	}
 

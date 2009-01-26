@@ -99,7 +99,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 //			String appPath = System.getProperty("user.dir");
 //			appPath = appPath.substring(0, (appPath.length() - 8));   // removing /wrapper sub folder from path
 
-			configFile = "/Applications/Red5/webapps/sip/sip.cfg";
+			configFile = Application.webAppPath + File.separatorChar + "sip.cfg";
 
 			this.sessionID = sessionID;
 			this.service = service;

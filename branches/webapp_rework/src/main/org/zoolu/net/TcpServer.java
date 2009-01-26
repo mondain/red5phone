@@ -145,7 +145,16 @@ public class TcpServer extends Thread
 
    /** Gets a String representation of the Object */
    public String toString()
-   {  return "tcp:"+server_socket.getInetAddress()+":"+server_socket.getLocalPort();
+   {  
+	   try {
+		   
+		   return "tcp:"+server_socket.getInetAddress()+":"+server_socket.getLocalPort();
+		   
+	   } catch (Exception err) {
+		   err.printStackTrace();
+		   System.out.println(err.getMessage());
+	   }
+	   return null;
    }   
 
 }
