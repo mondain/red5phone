@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+    
+<class name="inputTextFieldPair">
+    <attribute name="fieldLabel" value="" type="string" />
+    <attribute name="fieldText" value="" type="string" setter="this.setText(fieldText)" />
+    <attribute name="password" value="false" type="boolean" />
+    <method name="getText">
+        return this._text.getText();
+    </method>
+    <method name="setText" args="t">
+        this.fieldText = t;
+        if (this.isinited) {
+            this._text.setAttribute("text",t);
+        }
+    </method>
+    <text x="4" fontsize="11" resize="true" text="$once{ parent.fieldLabel }" />
+    <edittext name="_text" fontsize="11" x="120" password="$once{ parent.password }" 
+              width="160" text="$once{ parent.fieldText }" />
+</class>
+
+<class name="enterSipGate" extends="view" layout="axis:y;spacing:2;inset:4" width="300">
+    
+    <method name="doLogin">
+        //First Connect, then Login
+        canvas._hibRtmpConnection.setAttribute("src",this._fieldValues.red5url.getText());
+        canvas._hibRtmpConnection.returnObjectConnect = this;
+        canvas._hibRtmpConnection.connect();
+    </method>
+    
+    <!-- auto-Triggered from hibRtmpConnection if connect == success -->
+    <handler name="onconnect">
+        this.message.setAttribute("text","Conected");
+        this.open.username = this._fieldValues.username.getText();
+        this.open.password = this._fieldValues.password.getText();
+        this.open.realm = this._fieldValues.realm.getText();
+        this.open.proxy = this._fieldValues.proxy.getText();
+        this.open.callRPC();
+    </handler>
+    
+    <handler name="onerror" args="tString">
+        this.message.setAttribute("text",tString);
+    </handler>
+    
+    <!--
+        public void open(String username, String password, String realm, String proxy)
+        
+        open (null, username, password, sipRealm, sipServer);
+     -->
+    <netremotecall name="open" funcname="open" remotecontext="$once{ canvas._hibRtmpConnection }" >
+        <attribute name="username" value="" type="string" />
+        <attribute name="password" value="" type="string" />
+        <attribute name="realm" value="" type="string" />
+        <attribute name="proxy" value="" type="string" />
+        <netparam><method name="getValue"> return parent.username; </method></netparam>  
+        <netparam><method name="getValue"> return parent.password; </method></netparam>  
+        <netparam><method name="getValue"> return parent.realm; </method></netparam>  
+        <netparam><method name="getValue"> return parent.proxy; </method></netparam>  
+        <handler name="ondata" args="value">
+            if ($debug) Debug.write("open: ",value);
+        </handler>
+    </netremotecall>
+    
+    <view name="_fieldValues" layout="axis:y;spacing:2">
+        
+	    <inputTextFieldPair name="username" fieldLabel="Username" fieldText="849229368" />
+	    <inputTextFieldPair name="password" fieldLabel="Password" fieldText="8YfWa3" password="true" />
+	    <inputTextFieldPair name="mailbox" fieldLabel="Mailbox" />
+	    <inputTextFieldPair name="realm" fieldLabel="SIP Realm" fieldText="voiptalk.org" />
+	    <inputTextFieldPair name="proxy" fieldLabel="SIP Server" fieldText="voiptalk.org" />
+	    <inputTextFieldPair name="red5url" fieldLabel="Red5 URL" fieldText="rtmp://localhost:1935/sip"/>
+    
+    </view>
+    
+    <text name="message" x="4" text="Enter your SIP Provider Data" 
+          fontsize="11" resize="true" fgcolor="0xFF3300" />
+    
+    <button x="180" width="100" text="Login" onclick="parent.doLogin()" />
+    
+</class>
+
+</library>

@@ -147,7 +147,11 @@ public class TcpServer extends Thread
    public String toString()
    {  
 	   try {
-		   
+		   System.out.println("server_socket: "+server_socket);
+		   if (server_socket == null) {
+			   System.out.println("server_socket IS NULL !! Connection Error?!?!");
+			   return null;
+		   }
 		   return "tcp:"+server_socket.getInetAddress()+":"+server_socket.getLocalPort();
 		   
 	   } catch (Exception err) {
