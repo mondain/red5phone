@@ -1,0 +1,114 @@
+<project name="red5phone" basedir="./" default="dist">
+
+	<!-- Sources and output dirs -->
+	<property name="main.src.dir" value="${basedir}/src/main"/>
+	<property name="test.src.dir" value="${basedir}/src/test"/>
+	<property name="main.out.dir" value="${basedir}/bin"/>
+	
+	<property name="classes.dir" value="${basedir}/bin"/>
+	
+	<property environment="env"/>
+	<property name="java.home" value="${env.JDK_HOME}"/>
+	
+	<property name="dist.dir" value="dist"/>
+	
+	<!-- Distribution properties -->
+	<property name="project.distname" value="sip"/>
+
+	<!-- libraries -->
+	<property name="project.lib" value="./lib"/>
+
+	<!-- Red5 Libs -->
+	<property name="red5.lib" value="${project.lib}/red5_0_7_lib" />
+	<!-- Modified Red5 Jar -->
+	<property name="red5_jar.lib" value="${project.lib}/red5_modified" />
+	<!-- Webapp Library - These Jars get copied in WEB-INF/lib -->
+	<property name="webapp.lib" value="${project.lib}/webapp_lib" />
+	
+	<!-- compile classpath -->
+	<path id="compile.classpath">
+		<fileset dir="${red5.lib}" includes="*.jar"/>
+		<fileset dir="${red5_jar.lib}" includes="*.jar"/>
+		<fileset dir="${webapp.lib}" includes="*.jar"/>
+	</path>
+
+	<!-- build webapp -->
+
+	<target name="dist" description="binary distribution of Red5Phone"
+		depends="clean, jar">
+		
+	</target>
+
+	<!-- Check timestamp on files -->
+	<target name="prepare">
+		<mkdir dir="${main.out.dir}"/>
+		<mkdir dir="${dist.dir}"/>
+		<copy todir="${dist.dir}" filtering="true">
+			<fileset dir="webapp">
+				<exclude name="**/*.fla"/>
+			</fileset>
+		</copy>	
+		<copy todir="${dist.dir}/${project.distname}/WEB-INF/lib">
+			<fileset dir="${webapp.lib}">
+			</fileset>	
+		</copy>
+		<tstamp/>
+	</target>
+
+	<!-- Compile JAR -->
+	<target name="jar" description="Make Archive" depends="compile">
+		<tstamp prefix="build">
+			<format property="TODAY" pattern="d-MMMM-yyyy" locale="en"/>
+		</tstamp>
+		<manifestclasspath property="jar.classpath" jarfile="red5phone.jar">
+			<classpath refid="compile.classpath"/>
+		</manifestclasspath>
+		<jar destfile="${dist.dir}/${project.distname}/WEB-INF/lib/red5phone.jar">
+			<fileset dir="${classes.dir}">
+				<include name="**"/>
+			</fileset>
+			<manifest>
+				<attribute name="Built-By" value="Red5Phone - http://red5phone.googlecode.com"/>
+				<attribute name="Built-On" value="${build.TODAY}"/>
+				<attribute name="Class-Path" value="conf/ ${jar.classpath}"/>
+			</manifest>
+		</jar>	
+	</target>
+
+
+	<!-- Normal build of application
+	compiler="org.eclipse.jdt.core.JDTCompilerAdapter" -->
+	<target name="compile" depends="prepare">
+		<echo message="${main.out.dir}"></echo>
+		<echo message="javac version: ${java.version}"/>
+		<javac debug="on" debuglevel="lines,vars,source" srcdir="${main.src.dir}" destdir="${main.out.dir}" >
+			<classpath refid="compile.classpath"/>
+		</javac>
+		<javac debug="on" debuglevel="lines,vars,source" srcdir="${test.src.dir}" destdir="${main.out.dir}" >
+			<classpath refid="compile.classpath"/>
+		</javac>	
+	</target>
+
+	<!-- Build of junit tests
+	compiler="org.eclipse.jdt.core.JDTCompilerAdapter"
+	 -->
+	<target name="compileTest" depends="compile">
+		<javac debug="on" srcdir="${test.src.dir}" destdir="${main.out.dir}" >
+			<classpath refid="compile.classpath"/>
+		</javac>
+	</target>
+
+	<!-- Remove classes directory for clean build -->
+	<target name="clean" 
+		description="Prepare for clean build">
+		<delete dir="${dist.dir}"/>
+		<delete dir="${main.out.dir}"/>
+	</target>
+
+
+	<!-- Build entire project -->
+	<target name="build project" depends="clean, prepare, compile"/>
+
+	
+
+</project>
