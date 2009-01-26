@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+
+<class name="hibRtmpConnection" extends="rtmpConnection" debug="false" src="" >
+    
+    <attribute name="returnObjectConnect" value="null" />
+         
+     <handler name="onconnect">
+		if($debug) Debug.write("hibRtmpConnection/onconnect");
+        this.returnObjectConnect.onconnect.sendEvent();
+    </handler>
+    <handler name="onerror" >
+        <![CDATA[
+  	 	    if ($debug) Debug.write("error ",this.status,this.src,this.lastCalled);
+            if (this.returnObjectConnect != null) {
+                this.returnObjectConnect.onerror.sendEvent("ERROR:"+this.status+" SRC: "+this.src+" RPC: "+this.lastCalled);
+            }
+        ]]>
+    </handler>  
+    
+    <netremotecall name="incoming" funcname="incoming" >      
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called by the rtmpconnection
+            if ($debug) Debug.write("hibRtmpConnection/incoming [",value,"]");
+        </handler>  
+    </netremotecall>
+    
+    <netremotecall name="callState" funcname="callState" >      
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called by the rtmpconnection
+            if ($debug) Debug.write("hibRtmpConnection/incoming [",value,"]");
+        </handler>  
+    </netremotecall>
+
+    <netremotecall name="connected" funcname="connected" >      
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called by the rtmpconnection
+            if ($debug) Debug.write("hibRtmpConnection/connected [",value,"]");
+        </handler>  
+    </netremotecall>
+
+    <netremotecall name="registrationSucess" funcname="registrationSucess" >      
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called by the rtmpconnection
+            if ($debug) Debug.write("hibRtmpConnection/registrationSucess [",value,"]");
+            if (value == "200 OK") {
+                parent.returnObjectConnect.destroy();
+                parent.returnObjectConnect = null;
+                canvas.initMainDialer();
+            }
+        </handler>  
+    </netremotecall>
+
+    <netremotecall name="registrationFailure" funcname="registrationFailure" >      
+        <handler name="ondata" args="value">
+            //The onResult-Handler will be called by the rtmpconnection
+            if ($debug) Debug.write("hibRtmpConnection/registrationFailure [",value,"]");
+        </handler>  
+    </netremotecall>
+   
+</class>
+
+</library>
