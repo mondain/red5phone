@@ -76,7 +76,6 @@
 	<classpathentry kind="lib" path="lib/red5_modified/red5.jar"/>
 	<classpathentry kind="lib" path="lib/webapp_lib/logback-classic-0.9.8.jar"/>
 	<classpathentry kind="lib" path="lib/webapp_lib/logback-core-0.9.8.jar"/>
-	<classpathentry kind="lib" path="lib/webapp_lib/sip.jar"/>
 	<classpathentry kind="lib" path="lib/webapp_lib/slf4j-api-1.4.3.jar"/>
 	<classpathentry kind="lib" path="lib/webapp_lib/ua.jar"/>
 	<classpathentry kind="output" path="bin"/>
