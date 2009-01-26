@@ -60,10 +60,10 @@
 		<tstamp prefix="build">
 			<format property="TODAY" pattern="d-MMMM-yyyy" locale="en"/>
 		</tstamp>
-		<manifestclasspath property="jar.classpath" jarfile="red5phone.jar">
+		<manifestclasspath property="jar.classpath" jarfile="sip.jar">
 			<classpath refid="compile.classpath"/>
 		</manifestclasspath>
-		<jar destfile="${dist.dir}/${project.distname}/WEB-INF/lib/red5phone.jar">
+		<jar destfile="${dist.dir}/${project.distname}/WEB-INF/lib/sip.jar">
 			<fileset dir="${classes.dir}">
 				<include name="**"/>
 			</fileset>
