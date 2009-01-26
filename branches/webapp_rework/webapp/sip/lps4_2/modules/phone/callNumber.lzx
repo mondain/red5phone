@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<library>
+
+
+<audio name="0_mp3_sound" src="/assets/dtmf/0.mp3"/>
+<audio name="1_mp3_sound" src="/assets/dtmf/1.mp3"/>
+<audio name="2_mp3_sound" src="/assets/dtmf/2.mp3"/>
+<audio name="3_mp3_sound" src="/assets/dtmf/3.mp3"/>
+<audio name="4_mp3_sound" src="/assets/dtmf/4.mp3"/>
+<audio name="5_mp3_sound" src="/assets/dtmf/5.mp3"/>
+<audio name="6_mp3_sound" src="/assets/dtmf/6.mp3"/>
+<audio name="7_mp3_sound" src="/assets/dtmf/7.mp3"/>
+<audio name="8_mp3_sound" src="/assets/dtmf/8.mp3"/>
+<audio name="9_mp3_sound" src="/assets/dtmf/9.mp3"/>
+
+<audio name="hash_mp3_sound" src="/assets/dtmf/hash.mp3"/>
+
+<audio name="star_mp3_sound" src="/assets/dtmf/star.mp3"/>
+
+<audio name="ringing_mp3_sound" src="/assets/ringing.mp3"/>
+
+<audio name="dialing_mp3_sound" src="/assets/dialing.mp3"/>
+
+<resource name="_startCall" src="assets/phone-48x48.png" />
+
+    
+<class name="dialButton" extends="button" width="36" height="24">
+    
+    <attribute name="audioResourceName" value="" type="string" />
+    
+    <handler name="onclick">
+        lz.Audio.playSound(this.audioResourceName);
+        parent.parent.parent.addNumber(this);
+    </handler>
+    
+</class>
+
+<class name="callNumber" extends="view" layout="axis:y;spacing:10;inset:10" bgcolor="0xCCCCCC" width="130" >
+    
+    <method name="addNumber" args="objRef">
+        this._number._text.setAttribute("text",this._number._text.getText()+objRef.text)
+    </method>
+    
+    <method name="callNumber">
+        
+    </method>
+    
+    <view name="_number" align="center" bgcolor="black" height="80">
+        
+        <text name="_text" multiline="true" x="2" width="116" 
+              fgcolor="0x00CC33" font="Arial"></text>
+        
+    </view>
+   
+    <view align="center" layout="axis:y;spacing:2">
+        
+        <view layout="axis:x;spacing:2">
+            <dialButton name="_dialButton1" audioResourceName="1_mp3_sound" text="1" />
+            <dialButton name="_dialButton2" audioResourceName="2_mp3_sound" text="2" />
+            <dialButton name="_dialButton3" audioResourceName="3_mp3_sound" text="3" />
+        </view>   
+        
+        <view layout="axis:x;spacing:2">
+            <dialButton name="_dialButton4" audioResourceName="4_mp3_sound" text="4" />
+            <dialButton name="_dialButton5" audioResourceName="5_mp3_sound" text="5" />
+            <dialButton name="_dialButton6" audioResourceName="6_mp3_sound" text="6" />
+        </view>   
+        
+        <view layout="axis:x;spacing:2">
+            <dialButton name="_dialButton7" audioResourceName="7_mp3_sound" text="7" />
+            <dialButton name="_dialButton8" audioResourceName="8_mp3_sound" text="8" />
+            <dialButton name="_dialButton9" audioResourceName="9_mp3_sound" text="9" />
+        </view>  
+        
+        <view layout="axis:x;spacing:2">
+            <dialButton name="_dialButton_start" audioResourceName="star_mp3_sound" text="*" />
+            <dialButton name="_dialButton0" audioResourceName="0_mp3_sound" text="0" />
+            <dialButton name="_dialButton_hash" audioResourceName="hash_mp3_sound" text="#" />
+        </view>   
+    
+    </view>
+    
+    <view name="_startCall" align="center" resource="_startCall" >
+        <handler name="onclick">
+            parent.callNumber();
+        </handler>
+    </view>
+    
+</class>
+
+</library>
