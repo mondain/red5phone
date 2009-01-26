@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<canvas debug="true" width="100%" height="100%" >
+    
+    <!-- width="266" height="228" -->
+    <debug fontsize="12" oninit="Debug.showInternalProperties = true" />
+    
+    <include href="base/"/>
+    <include href="modules/"/>
+    
+    <method name="initMainDialer">
+        new lz.callNumber(canvas);
+    </method>
+    
+    <enterSipGate name="_enterSipGate" />
+    
+    <hibRtmpConnection name="_hibRtmpConnection" id="hib" />
+    
+</canvas>
