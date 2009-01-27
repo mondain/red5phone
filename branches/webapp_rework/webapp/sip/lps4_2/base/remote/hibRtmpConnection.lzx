@@ -5,6 +5,8 @@
 <class name="hibRtmpConnection" extends="rtmpConnection" debug="false" src="" >
     
     <attribute name="returnObjectConnect" value="null" />
+    
+    <attribute name="currentCallPad" value="null" />
          
      <handler name="onconnect">
 		if($debug) Debug.write("hibRtmpConnection/onconnect");
@@ -37,6 +39,9 @@
         <handler name="ondata" args="value">
             //The onResult-Handler will be called by the rtmpconnection
             if ($debug) Debug.write("hibRtmpConnection/connected [",value,"]");
+            if (parent.currentCallPad != null) {
+                parent.currentCallPad.setStreams(value[0],value[1]);
+            }
         </handler>  
     </netremotecall>
 
@@ -45,9 +50,11 @@
             //The onResult-Handler will be called by the rtmpconnection
             if ($debug) Debug.write("hibRtmpConnection/registrationSucess [",value,"]");
             if (value == "200 OK") {
-                parent.returnObjectConnect.destroy();
-                parent.returnObjectConnect = null;
-                canvas.initMainDialer();
+                if (parent.returnObjectConnect != null) {
+	                parent.returnObjectConnect.destroy();
+	                parent.returnObjectConnect = null;
+	                canvas.initMainDialer();
+                }
             }
         </handler>  
     </netremotecall>
