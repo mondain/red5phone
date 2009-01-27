@@ -58,13 +58,14 @@
         <netparam><method name="getValue"> return parent.proxy; </method></netparam>  
         <handler name="ondata" args="value">
             if ($debug) Debug.write("open: ",value);
+            canvas.username = this.username;
         </handler>
     </netremotecall>
     
     <view name="_fieldValues" layout="axis:y;spacing:2">
         
-	    <inputTextFieldPair name="username" fieldLabel="Username" fieldText="*****" />
-	    <inputTextFieldPair name="password" fieldLabel="Password" fieldText="*****" password="true" />
+	    <inputTextFieldPair name="username" fieldLabel="Username" fieldText="849229368" />
+	    <inputTextFieldPair name="password" fieldLabel="Password" fieldText="8YfWa3" password="true" />
 	    <inputTextFieldPair name="mailbox" fieldLabel="Mailbox" />
 	    <inputTextFieldPair name="realm" fieldLabel="SIP Realm" fieldText="voiptalk.org" />
 	    <inputTextFieldPair name="proxy" fieldLabel="SIP Server" fieldText="voiptalk.org" />

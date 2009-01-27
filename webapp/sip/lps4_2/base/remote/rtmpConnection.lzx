@@ -15,6 +15,7 @@
     	<attribute name="src" value="" type="string"/>
     	
 		<method name="connect">
+            NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;
             this._nc = new NetConnection();
 
             // local reference to rtmpconnection
@@ -92,7 +93,8 @@
 		            if (this.subnodes[i] instanceof lz.netremotecall){
 		                var t = hib;
 		                this._nc[this.subnodes[i].funcname] = function( args ){
-		                    return hib.remoteCallMethod(arguments.callee,args);
+                            //_root.Debug.write("DEBUG 1 invoked a function remotely: ",arguments.callee,args);
+		                    return hib.remoteCallMethod(arguments.callee,arguments);
 		                }
 		            }
 		        }
@@ -108,10 +110,12 @@
         <![CDATA[
             for (var eg in this._nc){
                 if (this._nc[eg]==callee){
-                    if (this.debug) {
-                        //_root.Debug.write.write("DEBUG invoked a function remotely: ",eg,args);
-                    }                
-                    return this.callFuntion(eg,args);
+                    //_root.Debug.write("DEBUG 2 invoked a function remotely: ",eg,args);
+                    if (args.length == 1) {
+                        return this.callFuntion(eg,args[0]);
+                    } else {
+                        return this.callFuntion(eg,args);
+                    }
                 }
             }
         ]]>

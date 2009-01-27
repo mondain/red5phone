@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <library>
 
-
 <audio name="0_mp3_sound" src="/assets/dtmf/0.mp3"/>
 <audio name="1_mp3_sound" src="/assets/dtmf/1.mp3"/>
 <audio name="2_mp3_sound" src="/assets/dtmf/2.mp3"/>
@@ -29,9 +28,25 @@
     <attribute name="audioResourceName" value="" type="string" />
     
     <handler name="onclick">
+        this.dtmf.digits = this.text;
+        lz.Audio.stopSound();
         lz.Audio.playSound(this.audioResourceName);
+        this.dtmf.callRPC();
         parent.parent.parent.addNumber(this);
     </handler>
+    
+    <!--
+    public void dtmf(String username, String digits) {
+    -->
+    <netremotecall name="dtmf" funcname="dtmf" remotecontext="$once{ canvas._hibRtmpConnection }" >
+        <attribute name="digits" value="" type="string" />
+        <netparam><method name="getValue"> return canvas.username; </method></netparam>  
+        <netparam><method name="getValue"> return parent.digits; </method></netparam>  
+        <handler name="ondata" args="value">
+            if ($debug) Debug.write("dtmf: ",value);
+            lz.Audio.stopSound();
+        </handler>
+    </netremotecall>    
     
 </class>
 
@@ -42,8 +57,37 @@
     </method>
     
     <method name="callNumber">
-        
+        //set Object for Return Values
+        canvas._hibRtmpConnection.currentCallPad = this;
+        this.docall.destination = this._number._text.text;
+        this.docall.callRPC();
     </method>
+    
+    <method name="setStreams" args="speaker,micro">
+        //attach Incoming Audio
+        this._speaker.playAudioStream(micro,-1);
+        
+        //this._micro.playAudioStream(,-1);
+        
+        //attach Outgoing Audio
+        this._micro.broadcast(micro,null,Microphone.get());
+    </method>
+    
+    <baseVideoStream name="_speaker" width="1" height="1" />
+    <baseVideoStream name="_micro" width="1" height="1" />
+    
+    <!--
+    public void call(String username, String destination)
+     -->
+    <netremotecall name="docall" funcname="call" remotecontext="$once{ canvas._hibRtmpConnection }" >
+        <attribute name="destination" value="" type="string" />
+        <netparam><method name="getValue"> return canvas.username; </method></netparam>  
+        <netparam><method name="getValue"> return parent.destination; </method></netparam>  
+        <handler name="ondata" args="value">
+            if ($debug) Debug.write("call: ",value);
+            
+        </handler>
+    </netremotecall> 
     
     <view name="_number" align="center" bgcolor="black" height="80">
         
