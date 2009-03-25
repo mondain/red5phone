@@ -13,347 +13,316 @@ import org.slf4j.LoggerFactory;
 
 import org.apache.mina.common.ByteBuffer;
 
+import org.red5.codecs.SIPCodec;
 import org.red5.codecs.asao.*;
 import local.media.G711;
 
-public class RTPStreamReceiver extends Thread
-{
 
-   protected static Logger log = LoggerFactory.getLogger(RTPStreamReceiver.class);
+public class RTPStreamReceiver extends Thread {
 
-   private Encoder encoder;
-   private EncoderMap encoderMap;
+    protected static Logger log = LoggerFactory.getLogger( RTPStreamReceiver.class );
 
-   /** Whether working in debug mode. */
-   //private static final boolean DEBUG=true;
-   public static boolean DEBUG=true;
+    public static int RTP_HEADER_SIZE = 12;
 
-   /** Size of the read buffer */
-   public static final int BUFFER_SIZE=32768;
+    private static final int NELLYMOSER_DECODED_PACKET_SIZE = 256;
 
-   /** Maximum blocking time, spent waiting for reading new bytes [milliseconds] */
-   public static final int SO_TIMEOUT=200;
+    private static final int NELLYMOSER_ENCODED_PACKET_SIZE = 64;
 
-   /** The RTMPUser */
-   RTMPUser rtmpUser=null;
+    private Encoder encoder;
 
-   /** The RtpSocket */
-   RtpSocket rtp_socket=null;
+   	private float[] encoderMap;
 
-   /** Whether the socket has been created here */
-   boolean socket_is_local=false;
+    /**
+     * Maximum blocking time, spent waiting for reading new bytes [milliseconds]
+     */
+    public static final int SO_TIMEOUT = 200;
 
-   /** Whether it is running */
-   boolean running=false;
+    /** Sip codec to be used on audio session */
+    private SIPCodec sipCodec = null;
 
-   int last = 0;
-   int timeStamp = 0;
-   int frameCounter = 0;
+    /** The RTMPUser */
+    RTMPUser rtmpUser = null;
 
-   ByteBuffer buffer = ByteBuffer.allocate(1024);
+    /** The RtpSocket */
+    RtpSocket rtp_socket = null;
 
-   /** Constructs a RtpStreamReceiver.
-     * @param rtmpUser the stream sink
-     * @param local_port the local receiver port */
-   public RTPStreamReceiver(RTMPUser rtmpUser, int local_port)
-   {  try
-      {  DatagramSocket socket=new DatagramSocket(local_port);
-         socket_is_local=true;
-         init(rtmpUser,socket);
-      }
-      catch (Exception e) {  e.printStackTrace();  }
-   }
+    /** Whether the socket has been created here */
+    boolean socketIsLocal = false;
 
-   /** Constructs a RtpStreamReceiver.
-     * @param rtmpUser the stream sink
-     * @param socket the local receiver DatagramSocket */
-   public RTPStreamReceiver(RTMPUser rtmpUser, DatagramSocket socket)
-   {  init(rtmpUser,socket);
-   }
+    /** Whether it is running */
+    boolean running = false;
 
-   /** Inits the RtpStreamReceiver */
-   private void init(RTMPUser rtmpUser, DatagramSocket socket)
-   {  this.rtmpUser = rtmpUser;
-      if (socket!=null) rtp_socket=new RtpSocket(socket);
-   }
+    int timeStamp = 0;
+
+    int frameCounter = 0;
+
+    // Temporary buffer with PCM audio to be sent to FlashPlayer.
+    float[] tempBuffer;
+
+    // Offset of tempBuffer.
+    int tempBufferOffset = 0;
 
 
-   /** Whether is running */
-   public boolean isRunning()
-   {  return running;
-   }
+    /**
+     * Constructs a RtpStreamReceiver.
+     *
+     * @param sipCodec
+     *            codec to be used on audio session
+     * @param rtmpUser
+     *            the stream sink
+     * @param local_port
+     *            the local receiver port
+     */
+    public RTPStreamReceiver( SIPCodec sipCodec, RTMPUser rtmpUser, int local_port ) {
 
-   /** Stops running */
-   public void halt()
-   {  running=false;
-   }
+        try {
+            DatagramSocket socket = new DatagramSocket( local_port );
 
-   /** Runs it in a new Thread. */
-   public void run()
-   {
-      if (rtp_socket==null)
-      {  if (DEBUG) println("RtpStreamReceiver: RTP socket is null");
-         return;
-      }
+            socketIsLocal = true;
 
-      encoder = new Encoder();
-      encoderMap = null;
+            init( sipCodec, rtmpUser, socket );
+        }
+        catch ( Exception e ) {
+            e.printStackTrace();
+        }
+    }
 
-      byte[] buffer=new byte[BUFFER_SIZE];
-      RtpPacket rtp_packet=new RtpPacket(buffer,0);
 
-      if (DEBUG) println("RtpStreamReceiver: Reading blocks of max "+buffer.length+" bytes");
+    /**
+     * Constructs a RtpStreamReceiver.
+     *
+     * @param sipCodec
+     *            codec to be used on audio session
+     * @param rtmpUser
+     *            the stream sink
+     * @param socket
+     *            the local receiver DatagramSocket
+     */
+    public RTPStreamReceiver( SIPCodec sipCodec, RTMPUser rtmpUser, DatagramSocket socket ) {
 
-	  try {
+        init( sipCodec, rtmpUser, socket );
+    }
 
-	  } catch (Exception e) {
-		 println("RtpStreamReceiver: Exception " + e);
-	  }
 
-      running=true;
-      try
-      {  rtp_socket.getDatagramSocket().setSoTimeout(SO_TIMEOUT);
+    /** Inits the RtpStreamReceiver */
+    private void init( SIPCodec sipCodec, RTMPUser rtmpUser, DatagramSocket socket ) {
 
-      	 float aux1[] = new float[512];
-      	 int packetCount = 0;
+        this.sipCodec = sipCodec;
+        this.rtmpUser = rtmpUser;
 
-         while (running)
-         {  try
-            {  // read a block of data from the rtp socket
-               rtp_socket.receive(rtp_packet);
-               frameCounter++;
+        if ( socket != null ) {
+            rtp_socket = new RtpSocket( socket );
+        }
+    }
 
-               if (running)
-               {  byte[] pkt=rtp_packet.getPacket();
-                  int offset=rtp_packet.getHeaderLength();
-                  int len=rtp_packet.getPayloadLength();
 
-      			  //if (DEBUG) println("RtpStreamReceiver: Reading rtp packet " + len + " bytes");
+    /** Whether is running */
+    public boolean isRunning() {
 
-                  if (len > 0) {
+        return running;
+    }
 
-					  for (int i=0; i<len; i++) {
-						  aux1[packetCount++] = (float) G711.ulaw2linear(pkt[offset+i]);
 
-						  if (packetCount == 512) {
-							   ByteStream encodedStream = new ByteStream(64);
+    /** Stops running */
+    public void halt() {
 
-								try
-								{
-									if (false) {
-										encoderMap = encoder.encode(encoderMap, aux1, 0, encodedStream.bytes, 0);
-										rtmpUser.pushAudio(64, encodedStream.bytes, timeStamp, 82);
+        running = false;
+    }
 
-										//first byte 2 mono 5500; 6 mono 11025; 22 mono 11025 adpcm 82 nellymoser 8000 178 speex 8000
 
-									} else {
-										byte[] aux = resample ((float)(8.0/11.025), aux1);
-										rtmpUser.pushAudio(aux.length, aux, timeStamp, 6);
-									}
-								}
-								catch(Exception exception)
-								{
-									//println("RTPStreamReceiver: asao Encoder Error ");
-								}
+    /**
+     * Fills the tempBuffer with necessary PCM's floats and encodes
+     * the audio to be sent to FlashPlayer.
+     */
+    void forwardAudioToFlashPlayer(float[] pcmBuffer) {
 
-								timeStamp = timeStamp + 64;
-							  	packetCount = 0;
+        int pcmBufferOffset = 0;
+        int copySize = 0;
+        boolean pcmBufferProcessed = false;
 
-			      				//if (DEBUG) println("RtpStreamReceiver: Encoded aso " + 512 + " bytes");
-						  }
-					  }
+        do {
+            //println( "forwardAudioToFlashPlayer",
+            //        "tempBuffer.length = " + tempBuffer.length
+            //        + ", tempBufferOffset = " + tempBufferOffset
+            //        + ", pcmBuffer.length = " + pcmBuffer.length
+            //        + ", pcmBufferOffset = " + pcmBufferOffset + "." );
 
-				  } else println("RtpStreamReceiver: G711 Decoder Error ");
+            if ( ( tempBuffer.length - tempBufferOffset ) <=
+                    ( pcmBuffer.length - pcmBufferOffset ) ) {
 
-               }
+                copySize = tempBuffer.length - tempBufferOffset;
             }
-            catch (java.io.InterruptedIOException e) { }
-         }
+            else {
 
-      }
-      catch (Exception e) {  running=false;  e.printStackTrace();  }
+                copySize = pcmBuffer.length - pcmBufferOffset;
+            }
 
-      // close RtpSocket and local DatagramSocket
-      DatagramSocket socket=rtp_socket.getDatagramSocket();
-      rtp_socket.close();
-      if (socket_is_local && socket!=null) socket.close();
+            //println( "forwardAudioToFlashPlayer", "copySize = " + copySize + "." );
 
-      // free all
+            BufferUtils.floatBufferIndexedCopy(
+                    tempBuffer,
+                    tempBufferOffset,
+                    pcmBuffer,
+                    pcmBufferOffset,
+                    copySize );
 
-      rtp_socket=null;
+            tempBufferOffset += copySize;
+            pcmBufferOffset += copySize;
 
-      if (DEBUG) println("RtpStreamReceiver: Terminated");
+            if ( tempBufferOffset == NELLYMOSER_DECODED_PACKET_SIZE ) {
 
-	  println("RtpStreamReceiver: Frames = " + frameCounter);
-   }
+                ByteStream encodedStream = new ByteStream( NELLYMOSER_ENCODED_PACKET_SIZE );
 
+                try {
+                    // First byte indicates audio format:
+                    //     2 mono 5500;
+                    //     6 mono 11025;
+                    //     22 mono 11025 adpcm;
+                    //     82 nellymoser 8000;
+                    //     178 speex 8000.
 
-   /** Debug output */
-   private static void println(String str)
-   {
-	   log.debug(str);
-   }
+                    tempBuffer = ResampleUtils.normalize(tempBuffer, 256); 	// normalise volume
 
-	public byte[] resample (float sampleRateFactor, float[] s1)
-	{
+                    if ( true ) {
 
-		int o1 = 0;
-		int l1 = s1.length;
+						encoderMap = CodecImpl.encode(encoderMap, tempBuffer, encodedStream.bytes);
+						rtmpUser.pushAudio(NELLYMOSER_ENCODED_PACKET_SIZE, encodedStream.bytes, timeStamp, 82);
+                    }
+                    else {
 
-		int resampledLength = (int)((float)l1 / sampleRateFactor);
+                        byte[] aux = ResampleUtils.resample(
+                                (float) ( 8.0 / 11.025 ), tempBuffer );
 
-	   	float tmp[] = new float[resampledLength];
+                        rtmpUser.pushAudio( aux.length, aux, timeStamp, 6 );
+                    }
+                }
+                catch ( Exception exception ) {
+                    println( "forwardAudioToFlashPlayer", "asao Encoder Error." );
+                }
 
-      	double oldIndex = o1;
+                timeStamp = timeStamp + NELLYMOSER_ENCODED_PACKET_SIZE;
 
-      	for (int i=o1; i<o1+resampledLength; i++)   {
+                //println( "forwardAudioToFlashPlayer", "Encoded asao " +
+                //        NELLYMOSER_DECODED_PACKET_SIZE + " bytes." );
 
-        	if (((int)oldIndex+1) < s1.length)
-			{
-				tmp[i] = interpolate0(s1, (float)oldIndex);
-			}
-         	else
-			   break;   //end of source
+                tempBufferOffset = 0;
+            }
 
-		 	oldIndex += sampleRateFactor;
-      	}
+            if ( pcmBufferOffset == pcmBuffer.length ) {
 
-      	oldIndex = o1;
+                pcmBufferProcessed = true;
+            }
 
-      	for (int i=o1; i<o1+resampledLength; i++)   {
-
-        	if (((int)oldIndex+1) < s1.length)
-			{
-				tmp[i] = interpolate1(s1, (float)oldIndex);
-			}
-         	else
-			   break;   //end of source
-
-		 	oldIndex += sampleRateFactor;
-      	}
-
-
-
-		byte[] outSample = new byte[resampledLength * 2];
-		int pos = 0;
-
-		for (int z=o1; z<o1+resampledLength; z++)
-		{
-            outSample[pos++]=(byte)((int)tmp[z] & 0xFF);
-            outSample[pos++]=(byte)(((int)tmp[z] & 0xFF00)>>8);
-		}
-
-		return outSample;
-	}
+            //println( "forwardAudioToFlashPlayer",
+            //        "pcmBufferProcessed = " + pcmBufferProcessed + "." );
+        }
+        while ( !pcmBufferProcessed );
+    }
 
 
+    /** Runs it in a new Thread. */
+    public void run() {
 
-   public static int byte2int(byte b)
-   {  //return (b>=0)? b : -((b^0xFF)+1);
-      //return (b>=0)? b : b+0x100;
-      return (b+0x100)%0x100;
-   }
+        if ( rtp_socket == null ) {
+            println( "run", "RTP socket is null." );
+            return;
+        }
 
-   public static int byte2int(byte b1, byte b2)
-   {  return (((b1+0x100)%0x100)<<8)+(b2+0x100)%0x100;
-   }
+        encoder = new Encoder();
+      	encoderMap = new float[64];
+
+        tempBuffer = new float[ NELLYMOSER_DECODED_PACKET_SIZE ];
+
+        byte[] codedBuffer = new byte[ sipCodec.getIncomingEncodedFrameSize() ];
+        byte[] internalBuffer = new byte[
+                sipCodec.getIncomingEncodedFrameSize() + RTP_HEADER_SIZE ];
+
+        RtpPacket rtpPacket = new RtpPacket( internalBuffer, 0 );
+
+        running = true;
+
+        try {
+
+            rtp_socket.getDatagramSocket().setSoTimeout( SO_TIMEOUT );
+
+            float[] decodingBuffer = new float[ sipCodec.getIncomingDecodedFrameSize() ];
+            int packetCount = 0;
+
+            println( "run",
+                    "internalBuffer.length = " + internalBuffer.length
+                    + ", codedBuffer.length = " + codedBuffer.length
+                    + ", decodingBuffer.length = " + decodingBuffer.length + "." );
+
+            while ( running ) {
+
+                try {
+                    rtp_socket.receive( rtpPacket );
+                    frameCounter++;
+
+                    if ( running ) {
+
+                        byte[] packetBuffer = rtpPacket.getPacket();
+                        int offset = rtpPacket.getHeaderLength();
+                        int length = rtpPacket.getPayloadLength();
+
+                        //println( "run",
+                        //        "pkt.length = " + packetBuffer.length
+                        //        + ", offset = " + offset
+                        //        + ", length = " + length + "." );
+
+                        BufferUtils.byteBufferIndexedCopy(
+                                codedBuffer,
+                                0,
+                                packetBuffer,
+                                offset,
+                                sipCodec.getIncomingEncodedFrameSize() );
+
+                        int decodedBytes = sipCodec.codecToPcm( codedBuffer, decodingBuffer );
+
+                        //println( "run",
+                        //        "encodedBytes = " + decodedBytes +
+                        //        ", incomingDecodedFrameSize = " +
+                        //        sipCodec.getIncomingDecodedFrameSize() + "." );
+
+                        if ( decodedBytes == sipCodec.getIncomingDecodedFrameSize() ) {
+
+                            forwardAudioToFlashPlayer( decodingBuffer );
+                        }
+                        else {
+                            println( "fillRtpPacketBuffer", "Failure decoding buffer." );
+                        }
+                    }
+                }
+                catch ( java.io.InterruptedIOException e ) {
+                }
+            }
+        }
+        catch ( Exception e ) {
+
+            running = false;
+            e.printStackTrace();
+        }
+
+        // Close RtpSocket and local DatagramSocket.
+        DatagramSocket socket = rtp_socket.getDatagramSocket();
+        rtp_socket.close();
+
+        if ( socketIsLocal && socket != null ) {
+            socket.close();
+        }
+
+        // Free all.
+        rtp_socket = null;
+
+        println( "run", "Terminated." );
+        println( "run", "Frames = " + frameCounter + "." );
+    }
 
 
-	/**
-	 *	zeroth order interpolation
-	 *	@param data seen as circular buffer when array out of bounds
-	 */
-	public static float interpolate0 (float[] data, float index)
-	{
-		try
-		{
-			return data[((int)index)%data.length];
-		}
-		catch (ArrayIndexOutOfBoundsException e)
-		{
-			return 0;
-		}
-	}
+    /** Debug output */
+    private static void println( String method, String message ) {
 
-
-	/**
-	 *	first order interpolation
-	 *	@param data seen as circular buffer when array out of bounds
-	 */
-	public static float interpolate1 (float[] data, float index)
-	{
-		try
-		{
-			int ip = ((int)index);
-			float fp = index - ip;
-
-	      return data[ip%data.length] * (1 - fp) + data[(ip+1)%data.length] * fp;
-		}
-		catch (ArrayIndexOutOfBoundsException e)
-		{
-			return 0;
-		}
-	}
-
-	/**
-	 *	second order interpolation
-	 *	@param data seen as circular buffer when array out of bounds
-	 */
-	public static float interpolate2 (float[] data, float index)
-	{
-		try
-		{
-			//Newton's 2nd order interpolation
-			int ip = ((int)index);
-			float fp = index - ip;
-
-			float d0 = data[ip%data.length];
-			float d1 = data[(ip+1)%data.length];
-			float d2 = data[(ip+2)%data.length];
-
-			float a0 = d0;
-			float a1 = d1 - d0;
-			float a2 = (d2 - d1 - a1) / 2;
-
-			return a0 + a1 * fp + a2 * fp * (fp - 1);
-
-		}
-		catch (ArrayIndexOutOfBoundsException e)
-		{
-			return 0;
-		}
-	}
-
-
-	/**
-	 *	third order interpolation
-	 *	@param data seen as circular buffer when array out of bounds
-	 */
-	public static float interpolate3 (float[] data, float index)
-	{
-		try
-		{
-			//cubic hermite interpolation
-			int ip = (int)index;
-			float fp = index - ip;
-
-			float dm1 = data[(ip-1)%data.length];
-			float d0 = data[ip%data.length];
-			float d1 = data[(ip+1)%data.length];
-			float d2 = data[(ip+2)%data.length];
-
-			float a = (3 * (d0 - d1) - dm1 + d2) / 2;
-			float b = 2 * d1 + dm1 - (5 * d0 + d2) / 2;
-			float c = (d1 - dm1) / 2;
-
-			return (((a * fp) + b) * fp + c) * fp + data[ip%data.length];
-
-		}
-		catch (ArrayIndexOutOfBoundsException e)
-		{
-			return 0;
-		}
-	}
+        log.debug( "RtpStreamReceiver - " + method + " -> " + message );
+        System.out.println( "RtpStreamReceiver - " + method + " -> " + message );
+    }
 }
-
-

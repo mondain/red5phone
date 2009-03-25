@@ -1,5 +1,6 @@
 package org.red5.codecs.asao;
 
+
 /*
  * Copyright (c) 2007 a840bda5870ba11f19698ff6eb9581dfb0f95fa5,
  *                    539459aeb7d425140b62a3ec7dbf6dc8e408a306, and
@@ -30,35 +31,46 @@ package org.red5.codecs.asao;
 //		Decoder: Entry point for decoding
 //
 //------------------------------------------------------------------------
+public final class Decoder {
 
+    public Decoder() {
 
-public final class Decoder
-{
-
-    public Decoder()
-    {
     }
 
-    public DecoderMap decode(DecoderMap d1, byte abyte0[], int i, float af[], int j)
-    {
-        if(d1 == null)
-            d1 = new NellyDecoderMap(this);
+
+    public DecoderMap decode( DecoderMap d1, byte[] abyte0, int i, float[] af, int j ) {
+
+        if ( d1 == null ) {
+            d1 = new NellyDecoderMap( this );
+        }
 
         NellyDecoderMap nellyDecoderMap = (NellyDecoderMap) d1;
 
-        Codec.process(nellyDecoderMap.a, abyte0, i, af, j, nellyDecoderMap.c, nellyDecoderMap.d, nellyDecoderMap.e, nellyDecoderMap.f, nellyDecoderMap.g);
+        Codec.process(
+            nellyDecoderMap.a,
+            abyte0,
+            i,
+            af,
+            j,
+            nellyDecoderMap.c,
+            nellyDecoderMap.d,
+            nellyDecoderMap.e,
+            nellyDecoderMap.f,
+            nellyDecoderMap.g );
 
         return d1;
     }
 
-    public DecoderMap decode(DecoderMap d1, byte abyte0[], int i, byte abyte1[], int j, boolean flag)
-    {
-        if(d1 == null)
-            d1 = new NellyDecoderMap(this);
 
-        d1 = decode(d1, abyte0, i, ((NellyDecoderMap)d1).b, 0);
+    public DecoderMap decode( DecoderMap d1, byte[] abyte0, int i, byte[] abyte1, int j, boolean flag ) {
 
-        Utility.float2byte(((NellyDecoderMap)d1).b, 0, 256, abyte1, j, flag);
+        if ( d1 == null ) {
+            d1 = new NellyDecoderMap( this );
+        }
+
+        d1 = decode( d1, abyte0, i, ( (NellyDecoderMap) d1 ).b, 0 );
+
+        Utility.float2byte( ( (NellyDecoderMap) d1 ).b, 0, 256, abyte1, j, flag );
 
         return d1;
     }

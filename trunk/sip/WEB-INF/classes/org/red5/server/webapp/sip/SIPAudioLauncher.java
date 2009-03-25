@@ -1,5 +1,6 @@
 package org.red5.server.webapp.sip;
 
+
 import local.ua.MediaLauncher;
 import org.zoolu.sip.provider.SipStack;
 
@@ -9,86 +10,102 @@ import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.AudioInputStream;
 
+import org.red5.codecs.SIPCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 public class SIPAudioLauncher implements MediaLauncher {
 
-    protected static Logger log = LoggerFactory.getLogger(SIPAudioLauncher.class);
+    protected static Logger log = LoggerFactory.getLogger( SIPAudioLauncher.class );
 
-	int payload_type=0;		// ulaw 16bit at 8KHZ 256 bytes framebuffer
-	int sample_rate=8000;
-	int sample_size=1;
-	int frame_size=256;
-	int frame_rate=16;
+    DatagramSocket socket = null;
 
-	boolean signed=false;
-	boolean big_endian=false;
+    public RTPStreamSender sender = null;
+
+    public RTPStreamReceiver receiver = null;
 
 
-	DatagramSocket socket=null;
-
-	public RTPStreamSender sender=null;
-	public RTPStreamReceiver receiver=null;
-
-
-   public SIPAudioLauncher(int local_port, String remote_addr, int remote_port, RTMPUser rtmpUser, int sample_rate, int sample_size, int frame_size) {
-      frame_rate=sample_rate/frame_size;
-
-      try {
-		    socket=new DatagramSocket(local_port);
-
-			printLog("new audio sender to "+remote_addr+":"+remote_port);
-            sender=new RTPStreamSender(rtmpUser, false, payload_type, frame_rate, frame_size, socket, remote_addr, remote_port);
-
-            printLog("new audio receiver on "+local_port);
-            receiver=new RTPStreamReceiver(rtmpUser, socket);
-      }
-      catch (Exception e) {
-		  printLog("SIPAudioLauncher execption " + e);
-      }
-   }
-
-
-   public boolean startMedia()
-   {  printLog("starting sip audio..");
-
-      if (sender!=null)
-      {  printLog("start sending");
-         sender.start();
-      }
-
-      if (receiver!=null)
-      {  printLog("start receiving");
-         receiver.start();
-      }
-
-      return true;
-   }
+    public SIPAudioLauncher(
+            SIPCodec sipCodec,
+            int localPort,
+            String remoteAddr,
+            int remotePort,
+            RTMPUser rtmpUser ) {
+        
+        try {
+            socket = new DatagramSocket( localPort );
+            
+            printLog( "SIPAudioLauncher", 
+                    "New audio sender to " + remoteAddr + ":" + remotePort + "." );
+            printLog( "SIPAudioLauncher", 
+                    "sender configs: payloadType = [" + sipCodec.getCodecId() + 
+                    "], payloadName = [" + sipCodec.getCodecName() + "].");
+            
+            sender = new RTPStreamSender( rtmpUser, false, 
+                    sipCodec, socket, remoteAddr, remotePort );
+            
+            printLog( "SIPAudioLauncher", "New audio receiver on " + localPort + "." );
+            
+            receiver = new RTPStreamReceiver( sipCodec, rtmpUser, socket );
+        }
+        catch ( Exception e ) {
+            printLog( "SIPAudioLauncher", "Exception " + e );
+            e.printStackTrace();
+        }
+    }
 
 
-   public boolean stopMedia()
-   {  printLog("halting sip audio..");
+    public boolean startMedia() {
 
-      if (sender!=null)
-      {  sender.halt(); sender=null;
-         printLog("sender halted");
-      }
+        printLog( "startMedia", "Starting sip audio..." );
 
-      if (receiver!=null)
-      {  receiver.halt(); receiver=null;
-         printLog("receiver halted");
-      }
+        if ( sender != null ) {
+            printLog( "startMedia", "Start sending." );
+            sender.start();
+        }
 
-      // take into account the resilience of RtpStreamSender
-      // (NOTE: it does not take into acconunt the resilience of RtpStreamReceiver; this can cause SocketException)
-      try { Thread.sleep(RTPStreamReceiver.SO_TIMEOUT); } catch (Exception e) {}
-      socket.close();
-      return true;
-   }
+        if ( receiver != null ) {
+            printLog( "startMedia", "Start receiving." );
+            receiver.start();
+        }
 
-   private void printLog(String str) {
-		log.debug(str);
-   }
+        return true;
+    }
+
+
+    public boolean stopMedia() {
+
+        printLog( "stopMedia", "Halting sip audio..." );
+
+        if ( sender != null ) {
+            sender.halt();
+            sender = null;
+            printLog( "stopMedia", "Sender halted." );
+        }
+
+        if ( receiver != null ) {
+            receiver.halt();
+            receiver = null;
+            printLog( "stopMedia", "Receiver halted." );
+        }
+
+        // take into account the resilience of RtpStreamSender
+        // (NOTE: it does not take into account the resilience of
+        // RtpStreamReceiver; this can cause SocketException)
+        try {
+            Thread.sleep( RTPStreamReceiver.SO_TIMEOUT );
+        }
+        catch ( Exception e ) {
+        }
+        socket.close();
+        return true;
+    }
+
+
+    private static void printLog( String method, String message ) {
+    	
+        log.debug( "SipAudioLauncher - " + method + " -> " + message );
+        System.out.println( "SipAudioLauncher - " + method + " -> " + message );
+    }
 }

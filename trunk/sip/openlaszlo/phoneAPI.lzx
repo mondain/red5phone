@@ -1,4 +1,4 @@
-<canvas debug="true">
+<canvas debug="false">
 	<include href="phoneLib.lzx"/>    
 
 	<script><![CDATA[
@@ -40,10 +40,17 @@
 
 		flash.external.ExternalInterface.addCallback("login", null, 
 
-			function (username, password, realm, server, red5URL) {			
-				phone.login(username, password, realm, server, red5URL);
+			function (telephone, username, password, realm, server, red5URL) {			
+				phone.login(telephone, username, password, realm, server, red5URL);
 			}		
 		);		
+
+		flash.external.ExternalInterface.addCallback("config", null, 
+
+			function () {			
+				phone.config();
+			}		
+		);
 
 	]]>		
 	</script>
@@ -79,42 +86,5 @@
 		</handler> 
 
 	</phoneConnection>	
-   
-	<simplelayout axis="y"/>
-
-	<button>Connect
 	
-	   <handler name="onclick">
-		phone.login("1001", "1001", "192.168.1.20", "192.168.1.20", "rtmp://localhost/sip");
-	   </handler> 
-	</button> 
-
-	<button>Register
-	
-	   <handler name="onclick">
-		phone.register();
-	   </handler> 
-	</button> 	
-
-	<button>Call
-	
-	   <handler name="onclick">
-		phone.call("1000");
-	   </handler> 
-	</button> 
-	
-	
-	<button>Accept
-	
-	   <handler name="onclick">
-		phone.accept();
-	   </handler> 
-	</button> 
-	
-	<button>Hangup
-	
-	   <handler name="onclick">
-		phone.hangup();
-	   </handler> 
-	</button> 	
 </canvas>

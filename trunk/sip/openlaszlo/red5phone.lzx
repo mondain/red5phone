@@ -39,16 +39,17 @@
 	
 	<text id="t01" width="400"></text>  
 
+	<text>Phone</text><edittext id="t_phone" password="false" width="300">1002</edittext> 
 	<text>Server</text><edittext id="t_server" password="false" width="300">192.168.1.20</edittext> 
 	<text>Realm</text><edittext id="t_realm" password="false" width="300">192.168.1.20</edittext> 
 	<text>Red5 URL</text><edittext id="t_red5url" password="false" width="300">rtmp://localhost/sip</edittext> 
-	<text>Username</text><edittext id="t_username" password="false" width="300">1001</edittext> 
-	<text>Password</text><edittext id="t_password" password="true" width="300">1001</edittext> 	
+	<text>Username</text><edittext id="t_username" password="false" width="300">1002</edittext> 
+	<text>Password</text><edittext id="t_password" password="true" width="300">1002</edittext> 	
 
 
 	<button>Connect	
 	   <handler name="onclick">
-		phone.login(t_username.getText(), t_password.getText(), t_realm.getText(), t_server.getText(), t_red5url.getText());
+		phone.login(t_phone.getText(), t_username.getText(), t_password.getText(), t_realm.getText(), t_server.getText(), t_red5url.getText());
 	   </handler> 
 	</button>
 

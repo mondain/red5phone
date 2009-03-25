@@ -1,5 +1,6 @@
 package org.red5.codecs.asao;
 
+
 /*
  * Copyright (c) 2007 a840bda5870ba11f19698ff6eb9581dfb0f95fa5,
  *                    539459aeb7d425140b62a3ec7dbf6dc8e408a306, and
@@ -30,51 +31,58 @@ package org.red5.codecs.asao;
 //
 //
 //------------------------------------------------------------------------
+final class StateTable {
 
+    private final byte[] a;
 
-final class StateTable
-{
-    private final byte a[];
     private final int b;
+
     private int c;
+
     private int d;
 
 
-    public StateTable(byte abyte0[], int i)
-    {
+    public StateTable( byte[] abyte0, int i ) {
+
         c = 0;
         d = 0;
         a = abyte0;
         b = i;
     }
 
-    public int state(int i)
-    {
+
+    public int state( int i ) {
+
         int k = 8 - d;
-        int l = (a[b + c] & 0xff) >> d;
-        if(i >= k)
-        {
+        int l = ( a[ b + c ] & 0xff ) >> d;
+        if ( i >= k ) {
             c++;
-            if(i > k)
-                l |= a[b + c] << k;
+            if ( i > k ) {
+                l |= a[ b + c ] << k;
+            }
         }
         d = d + i & 7;
-        return l & (1 << i) - 1;
+        return l & ( 1 << i ) - 1;
     }
 
-    public void state(int i, int k)
-    {
-        if(d == 0)
-            a[b + c] = (byte)i;
-        else
-            a[b + c] |= (byte)(i << d);
+
+    public void state( int i, int k ) {
+
+        if ( d == 0 ) {
+            a[ b + c ] = (byte) i;
+        }
+        else {
+            a[ b + c ] |= (byte) ( i << d );
+        }
         d += k;
-        if(d < 8)
+        if ( d < 8 ) {
             return;
+        }
         c++;
         d -= 8;
-        if(d > 0)
-            a[b + c] = (byte)(i >> k - d);
+        if ( d > 0 ) {
+            a[ b + c ] = (byte) ( i >> k - d );
+        }
     }
 
 }

@@ -2,7 +2,8 @@
 	<class name="phoneConnection" extends="rtmpconnection">
 
 	<attribute name="red5URL"   	type="string"/>		
-	<attribute name="username" 	type="string"/>
+	<attribute name="telephone" 	type="string"/>
+	<attribute name="username" 	type="string"/>	
 	<attribute name="password" 	type="string"/>
 	<attribute name="realm" 	type="string" />
 	<attribute name="server"  	type="string"/>
@@ -103,7 +104,7 @@
 			this.phoneError.sendEvent("phone", "Username or Password not set");
 
 		} else {		
-			_nc.call("login", null, this.username, this.password, this.realm, this.server);
+			_nc.call("login", null, this.username, this.telephone, this.username, this.password, this.realm, this.server);
 		}				
 	</handler>    
 
@@ -120,8 +121,9 @@
 	</handler>
 	
 
-	<method name="login" args="username, password, realm, server, red5URL">
-		this.username = username;
+	<method name="login" args="telephone, username, password, realm, server, red5URL">
+		this.telephone = telephone;
+		this.username = username;		
 		this.password = password;
 		this.realm = realm;
 		this.server = server;
@@ -129,7 +131,7 @@
 		
 		if (this.status == "connected") {
 			if (debug) Debug.write("open: ", "connected, login " + this.username);			
-			_nc.call("login", null, this.username, this.password, this.realm, this.server);
+			_nc.call("login", null, this.username, this.telephone, this.username, this.password, this.realm, this.server);
 		} else {
 			if (debug) Debug.write("open: ", "disconnected, connect");
 			this.connect();
@@ -177,6 +179,11 @@
 			outgoingNetStream = null;		
 		}
 	</method>
+
+	<method name="config">
+		if (debug) Debug.write("config", "");	
+ 		System.showSettings (0);
+	</method>	
 	
     </class>
 </library>

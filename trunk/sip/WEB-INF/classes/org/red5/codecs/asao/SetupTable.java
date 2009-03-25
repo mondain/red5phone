@@ -1,5 +1,6 @@
 package org.red5.codecs.asao;
 
+
 /*
  * Copyright (c) 2007 a840bda5870ba11f19698ff6eb9581dfb0f95fa5,
  *                    539459aeb7d425140b62a3ec7dbf6dc8e408a306, and
@@ -30,58 +31,56 @@ package org.red5.codecs.asao;
 //
 //
 //------------------------------------------------------------------------
-
-
-class SetupTable
-{
+class SetupTable {
 
     public final int parameterA;
+
     public final int parameterB;
 
 
-    public SetupTable(int i)
-    {
-        if(i == 124)
-        {
+    public SetupTable( int i ) {
+
+        if ( i == 124 ) {
             parameterA = 4228;
             parameterB = 19;
             return;
         }
 
-        if(i == 0)
-        {
+        if ( i == 0 ) {
             parameterA = 0;
             parameterB = 0;
             return;
         }
-        int j = ((~i >>> 31) << 1) - 1;
+        int j = ( ( ~i >>> 31 ) << 1 ) - 1;
         int k = i * j;
         int l;
 
-        for(l = -1; (k & 0x8000) == 0; l++)
+        for ( l = -1; ( k & 0x8000 ) == 0; l++ ) {
             k <<= 1;
+        }
 
         k >>= 1;
         parameterB = 27 - l;
-        short word0 = Codec.f()[k - 15872 >> 10];
+        short word0 = Codec.f()[ k - 15872 >> 10 ];
         int i1 = k * word0;
         i1 = 0x40000000 - i1;
-        i1 = (i1 += 16384) >> 15;
+        i1 = ( i1 += 16384 ) >> 15;
         i1 *= word0;
-        i1 = (i1 += 16384) >> 15;
+        i1 = ( i1 += 16384 ) >> 15;
         int j1 = i1;
         i1 *= k;
         i1 = 0x20000000 - i1;
-        i1 = (i1 += 16384) >> 15;
+        i1 = ( i1 += 16384 ) >> 15;
         i1 *= j1;
-        i1 = (i1 += 8192) >> 14;
+        i1 = ( i1 += 8192 ) >> 14;
         i1 *= j;
 
-        if(i1 > 32767 && j == 1)
+        if ( i1 > 32767 && j == 1 ) {
             i1 = 32767;
-        else
-        if(i1 < -32768 && j == -1)
+        }
+        else if ( i1 < -32768 && j == -1 ) {
             i1 = -32768;
+        }
         parameterA = i1;
     }
 }

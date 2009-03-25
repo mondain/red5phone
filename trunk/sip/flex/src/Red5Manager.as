@@ -13,7 +13,8 @@ package {
 		public  var netConnection:NetConnection = null;
 		private var incomingNetStream:NetStream = null;
 		private var outgoingNetStream:NetStream = null;
-		
+		private var phone:String;
+		private var uid:String;
 		private var username:String;
 		private var password:String;
 		private var red5Url:String;
@@ -23,8 +24,9 @@ package {
 		
 		private var isConnected:Boolean = false;
 		
-		public function Red5Manager(username:String, password:String, red5Url:String, sipRealm:String, sipServer:String, mailbox:String) {	
-			
+		public function Red5Manager(uid:String, phone:String, username:String, password:String, red5Url:String, sipRealm:String, sipServer:String, mailbox:String) {	
+			this.uid = uid;
+			this.phone     = phone;
 			this.username  = username;
 			this.password  = password;
 			this.red5Url   = red5Url;
@@ -142,7 +144,7 @@ package {
 			dispatchEvent (new IncomingCallEvent(IncomingCallEvent.INCOMING, source,  sourceName, destination, destinationName ));
 		}
         
-        public function connected(publishName:String, playName:String):* {
+                public function connected(publishName:String, playName:String):* {
 			dispatchEvent (new CallConnectedEvent(CallConnectedEvent.CONNECTED, publishName,  playName));
 			isConnected = true;
 		}
@@ -168,32 +170,36 @@ package {
 		
 		
 		public function doOpen():void {
-			netConnection.call("open", null, username, password, sipRealm, sipServer);
+			netConnection.call("open", null, uid, phone, username, password, sipRealm, sipServer);
 		}
 		
 		public function doCall(dialStr:String):void {
-			netConnection.call("call", null, username, dialStr);
+			netConnection.call("call", null, uid, dialStr);
 		}
 		
 		public function doCallChar(chr:String):void {
 			if (isConnected) {
-				netConnection.call("dtmf", null, username, chr);
+				netConnection.call("dtmf", null, uid, chr);
 			}
 		}
 		
 		public function doHangUp():void {
-			netConnection.call("hangup", null, username);
+			netConnection.call("hangup", null, uid);
 			if (isConnected) {
 				isConnected = false;
 			}
 		}
 		
 		public function doAccept():void {
-			netConnection.call("accept", null, username);			
+			netConnection.call("accept", null, uid);			
 		}
 		
 		public function doStreamStatus(status:String):void {
-			netConnection.call("streamStatus", null, username, status);	
+			netConnection.call("streamStatus", null, uid, status);	
+		}
+		
+		public function doClose1():void {
+			netConnection.call("unregister", null, uid);	
 		}
 		
 		//********************************************************************************************

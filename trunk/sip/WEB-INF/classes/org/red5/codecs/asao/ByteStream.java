@@ -1,5 +1,6 @@
 package org.red5.codecs.asao;
 
+
 /*
  * Copyright (c) 2007 a840bda5870ba11f19698ff6eb9581dfb0f95fa5,
  *                    539459aeb7d425140b62a3ec7dbf6dc8e408a306, and
@@ -30,33 +31,37 @@ package org.red5.codecs.asao;
 //		Wrapper class for Byte array containging audio stream bytes
 //
 //------------------------------------------------------------------------
+public final class ByteStream {
 
+    public final byte[] bytes;
 
-public final class ByteStream
-{
-    public final byte bytes[];
     public final int offset;
+
     public final int length;
 
-    public ByteStream(int i)
-    {
-        this(new byte[i]);
+
+    public ByteStream( int i ) {
+
+        this( new byte[ i ] );
     }
 
-    public ByteStream(byte abyte0[])
-    {
-        this(abyte0, 0, abyte0.length);
+
+    public ByteStream( byte[] abyte0 ) {
+
+        this( abyte0, 0, abyte0.length );
     }
 
-    public ByteStream(byte abyte0[], int i)
-    {
-        this(abyte0, i, abyte0.length);
+
+    public ByteStream( byte[] abyte0, int i ) {
+
+        this( abyte0, i, abyte0.length );
     }
 
-    public ByteStream(byte abyte0[], int i, int j)
-    {
+
+    public ByteStream( byte[] abyte0, int i, int j ) {
+
         bytes = abyte0;
         offset = i;
-        length = Math.min(j, abyte0.length - i);
+        length = Math.min( j, abyte0.length - i );
     }
 }
