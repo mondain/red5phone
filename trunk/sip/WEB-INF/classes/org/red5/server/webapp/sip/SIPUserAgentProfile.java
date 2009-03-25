@@ -220,6 +220,7 @@ public class SIPUserAgentProfile {
     public void initContactAddress( SipProvider sip_provider ) { // contact_url
 
         if ( contactUrl == null ) {
+
             contactUrl = "sip:" + username + "@" + sip_provider.getViaAddress();
             if ( sip_provider.getPort() != SipStack.default_port ) {
                 contactUrl += ":" + sip_provider.getPort();

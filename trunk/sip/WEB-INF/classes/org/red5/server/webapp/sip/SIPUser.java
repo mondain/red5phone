@@ -178,11 +178,14 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         this.proxy = proxy;
 		this.opt_outbound_proxy = proxy;
 
-        String fromURL = "\"" + username + "\" <sip:" + username + "@" + proxy + ">";
+        String fromURL = "\"" + phone + "\" <sip:" + phone + "@" + proxy + ">";
 
         try {
             rtmpUser = new RTMPUser();
             SipStack.init();
+            SipStack.debug_level = 8;
+            SipStack.log_path = "log";
+
             sip_provider = new SipProvider( null, sipPort );
             sip_provider.setOutboundProxy(new SocketAddress(opt_outbound_proxy));
 
@@ -193,6 +196,14 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
             user_profile.realm = realm;
             user_profile.fromUrl = fromURL;
 			user_profile.contactUrl = "sip:" + phone + "@" + sip_provider.getViaAddress();
+
+            if ( sip_provider.getPort() != SipStack.default_port ) {
+                user_profile.contactUrl += ":" + sip_provider.getPort();
+            }
+
+            user_profile.keepaliveTime=8000;
+			user_profile.acceptTime=0;
+			user_profile.hangupTime=20;
 
             ua = new SIPUserAgent( sip_provider, user_profile, this, rtmpUser );
 
@@ -516,6 +527,6 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
     private void p( String s ) {
 
         log.debug( s );
-
+		System.out.println(s);
     }
 }
