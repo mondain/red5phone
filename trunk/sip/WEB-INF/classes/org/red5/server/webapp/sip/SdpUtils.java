@@ -5,13 +5,13 @@ import java.util.Vector;
 
 import org.red5.codecs.SIPCodec;
 import org.red5.codecs.SIPCodecFactory;
-import org.red5.codecs.SIPCodecUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.zoolu.sdp.AttributeField;
 import org.zoolu.sdp.MediaDescriptor;
 import org.zoolu.sdp.MediaField;
 import org.zoolu.sdp.SessionDescriptor;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SdpUtils {
 

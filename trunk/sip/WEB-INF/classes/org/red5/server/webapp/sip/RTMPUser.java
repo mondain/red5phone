@@ -2,18 +2,10 @@ package org.red5.server.webapp.sip;
 
 
 import java.io.*;
-import java.util.*;
 
 import org.apache.mina.common.ByteBuffer;
-import org.red5.io.IStreamableFile;
-import org.red5.io.ITag;
 import org.red5.io.ITagWriter;
 import org.red5.io.ITagReader;
-import org.red5.io.flv.impl.FLVService;
-import org.red5.io.flv.impl.FLV;
-import org.red5.io.flv.impl.FLVReader;
-import org.red5.io.flv.impl.Tag;
-import org.red5.io.IoConstants;
 import org.red5.io.utils.ObjectMap;
 import org.red5.server.api.event.IEvent;
 import org.red5.server.api.event.IEventDispatcher;

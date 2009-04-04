@@ -2,7 +2,6 @@ package org.red5.server.webapp.sip;
 
 
 import org.zoolu.sip.address.NameAddress;
-import org.zoolu.sip.message.Message;
 
 
 /** Listener of RegisterAgent */

@@ -4,30 +4,22 @@ package org.red5.server.webapp.sip;
 import local.media.AudioClipPlayer;
 import org.zoolu.sip.call.*;
 import org.zoolu.sip.address.*;
-import org.zoolu.sip.provider.SipStack;
 import org.zoolu.sip.provider.SipProvider;
-import org.zoolu.sip.header.ExpiresHeader;
-import org.zoolu.sip.header.ContactHeader;
-import org.zoolu.sip.header.CallIdHeader;
 import org.zoolu.sip.header.StatusLine;
-import org.zoolu.sip.transaction.TransactionClient;
-import org.zoolu.sip.transaction.TransactionClientListener;
-import org.zoolu.sip.call.*;
 import org.zoolu.sip.message.*;
 import org.zoolu.sdp.*;
 
 import org.red5.codecs.SIPCodec;
 import org.red5.codecs.SIPCodecUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.zoolu.tools.Parser;
-import org.zoolu.tools.Archive;
 
 //import java.util.Iterator;
 import java.util.Enumeration;
 import java.util.Vector;
-import java.io.*;
 
 import local.ua.*;
 

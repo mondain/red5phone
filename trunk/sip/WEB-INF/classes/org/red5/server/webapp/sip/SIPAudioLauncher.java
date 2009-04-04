@@ -2,15 +2,11 @@ package org.red5.server.webapp.sip;
 
 
 import local.ua.MediaLauncher;
-import org.zoolu.sip.provider.SipStack;
 
 import java.net.DatagramSocket;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.AudioInputStream;
-
 import org.red5.codecs.SIPCodec;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
