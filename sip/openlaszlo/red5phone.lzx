@@ -1,0 +1,83 @@
+<canvas debug="true">
+	<include href="phoneLib.lzx"/>    
+	
+	<phoneConnection id="phone" debug="true" autoconnect="false">	
+	
+		<handler name="registrationSucess"  args="msg">	
+			t01.setAttribute('text',  "registrationSucess " + msg);
+		</handler> 
+
+		<handler name="registrationFailure"  args="msg">	
+			t01.setAttribute('text',  "registrationFailure " + msg);
+		</handler> 
+
+		<handler name="phoneReady">	
+			t01.setAttribute('text',  "phoneReady");
+		</handler> 
+
+		<handler name="phoneError"  args="system, msg">	
+			t01.setAttribute('text',  "phoneError " + system + ": " + msg);
+		</handler> 
+		
+		<handler name="callIncoming"  args="source, sourceName, destination, destinationName">	
+			t01.setAttribute('text',  "callIncoming from " + source);
+		</handler> 	
+
+		<handler name="callConnected"  args="publish, play">	
+			t01.setAttribute('text',  "callConnected play: " + play + " publish:" + publish);
+		</handler> 	
+
+		<handler name="callState" args="state">	
+			t01.setAttribute('text', "callState " + state);
+		</handler> 
+		
+	</phoneConnection>
+	
+
+
+	<simplelayout axis="y"/>
+	
+	<text id="t01" width="400"></text>  
+
+	<text>Phone</text><edittext id="t_phone" password="false" width="300">1002</edittext> 
+	<text>Server</text><edittext id="t_server" password="false" width="300">192.168.1.20</edittext> 
+	<text>Realm</text><edittext id="t_realm" password="false" width="300">192.168.1.20</edittext> 
+	<text>Red5 URL</text><edittext id="t_red5url" password="false" width="300">rtmp://localhost/sip</edittext> 
+	<text>Username</text><edittext id="t_username" password="false" width="300">1002</edittext> 
+	<text>Password</text><edittext id="t_password" password="true" width="300">1002</edittext> 	
+
+
+	<button>Connect	
+	   <handler name="onclick">
+		phone.login(t_phone.getText(), t_username.getText(), t_password.getText(), t_realm.getText(), t_server.getText(), t_red5url.getText());
+	   </handler> 
+	</button>
+
+	<button>Register
+	
+	   <handler name="onclick">
+		phone.register();
+	   </handler> 
+	</button>
+
+	
+	<edittext id="t02" width="300">1000</edittext>  	
+	<button>Call<handler name="onclick">phone.call(t02.getText());t02.setText("");</handler></button>
+	<button>Hangup<handler name="onclick">phone.hangup();</handler></button>
+	<button>Accept<handler name="onclick">phone.accept();</handler></button>	
+	
+	<button>1<handler name="onclick"><![CDATA[phone.dtmf('1');]]></handler></button>
+	<button>2<handler name="onclick"><![CDATA[phone.dtmf('2');]]></handler></button>
+	<button>3<handler name="onclick"><![CDATA[phone.dtmf('3');]]></handler></button>
+	<button>4<handler name="onclick"><![CDATA[phone.dtmf('4');]]></handler></button>
+	<button>5<handler name="onclick"><![CDATA[phone.dtmf('5');]]></handler></button>
+	<button>6<handler name="onclick"><![CDATA[phone.dtmf('6');]]></handler></button>
+	<button>7<handler name="onclick"><![CDATA[phone.dtmf('7');]]></handler></button>
+	<button>8<handler name="onclick"><![CDATA[phone.dtmf('8');]]></handler></button>
+	<button>9<handler name="onclick"><![CDATA[phone.dtmf('9');]]></handler></button>
+	<button>*<handler name="onclick"><![CDATA[phone.dtmf('*');]]></handler></button>
+	<button>0<handler name="onclick"><![CDATA[phone.dtmf('0');]]></handler></button>
+	<button>#<handler name="onclick"><![CDATA[phone.dtmf('#');]]></handler></button>
+
+
+</canvas>
