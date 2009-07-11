@@ -1,0 +1,163 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+
+<html>
+<head>
+	<title>Red5Phone Changelog</title>
+    <style type="text/css">
+        BODY {
+            font-size: 100%;
+        }
+
+        BODY, TD, TH, LI {
+            font-family: tahoma, verdana, arial, helvetica, sans-serif;
+            font-size: 0.9em;
+            font-weight: normal;
+        }
+
+        H2 {
+            font-size: 10pt;
+            font-weight: bold;
+        }
+
+        A:hover {
+            text-decoration: none;
+        }
+
+        H1 {
+            font-family: tahoma, arial, helvetica, sans-serif;
+            font-size: 1.4em;
+            font-weight: bold;
+            border-bottom: 1px #ccc solid;
+            padding-bottom: 2px;
+        }
+
+        TT {
+            font-family: courier new;
+            font-weight: bold;
+            color: #060;
+        }
+
+        PRE {
+            font-family: courier new;
+            font-size: 100%;
+        }
+
+        .events TH {
+            font-size: 8pt;
+            font-family: verdana;
+            font-weight: bold;
+            text-align: left;
+            background-color: #eee;
+            border-bottom: 1px #ccc solid;
+        }
+
+        .events .event {
+            font-weight: bold;
+        }
+
+        .events .description {
+            font-size: 8pt;
+            font-family: verdana;
+        }
+
+        .events TD {
+            border-bottom: 1px #ccc dotted;
+            vertical-align: top;
+        }
+    </style>
+</head>
+<body>
+
+<h1>
+    Red5Phone  Changelog
+</h1>
+
+
+<h2><b>0.0.04 - 11th July 2009</h2>
+
+<b>Dele Olajide contributions</b>
+<ul>
+<li>Now compatible with Red5 0.8.0.</li>
+<li>Incoming calls still not working properly. Sometimes mjsip gets stuck on "Trying". Any help appreciated.</li>
+</ul>
+
+<b>Lior Herman contributions</b>
+<ul>
+<li>Outbound proxy support added.</li>
+</ul>
+
+
+<h2><b>0.0.03 - 25th March 2009</h2>
+
+<b>Dele Olajide contributions</b>
+<ul>
+<li>Fixed DTMF. Tested with UK PSTN and works ok.</li>
+<li>Added Nellymoser encoder from Joseph Artsimovich (jart@users.sourceforge.net)</li>
+</ul>
+
+<b>Mauro Brasil, Rafael and UOL (www.uol.co.br) contributions</b>
+<ul>
+<li>Cleaned up the code</li>
+<li>Implemented multi-codec support for Red5phone (PCMU, PCMA, iLBC and G.729). G.729 requires payment of royalities and license rights if used.</li>
+<li>Adjustments to support different packetization were made as well.</li>
+</ul>
+
+<b>Prabhu Tamilarasan contributions</b>
+<ul>
+<li>Normalize function to improve volume</li>
+</ul>
+
+<b>Lior Herman contributions</b>
+<ul>
+<li>Red5phone show busy or rejected message for busy outgoing calls.</li>
+<li>Openlaszlo and Javascript API made compatible with latest chages to Red5phone</li>
+<li>Add Dial external command to Flex to dial from a link.  </li>
+<li>Used UID (unique identifier) in Flex instead of the username value for binding the sipprovider object in Mjsip. Now you can use same sip account to register from multiple remote locations.  </li>
+<li>Changed registration of red5phone using phone@sip_provider.getViaAddress() instead of phone@realm</li>
+<li>Mjsip now uses Outboundproxy = Proxy  like that all sip headers using realm, but the message is send to the proxy ip.</li>
+<li>Process of OPTIONS messages in Mjsip some sbc’s using to check call keep alive.  </li>
+<li>Fix authentication header for REG and INVITE to use cnounce value when proxy send qop= auth in 401 or 407 message.  </li>
+<li>Fix red5phone application close for complete unregister before sipprovider.halt is execute.  </li>
+<li>Fix the microphone.init in Flex to not be bind to the REGISTER SUCCESS message as it can be many SUCCESS messages coming during a call and mic need to be init only once.  </li>
+<li>Fix Cancel message for Invite (call) that have not been answered yet. When you want hangup a call before the remote user answered Mjsip send wrong Cseq in Cancel message.  </li>
+<li>Fixed NullException error when application is closed in provider.halt() its try to close a null tcp_socket and get Null exception back. Fix is in org.zoolu.net.TcpServer.java in the end of the file. </li>
+</ul>
+
+<b>Janny_buh contribution: </b>
+<ul>
+<li>Patch all sip Register message using same Call-ID header and increment Cseq as recommended by RFC3261.</li>
+</ul>
+
+<h2><b>0.0.02 - 4th January 2009</h2>
+
+<ul>
+     <li>Replaced aso2ulaw with java implementation of asao codec decoder.</li>
+     <li>Fixed delay in red5phone voice.</li>
+     <li>Red5phone username is no more used for SIP contact details. Phone number is now used instead.</li>
+     <li>Fixed fault with Red5Phone not responding to 407 requests</li>
+     <li>DTMF not sent when there is silence. Many thanks to Pierrick Grasland for finding and fixing the fault.</li>
+     <li>Asterisk Voice Mail for Red5phone. More Asterisk features to come.</li>
+     <li>Autologin for Red5phone. See red5phone.html</li>
+     <li>Fixed incoming call failure with Red5phone.</li>
+     <li>New user Interface for Red5phone. Many thanks to community member Naoki for doing this.</li>
+     <li>Javascript and Openlaszlo libraries for Red5phone.</li>
+     <li>New "login" and "register" methods in Red5phone to allow login without SIP registration.</li>
+     <li>Added DTMF to SparkWeb SIP Phone.</li>
+	 <li>Added Sound effects to DTMF.</li>
+     <li>Fixed fault with sip user set to "user" instead of supplied username. It now enables users registered with a proxy to make calls without requiring proxy authentication.</li>
+     <li>Added important note to readme for Linux users of Red5Phone. Many thanks to Chris to testing with Linux.</li>
+     <li>Improved voice quality by removing ADPCM compression. It can be changed from admin console.</li>
+     <li>Implemented DTMF - RTC2833. New remote method "dtmf".</li>
+</ul>
+
+
+<h2><b>0.1.01 - 1st May 2008</h2>
+
+<ul>
+     <li>Initial Release of Red5Phone</li>
+</ul>
+
+
+
+</body>
+</html>
