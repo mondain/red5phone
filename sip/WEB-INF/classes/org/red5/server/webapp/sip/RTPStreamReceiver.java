@@ -4,6 +4,8 @@ package org.red5.server.webapp.sip;
 import local.net.RtpPacket;
 import local.net.RtpSocket;
 
+import java.io.*;
+import java.net.InetAddress;
 import java.net.DatagramSocket;
 
 import org.slf4j.Logger;
@@ -11,6 +13,7 @@ import org.red5.logging.Red5LoggerFactory;
 
 import org.red5.codecs.SIPCodec;
 import org.red5.codecs.asao.*;
+import local.media.G711;
 
 
 public class RTPStreamReceiver extends Thread {
@@ -39,7 +42,7 @@ public class RTPStreamReceiver extends Thread {
     RTMPUser rtmpUser = null;
 
     /** The RtpSocket */
-    RtpSocket rtpSocket = null;
+    RtpSocket rtp_socket = null;
 
     /** Whether the socket has been created here */
     boolean socketIsLocal = false;
@@ -106,7 +109,7 @@ public class RTPStreamReceiver extends Thread {
         this.rtmpUser = rtmpUser;
 
         if ( socket != null ) {
-            rtpSocket = new RtpSocket( socket );
+            rtp_socket = new RtpSocket( socket );
         }
     }
 
@@ -176,7 +179,7 @@ public class RTPStreamReceiver extends Thread {
                     //     82 nellymoser 8000;
                     //     178 speex 8000.
 
-                    //tempBuffer = ResampleUtils.normalize(tempBuffer, 256); 	// normalise volume
+                    tempBuffer = ResampleUtils.normalize(tempBuffer, 256); 	// normalise volume
 
                     if ( true ) {
 
@@ -218,7 +221,7 @@ public class RTPStreamReceiver extends Thread {
     /** Runs it in a new Thread. */
     public void run() {
 
-        if ( rtpSocket == null ) {
+        if ( rtp_socket == null ) {
             println( "run", "RTP socket is null." );
             return;
         }
@@ -238,7 +241,7 @@ public class RTPStreamReceiver extends Thread {
 
         try {
 
-            rtpSocket.getDatagramSocket().setSoTimeout( SO_TIMEOUT );
+            rtp_socket.getDatagramSocket().setSoTimeout( SO_TIMEOUT );
 
             float[] decodingBuffer = new float[ sipCodec.getIncomingDecodedFrameSize() ];
             int packetCount = 0;
@@ -251,7 +254,7 @@ public class RTPStreamReceiver extends Thread {
             while ( running ) {
 
                 try {
-                    rtpSocket.receive( rtpPacket );
+                    rtp_socket.receive( rtpPacket );
                     frameCounter++;
 
                     if ( running ) {
@@ -299,15 +302,15 @@ public class RTPStreamReceiver extends Thread {
         }
 
         // Close RtpSocket and local DatagramSocket.
-        DatagramSocket socket = rtpSocket.getDatagramSocket();
-        rtpSocket.close();
+        DatagramSocket socket = rtp_socket.getDatagramSocket();
+        rtp_socket.close();
 
         if ( socketIsLocal && socket != null ) {
             socket.close();
         }
 
         // Free all.
-        rtpSocket = null;
+        rtp_socket = null;
 
         println( "run", "Terminated." );
         println( "run", "Frames = " + frameCounter + "." );
