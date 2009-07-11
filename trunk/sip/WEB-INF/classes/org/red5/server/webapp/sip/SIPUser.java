@@ -1,10 +1,14 @@
 package org.red5.server.webapp.sip;
 
 
-import java.io.IOException;
-import java.io.PipedOutputStream;
+import java.util.Map;
+import java.util.HashMap;
 
-<<<<<<< .mine
+import java.io.IOException;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
+import java.io.File;
+
 import org.red5.io.ITag;
 import org.red5.io.ITagReader;
 import org.red5.io.ITagWriter;
@@ -14,11 +18,10 @@ import org.red5.io.flv.meta.IMetaService;
 import org.red5.server.api.cache.ICacheStore;
 import org.red5.server.api.cache.ICacheable;
 
-=======
->>>>>>> .r23
 import org.red5.server.api.service.IServiceCapableConnection;
 import org.red5.server.api.IConnection;
 
+import local.ua.*;
 import org.zoolu.sip.address.*;
 import org.zoolu.sip.provider.*;
 import org.zoolu.net.SocketAddress;
@@ -39,71 +42,71 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     private String sessionID;
 
-    private SIPUserAgentProfile userProfile;
+    private SIPUserAgentProfile user_profile;
 
-    private SipProvider sipProvider;
+    private SipProvider sip_provider;
 
-    private boolean optRegist = false;
+    private boolean opt_regist = false;
 
-    private boolean optUnregist = false;
+    private boolean opt_unregist = false;
 
-    private boolean optUnregistAll = false;
+    private boolean opt_unregist_all = false;
 
-    private int optExpires = -1;
+    private int opt_expires = -1;
 
-    private long optKeepaliveTime = -1;
+    private long opt_keepalive_time = -1;
 
-    private boolean optNoOffer = false;
+    private boolean opt_no_offer = false;
 
-    private String optCallTo = null;
+    private String opt_call_to = null;
 
-    private int optAcceptTime = -1;
+    private int opt_accept_time = -1;
 
-    private int optHangupTime = -1;
+    private int opt_hangup_time = -1;
 
-    private String optRedirectTo = null;
+    private String opt_redirect_to = null;
 
-    private String optTransferTo = null;
+    private String opt_transfer_to = null;
 
-    private int optTransferTime = -1;
+    private int opt_transfer_time = -1;
 
-    private int optReInviteTime = -1;
+    private int opt_re_invite_time = -1;
 
-    private boolean optAudio = false;
+    private boolean opt_audio = false;
 
-    private boolean optVideo = false;
+    private boolean opt_video = false;
 
-    private int optMediaPort = 0;
+    private int opt_media_port = 0;
 
-    private boolean optRecvOnly = false;
+    private boolean opt_recv_only = false;
 
-    private boolean optSendOnly = false;
+    private boolean opt_send_only = false;
 
-    private boolean optSendTone = false;
+    private boolean opt_send_tone = false;
 
-    private String optSendFile = null;
+    private String opt_send_file = null;
 
-    private String optRecvFile = null;
+    private String opt_recv_file = null;
 
-    private boolean optNoPrompt = false;
+    private boolean opt_no_prompt = false;
 
-    private String optFromUrl = null;
+    private String opt_from_url = null;
 
-    private String optContactUrl = null;
+    private String opt_contact_url = null;
 
-    private String optUsername = null;
+    private String opt_username = null;
 
-    private String optRealm = null;
+    private String opt_realm = null;
 
-    private String optPasswd = null;
+    private String opt_passwd = null;
 
-    private int optDebugLevel = -1;
+    private int opt_debug_level = -1;
 
-    private String optOutboundProxy = null;
+    private String opt_outbound_proxy = null;
 
-    private String optViaAddr = SipProvider.AUTO_CONFIGURATION;
+    private String opt_via_addr = SipProvider.AUTO_CONFIGURATION;
 
-    private int optHostPort = SipStack.default_port;
+    private int opt_host_port = SipStack.default_port;
 
     private SIPUserAgent ua;
 
@@ -173,12 +176,8 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         this.username = username;
         this.password = password;
         this.proxy = proxy;
-<<<<<<< .mine
 		this.opt_outbound_proxy = obproxy;
 		this.realm = realm;
-=======
-		this.optOutboundProxy = proxy;
->>>>>>> .r23
 
         String fromURL = "\"" + phone + "\" <sip:" + phone + "@" + proxy + ">";
 
@@ -188,26 +187,26 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
             SipStack.debug_level = 8;
             SipStack.log_path = "log";
 
-            sipProvider = new SipProvider( null, sipPort );
-            sipProvider.setOutboundProxy(new SocketAddress(optOutboundProxy));
+            sip_provider = new SipProvider( null, sipPort );
+            sip_provider.setOutboundProxy(new SocketAddress(opt_outbound_proxy));
 
-            userProfile = new SIPUserAgentProfile();
-            userProfile.audioPort = rtpPort;
-            userProfile.username = username;
-            userProfile.passwd = password;
-            userProfile.realm = realm;
-            userProfile.fromUrl = fromURL;
-			userProfile.contactUrl = "sip:" + phone + "@" + sipProvider.getViaAddress();
+            user_profile = new SIPUserAgentProfile();
+            user_profile.audioPort = rtpPort;
+            user_profile.username = username;
+            user_profile.passwd = password;
+            user_profile.realm = realm;
+            user_profile.fromUrl = fromURL;
+			user_profile.contactUrl = "sip:" + phone + "@" + sip_provider.getViaAddress();
 
-            if ( sipProvider.getPort() != SipStack.default_port ) {
-                userProfile.contactUrl += ":" + sipProvider.getPort();
+            if ( sip_provider.getPort() != SipStack.default_port ) {
+                user_profile.contactUrl += ":" + sip_provider.getPort();
             }
 
-            userProfile.keepaliveTime=8000;
-			userProfile.acceptTime=0;
-			userProfile.hangupTime=20;
+            user_profile.keepaliveTime=8000;
+			user_profile.acceptTime=0;
+			user_profile.hangupTime=20;
 
-            ua = new SIPUserAgent( sipProvider, userProfile, this, rtmpUser );
+            ua = new SIPUserAgent( sip_provider, user_profile, this, rtmpUser );
 
             sipReady = false;
             ua.listen();
@@ -225,10 +224,10 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
         try {
 
-            if ( sipProvider != null ) {
-                ra = new SIPRegisterAgent( sipProvider, userProfile.fromUrl, userProfile.contactUrl, username,
-                    userProfile.realm, password, this );
-                loopRegister( userProfile.expires, userProfile.expires / 2, userProfile.keepaliveTime );
+            if ( sip_provider != null ) {
+                ra = new SIPRegisterAgent( sip_provider, user_profile.fromUrl, user_profile.contactUrl, username,
+                    user_profile.realm, password, this );
+                loopRegister( user_profile.expires, user_profile.expires / 2, user_profile.keepaliveTime );
             }
 
         }
@@ -301,7 +300,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
         try {
             p("SIPUser provider.halt");
-			sipProvider.halt();
+			sip_provider.halt();
 
 	    } catch(Exception e) {
 			p("close: Exception:>\n" + e);

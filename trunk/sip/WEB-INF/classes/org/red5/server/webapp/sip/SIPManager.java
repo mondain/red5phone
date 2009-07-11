@@ -3,12 +3,6 @@ package org.red5.server.webapp.sip;
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
 
-<<<<<<< .mine
-=======
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
->>>>>>> .r23
 import java.util.*;
 
 
@@ -18,11 +12,7 @@ public final class SIPManager {
 
     private static SIPManager singleton = new SIPManager();
 
-<<<<<<< .mine
     protected static Logger log = Red5LoggerFactory.getLogger( SIPManager.class, "sip" );
-=======
-    private static final Logger log = LoggerFactory.getLogger( SIPManager.class );
->>>>>>> .r23
 
     public static SIPManager getInstance() {
 

@@ -4,6 +4,7 @@ package org.red5.server.webapp.sip;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.net.*;
 
 import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
