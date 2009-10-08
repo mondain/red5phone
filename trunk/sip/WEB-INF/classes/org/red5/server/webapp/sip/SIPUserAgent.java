@@ -35,7 +35,7 @@ import local.ua.*;
 public class SIPUserAgent extends CallListenerAdapter {
 
     protected static Logger log = LoggerFactory.getLogger( SIPUserAgent.class );
-    
+
     /** UserAgentProfile */
     protected SIPUserAgentProfile userProfile;
 
@@ -83,10 +83,10 @@ public class SIPUserAgent extends CallListenerAdapter {
     AudioClipPlayer clip_off;
 
     private RTMPUser rtmpUser;
-    
+
     /** Sip codec to be used on audio session */
     private SIPCodec sipCodec = null;
-    
+
 
     // *********************** Startup Configuration ***********************
 
@@ -236,16 +236,16 @@ public class SIPUserAgent extends CallListenerAdapter {
 
     /** Inits the local SDP (no media spec) */
     public void initSessionDescriptor() {
-        
+
         printLog( "initSessionDescriptor", "Init..." );
-        
+
         SessionDescriptor newSdp = SdpUtils.createInitialSdp(
-                userProfile.username, sipProvider.getViaAddress(), 
-                userProfile.audioPort, userProfile.videoPort, 
+                userProfile.username, sipProvider.getViaAddress(),
+                userProfile.audioPort, userProfile.videoPort,
                 userProfile.audioCodecsPrecedence );
-        
+
         localSession = newSdp.toString();
-        
+
         printLog( "initSessionDescriptor", "localSession = " + localSession );
     }
 
@@ -258,35 +258,35 @@ public class SIPUserAgent extends CallListenerAdapter {
         SIPUserAgentProfile user_profile,
         SIPUserAgentListener listener,
         RTMPUser rtmpUser ) {
-        
+
         this.sipProvider = sip_provider;
         this.listener = listener;
         this.userProfile = user_profile;
         this.rtmpUser = rtmpUser;
-        
+
         // If no contact_url and/or from_url has been set, create it now.
         user_profile.initContactAddress( sip_provider );
-        
+
         // Set local sdp.
         initSessionDescriptor();
     }
 
 
     public void call( String target_url ) {
-    	
+
         printLog( "call", "Init..." );
-        
+
         changeStatus( UA_OUTGOING_CALL );
-        
-        call = new ExtendedCall( sipProvider, userProfile.fromUrl, 
+
+        call = new ExtendedCall( sipProvider, userProfile.fromUrl,
                 userProfile.contactUrl, userProfile.username,
                 userProfile.realm, userProfile.passwd, this );
-        
+
         // In case of incomplete url (e.g. only 'user' is present), try to
         // complete it.
-        
+
         target_url = sipProvider.completeNameAddress( target_url ).toString();
-        
+
         if ( userProfile.noOffer ) {
             call.call( target_url );
         }
@@ -299,22 +299,36 @@ public class SIPUserAgent extends CallListenerAdapter {
     public void setMedia( RTMPUser rtmpUser ) {
 
         printLog( "setMedia", "Init..." );
-        
+
         this.rtmpUser = rtmpUser;
     }
+
+  /** Call Transfer test by Lior */
+
+   public void transfer( String transfer_to ){
+         printLog("REFER/TRANSFER", "Init..." );
+  	         try
+  			      { if (call!=null && call.isOnCall())
+  			         {
+  			            call.transfer(transfer_to);
+  			         }
+  			      }
+  			      catch (Exception e) { printLog("transfer: ", e.toString());}
+  	}
+/** end of transfer test code */
 
 
     /** Waits for an incoming call (acting as UAS). */
     public void listen() {
 
         printLog( "listen", "Init..." );
-        
+
         changeStatus( UA_IDLE );
-        
-        call = new ExtendedCall( sipProvider, userProfile.fromUrl, 
+
+        call = new ExtendedCall( sipProvider, userProfile.fromUrl,
                 userProfile.contactUrl, userProfile.username,
                 userProfile.realm, userProfile.passwd, this );
-        
+
         call.listen();
     }
 
@@ -323,30 +337,30 @@ public class SIPUserAgent extends CallListenerAdapter {
     public void hangup() {
 
         printLog( "hangup", "Init..." );
-        
+
         if ( clip_ring != null ) {
             clip_ring.stop();
         }
-        
+
         closeMediaApplication();
-        
+
         if ( call != null ) {
             call.hangup();
         }
-        
+
         changeStatus( UA_IDLE );
     }
 
 
     /** Closes an ongoing, incoming, or pending call */
     public void accept() {
-        
+
         printLog( "accept", "Init..." );
-        
+
         if ( clip_ring != null ) {
             clip_ring.stop();
         }
-        
+
         if ( call != null ) {
             call.accept( localSession );
         }
@@ -355,13 +369,13 @@ public class SIPUserAgent extends CallListenerAdapter {
 
     /** Redirects an incoming call */
     public void redirect( String redirection ) {
-    	
+
         printLog( "redirect", "Init..." );
-        
+
         if ( clip_ring != null ) {
             clip_ring.stop();
         }
-        
+
         if ( call != null ) {
             call.redirect( redirection );
         }
@@ -369,26 +383,26 @@ public class SIPUserAgent extends CallListenerAdapter {
 
 
     protected void launchMediaApplication() {
-        
+
         // Exit if the Media Application is already running.
         if ( audioApp != null || videoApp != null ) {
-            
-            printLog( "launchMediaApplication", 
+
+            printLog( "launchMediaApplication",
                     "Media application is already running." );
             return;
         }
-        
+
         if ( listener != null ) {
-            
+
             listener.onUaCallConnected( this );
         }
-        
-        SessionDescriptor localSdp = 
+
+        SessionDescriptor localSdp =
                 new SessionDescriptor( call.getLocalSessionDescriptor() );
-        
+
         int localAudioPort = 0;
         int localVideoPort = 0;
-        
+
         // parse local sdp
         for ( Enumeration e = localSdp.getMediaDescriptors().elements(); e.hasMoreElements(); ) {
             MediaField media = ( (MediaDescriptor) e.nextElement() ).getMedia();
@@ -399,39 +413,39 @@ public class SIPUserAgent extends CallListenerAdapter {
                 localVideoPort = media.getPort();
             }
         }
-        
-        printLog( "launchMediaApplication", 
-                "localAudioPort = " + localAudioPort + 
+
+        printLog( "launchMediaApplication",
+                "localAudioPort = " + localAudioPort +
                 ", localVideoPort = " + localVideoPort + "." );
-        
+
         // Parse remote sdp.
-        SessionDescriptor remoteSdp = 
+        SessionDescriptor remoteSdp =
                 new SessionDescriptor( call.getRemoteSessionDescriptor() );
-        String remoteMediaAddress = ( new Parser( 
+        String remoteMediaAddress = ( new Parser(
                 remoteSdp.getConnection().toString() ) ).
                 skipString().skipString().getString();
-        
+
         int remoteAudioPort = 0;
         int remoteVideoPort = 0;
-        
+
         for ( Enumeration e = remoteSdp.getMediaDescriptors().elements(); e.hasMoreElements(); ) {
-            
+
             MediaDescriptor descriptor = (MediaDescriptor) e.nextElement();
             MediaField media = descriptor.getMedia();
-            
+
             if ( media.getMedia().equals( "audio" ) ) {
                 remoteAudioPort = media.getPort();
             }
-            
+
             if ( media.getMedia().equals( "video" ) ) {
                 remoteVideoPort = media.getPort();
             }
         }
-        
-        printLog( "launchMediaApplication", 
-                "remoteAudioPort = " + remoteAudioPort + 
+
+        printLog( "launchMediaApplication",
+                "remoteAudioPort = " + remoteAudioPort +
                 ", remoteVideoPort = " + remoteVideoPort + "." );
-        
+
         // Select the media direction (send_only, recv_ony, fullduplex).
         int dir = 0;
         if ( userProfile.recvOnly ) {
@@ -440,41 +454,41 @@ public class SIPUserAgent extends CallListenerAdapter {
         else if ( userProfile.sendOnly ) {
             dir = 1;
         }
-        
-        printLog( "launchMediaApplication", 
-                "user_profile.audio = " + userProfile.audio + 
-                ", user_profile.video = " + userProfile.video + 
-                ", audio_app = " + audioApp + 
+
+        printLog( "launchMediaApplication",
+                "user_profile.audio = " + userProfile.audio +
+                ", user_profile.video = " + userProfile.video +
+                ", audio_app = " + audioApp +
                 ", video_app = " + videoApp + "." );
-        
+
         if ( userProfile.audio && localAudioPort != 0 && remoteAudioPort != 0 ) {
-            
+
             if ( audioApp == null ) {
-                
+
                 if ( sipCodec != null ) {
-                    
-                    audioApp = new SIPAudioLauncher( sipCodec, localAudioPort, 
+
+                    audioApp = new SIPAudioLauncher( sipCodec, localAudioPort,
                             remoteMediaAddress, remoteAudioPort, rtmpUser );
                 }
                 else {
                     printLog( "launchMediaApplication", "SipCodec not initialized." );
                 }
             }
-            
+
             if ( audioApp != null ) {
-                
+
                 audioApp.startMedia();
             }
         }
         if ( userProfile.video && localVideoPort != 0 && remoteVideoPort != 0 ) {
-            
+
             if ( videoApp == null ) {
-                
-                printLog( "launchMediaApplication", 
+
+                printLog( "launchMediaApplication",
                         "No external video application nor JMF has been provided: Video not started." );
                 return;
             }
-            
+
             videoApp.startMedia();
         }
     }
@@ -482,17 +496,17 @@ public class SIPUserAgent extends CallListenerAdapter {
 
     /** Close the Media Application */
     protected void closeMediaApplication() {
-        
+
         printLog( "closeMediaApplication", "Init..." );
-        
+
         if ( audioApp != null ) {
-            
+
             audioApp.stopMedia();
             audioApp = null;
         }
-        
+
         if ( videoApp != null ) {
-            
+
             videoApp.stopMedia();
             videoApp = null;
         }
@@ -506,54 +520,54 @@ public class SIPUserAgent extends CallListenerAdapter {
      * call)
      */
     public void onCallIncoming( Call call, NameAddress callee, NameAddress caller, String sdp, Message invite ) {
-        
+
         printLog( "onCallIncoming", "Init..." );
-        
+
         if ( call != this.call ) {
             printLog( "onCallIncoming", "NOT the current call." );
             return;
         }
-        
+
         printLog( "onCallIncoming", "INCOMING." );
         printLog( "onCallIncoming", "Inside SIPUserAgent.onCallIncoming(): sdp=\n" + sdp );
-        
+
         changeStatus( UA_INCOMING_CALL );
         call.ring();
-        
+
         if ( sdp != null ) {
-            
+
             SessionDescriptor remoteSdp = new SessionDescriptor( sdp );
             SessionDescriptor localSdp = new SessionDescriptor( localSession );
-            
+
             printLog( "onCallIncoming", "localSdp = " + localSdp.toString() + "." );
             printLog( "onCallIncoming", "remoteSdp = " + remoteSdp.toString() + "." );
-            
-            // First we need to make payloads negotiation so the related 
+
+            // First we need to make payloads negotiation so the related
             // attributes can be then matched.
             SessionDescriptor newSdp = SdpUtils.makeMediaPayloadsNegotiation(localSdp, remoteSdp);
-            
-            // After we can create the correct audio codec considering 
+
+            // After we can create the correct audio codec considering
             // audio negotiation made above.
             sipCodec = SdpUtils.getNegotiatedAudioCodec( newSdp );
-            
-            // Now we complete the SDP negotiation informing the selected 
+
+            // Now we complete the SDP negotiation informing the selected
             // codec, so it can be internally updated during the process.
             SdpUtils.completeSdpNegotiation(newSdp, localSdp, remoteSdp);
-            
+
             localSession = newSdp.toString();
-            
+
             printLog( "onCallIncoming", "newSdp = " + localSession + "." );
-            
-            // Finally, we use the "newSdp" and "remoteSdp" to initialize 
+
+            // Finally, we use the "newSdp" and "remoteSdp" to initialize
             // the lasting codec informations.
-            SIPCodecUtils.initSipAudioCodec( 
-                    sipCodec, 
-                    userProfile.audioDefaultPacketization, 
+            SIPCodecUtils.initSipAudioCodec(
+                    sipCodec,
+                    userProfile.audioDefaultPacketization,
                     userProfile.audioDefaultPacketization, newSdp, remoteSdp );
         }
-        
+
         if ( listener != null ) {
-            
+
             listener.onUaCallIncoming( this, callee, caller );
         }
     }
@@ -566,14 +580,14 @@ public class SIPUserAgent extends CallListenerAdapter {
     public void onCallModifying( Call call, String sdp, Message invite ) {
 
         printLog( "onCallModifying", "Init..." );
-        
+
         if ( call != this.call ) {
             printLog( "onCallModifying", "NOT the current call." );
             return;
         }
-        
+
         printLog( "onCallModifying", "RE-INVITE/MODIFY." );
-        
+
         // to be implemented.
         // currently it simply accepts the session changes (see method
         // onCallModifying() in CallListenerAdapter)
@@ -586,16 +600,16 @@ public class SIPUserAgent extends CallListenerAdapter {
      * a 180 Ringing
      */
     public void onCallRinging( Call call, Message resp ) {
-        
+
         printLog( "onCallRinging", "Init..." );
-        
+
         if ( call != this.call && call != callTransfer ) {
             printLog( "onCallRinging", "NOT the current call." );
             return;
         }
-        
+
         printLog( "onCallRinging", "RINGING." );
-        
+
         // Play "on" sound.
         if ( listener != null ) {
             listener.onUaCallRinging( this );
@@ -605,55 +619,55 @@ public class SIPUserAgent extends CallListenerAdapter {
 
     /** Callback function called when arriving a 2xx (call accepted) */
     public void onCallAccepted( Call call, String sdp, Message resp ) {
-        
+
         printLog( "onCallAccepted", "Init..." );
-        
+
         if ( call != this.call && call != callTransfer ) {
             printLog( "onCallAccepted", "NOT the current call." );
             return;
         }
-        
+
         printLog( "onCallAccepted", "ACCEPTED/CALL." );
-        
+
         changeStatus( UA_ONCALL );
-        
+
         SessionDescriptor remoteSdp = new SessionDescriptor( sdp );
         SessionDescriptor localSdp = new SessionDescriptor( localSession );
-        
+
         printLog( "onCallAccepted", "localSdp = " + localSdp.toString() + "." );
         printLog( "onCallAccepted", "remoteSdp = " + remoteSdp.toString() + "." );
-        
-        // First we need to make payloads negotiation so the related 
+
+        // First we need to make payloads negotiation so the related
         // attributes can be then matched.
         SessionDescriptor newSdp = SdpUtils.makeMediaPayloadsNegotiation(localSdp, remoteSdp);
-        
-        // After we can create the correct audio codec considering 
+
+        // After we can create the correct audio codec considering
         // audio negotiation made above.
         sipCodec = SdpUtils.getNegotiatedAudioCodec( newSdp );
-        
-        // Now we complete the SDP negotiation informing the selected 
+
+        // Now we complete the SDP negotiation informing the selected
         // codec, so it can be internally updated during the process.
         SdpUtils.completeSdpNegotiation(newSdp, localSdp, remoteSdp);
-        
+
         localSession = newSdp.toString();
-        
+
         printLog( "onCallAccepted", "newSdp = " + localSession + "." );
-        
-        // Finally, we use the "newSdp" and "remoteSdp" to initialize 
+
+        // Finally, we use the "newSdp" and "remoteSdp" to initialize
         // the lasting codec informations.
-        SIPCodecUtils.initSipAudioCodec( 
-                sipCodec, 
-                userProfile.audioDefaultPacketization, 
+        SIPCodecUtils.initSipAudioCodec(
+                sipCodec,
+                userProfile.audioDefaultPacketization,
                 userProfile.audioDefaultPacketization, newSdp, remoteSdp );
-        
+
         if ( userProfile.noOffer ) {
-            
+
             // Answer with the local sdp.
             call.ackWithAnswer( localSession );
         }
-        
+
         launchMediaApplication();
-        
+
         if ( call == callTransfer ) {
             StatusLine statusLine = resp.getStatusLine();
             int code = statusLine.getCode();
@@ -671,21 +685,21 @@ public class SIPUserAgent extends CallListenerAdapter {
     public void onCallConfirmed( Call call, String sdp, Message ack ) {
 
         printLog( "onCallConfirmed", "Init..." );
-        
+
         if ( call != this.call ) {
             printLog( "onCallConfirmed", "NOT the current call." );
             return;
         }
-        
+
         printLog( "onCallConfirmed", "CONFIRMED/CALL." );
-        
+
         changeStatus( UA_ONCALL );
-        
+
         // Play "on" sound.
         if ( clip_on != null ) {
             clip_on.replay();
         }
-        
+
         launchMediaApplication();
     }
 
@@ -694,12 +708,12 @@ public class SIPUserAgent extends CallListenerAdapter {
     public void onCallReInviteAccepted( Call call, String sdp, Message resp ) {
 
         printLog( "onCallReInviteAccepted", "Init..." );
-        
+
         if ( call != this.call ) {
             printLog( "onCallReInviteAccepted", "NOT the current call." );
             return;
         }
-        
+
         printLog( "onCallReInviteAccepted", "RE-INVITE-ACCEPTED/CALL." );
     }
 
@@ -708,14 +722,14 @@ public class SIPUserAgent extends CallListenerAdapter {
     public void onCallReInviteRefused( Call call, String reason, Message resp ) {
 
         printLog( "onCallReInviteRefused", "Init..." );
-        
+
         if ( call != this.call ) {
             printLog( "onCallReInviteRefused", "NOT the current call" );
             return;
         }
-        
+
         printLog( "onCallReInviteRefused", "RE-INVITE-REFUSED (" + reason + ")/CALL." );
-        
+
         if ( listener != null ) {
             listener.onUaCallFailed( this );
         }
@@ -724,18 +738,18 @@ public class SIPUserAgent extends CallListenerAdapter {
 
     /** Callback function called when arriving a 4xx (call failure) */
     public void onCallRefused( Call call, String reason, Message resp ) {
-        
+
         printLog( "onCallRefused", "Init..." );
-        
+
         if ( call != this.call ) {
             printLog( "onCallRefused", "NOT the current call." );
             return;
         }
-        
+
         printLog( "onCallRefused", "REFUSED (" + reason + ")." );
-        
+
         changeStatus( UA_IDLE );
-        
+
         if ( call == callTransfer ) {
             StatusLine status_line = resp.getStatusLine();
             int code = status_line.getCode();
@@ -743,7 +757,7 @@ public class SIPUserAgent extends CallListenerAdapter {
             this.call.notify( code, reason );
             callTransfer = null;
         }
-        
+
         if ( listener != null ) {
             listener.onUaCallFailed( this );
         }
@@ -752,16 +766,16 @@ public class SIPUserAgent extends CallListenerAdapter {
 
     /** Callback function called when arriving a 3xx (call redirection) */
     public void onCallRedirection( Call call, String reason, Vector contact_list, Message resp ) {
-        
+
         printLog( "onCallRedirection", "Init..." );
-        
+
         if ( call != this.call ) {
             printLog( "onCallRedirection", "NOT the current call." );
             return;
         }
-        
+
         printLog( "onCallRedirection", "REDIRECTION (" + reason + ")." );
-        
+
         call.call( ( (String) contact_list.elementAt( 0 ) ) );
     }
 
@@ -773,16 +787,16 @@ public class SIPUserAgent extends CallListenerAdapter {
     public void onCallCanceling( Call call, Message cancel ) {
 
         printLog( "onCallCanceling", "Init..." );
-        
+
         if ( call != this.call ) {
             printLog( "onCallCanceling", "NOT the current call." );
             return;
         }
-        
+
         printLog( "onCallCanceling", "CANCEL." );
-        
+
         changeStatus( UA_IDLE );
-        
+
         if ( listener != null ) {
             listener.onUaCallCancelled( this );
         }
@@ -793,34 +807,34 @@ public class SIPUserAgent extends CallListenerAdapter {
     public void onCallClosing( Call call, Message bye ) {
 
         printLog( "onCallClosing", "Init..." );
-        
+
         if ( call != this.call && call != callTransfer ) {
             printLog( "onCallClosing", "NOT the current call." );
             return;
         }
-        
+
         if ( call != callTransfer && callTransfer != null ) {
             printLog( "onCallClosing", "CLOSE PREVIOUS CALL." );
             this.call = callTransfer;
             callTransfer = null;
             return;
         }
-        
+
         printLog( "onCallClosing", "CLOSE." );
-        
+
         closeMediaApplication();
-        
+
         // Play "off" sound.
         if ( clip_off != null ) {
             clip_off.replay();
         }
-        
+
         if ( listener != null ) {
             listener.onUaCallClosed( this );
         }
-        
+
         changeStatus( UA_IDLE );
-        
+
         // Rest local sdp for next call.
         initSessionDescriptor();
     }
@@ -833,48 +847,48 @@ public class SIPUserAgent extends CallListenerAdapter {
     public void onCallClosed( Call call, Message resp ) {
 
         printLog( "onCallClosed", "Init..." );
-        
+
         if ( call != this.call ) {
             printLog( "onCallClosed", "NOT the current call." );
             return;
         }
-        
+
         printLog( "onCallClosed", "CLOSE/OK." );
-        
+
         if ( listener != null ) {
             listener.onUaCallClosed( this );
         }
-        
+
         changeStatus( UA_IDLE );
     }
 
 
     /** Callback function called when the invite expires */
     public void onCallTimeout( Call call ) {
-        
+
         printLog( "onCallTimeout", "Init..." );
-        
+
         if ( call != this.call ) {
             printLog( "onCallTimeout", "NOT the current call." );
             return;
         }
-        
+
         printLog( "onCallTimeout", "NOT FOUND/TIMEOUT." );
-        
+
         changeStatus( UA_IDLE );
-        
+
         if ( call == callTransfer ) {
             int code = 408;
             String reason = "Request Timeout";
             this.call.notify( code, reason );
             callTransfer = null;
         }
-        
+
         // Play "off" sound.
         if ( clip_off != null ) {
             clip_off.replay();
         }
-        
+
         if ( listener != null ) {
             listener.onUaCallFailed( this );
         }
@@ -890,16 +904,16 @@ public class SIPUserAgent extends CallListenerAdapter {
     public void onCallTransfer( ExtendedCall call, NameAddress refer_to, NameAddress refered_by, Message refer ) {
 
         printLog( "onCallTransfer", "Init..." );
-        
+
         if ( call != this.call ) {
             printLog( "onCallTransfer", "NOT the current call." );
             return;
         }
-        
+
         printLog( "onCallTransfer", "Transfer to " + refer_to.toString() + "." );
-        
+
         call.acceptTransfer();
-        
+
         callTransfer = new ExtendedCall( sipProvider, userProfile.fromUrl, userProfile.contactUrl, this );
         callTransfer.call( refer_to.toString(), localSession );
     }
@@ -909,12 +923,12 @@ public class SIPUserAgent extends CallListenerAdapter {
     public void onCallTransferAccepted( ExtendedCall call, Message resp ) {
 
         printLog( "onCallTransferAccepted", "Init..." );
-        
+
         if ( call != this.call ) {
             printLog( "onCallTransferAccepted", "NOT the current call." );
             return;
         }
-        
+
         printLog( "onCallTransferAccepted", "Transfer accepted." );
     }
 
@@ -923,12 +937,12 @@ public class SIPUserAgent extends CallListenerAdapter {
     public void onCallTransferRefused( ExtendedCall call, String reason, Message resp ) {
 
         printLog( "onCallTransferRefused", "Init..." );
-        
+
         if ( call != this.call ) {
             printLog( "onCallTransferRefused", "NOT the current call." );
             return;
         }
-        
+
         printLog( "onCallTransferRefused", "Transfer refused." );
     }
 
@@ -937,16 +951,16 @@ public class SIPUserAgent extends CallListenerAdapter {
     public void onCallTransferSuccess( ExtendedCall call, Message notify ) {
 
         printLog( "onCallTransferSuccess", "Init..." );
-        
+
         if ( call != this.call ) {
             printLog( "onCallTransferSuccess", "NOT the current call." );
             return;
         }
-        
+
         printLog( "onCallTransferSuccess", "Transfer successed." );
-        
+
         call.hangup();
-        
+
         if ( listener != null ) {
             listener.onUaCallTrasferred( this );
         }
@@ -960,18 +974,18 @@ public class SIPUserAgent extends CallListenerAdapter {
     public void onCallTransferFailure( ExtendedCall call, String reason, Message notify ) {
 
         printLog( "onCallTransferFailure", "Init..." );
-        
+
         if ( call != this.call ) {
             printLog( "onCallTransferFailure", "NOT the current call." );
             return;
         }
-        
+
         printLog( "onCallTransferFailure", "Transfer failed." );
     }
 
 
     private static void printLog( String method, String message ) {
-    	
+
         log.debug( "SipUserAgent - " + method + " -> " + message );
         System.out.println( "SipUserAgent - " + method + " -> " + message );
     }

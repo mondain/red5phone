@@ -21,7 +21,7 @@
 			private var ringChannel:SoundChannel    = null;
 			private var dialChannel:SoundChannel    = null;
 			private var dtmfChannel:SoundChannel    = null;
-
+			private var conferenceFlag:Boolean 	= false
 					
 			private var timer:Timer;
 			private var elapsed:uint;
@@ -44,6 +44,9 @@
 
 			[@Embed(source="assets/icon_speaker_16x16.png")]
 			public const speaker:Class;
+			
+			[@Embed(source="assets/conference_16x16.png")]
+			public const conference:Class;			
 
 			[@Embed(source="assets/history.png")]
 			public const history:Class;
@@ -134,7 +137,7 @@
 				} else {
 					mic.setUseEchoSuppression(true);
 					mic.setLoopBack(false);
-					mic.setSilenceLevel(0,20000);
+					mic.setSilenceLevel(10,20000);
 					mic.gain = 60;
 					mic.rate = 8;
 					mic.addEventListener(ActivityEvent.ACTIVITY, micActivityHandler);
@@ -243,7 +246,16 @@
 				
 				volSlider.enabled 	 = true;
 				micSlider.enabled 	 = true;
-				pickupButton.visible = false;
+				
+				pickupButton.visible 	= false;
+				dialButton.enabled   	= false;				
+				transferButton.visible	= true;
+				clearButton.enabled  	= true;				
+				
+				if (conferenceFlag) {
+					conferenceFlag = false;					
+					transferButton.visible = false;
+				}
 				indicatorIcon.source = green;
 				startTimer();
 				
@@ -263,9 +275,11 @@
 					outgoingNetStream.publish(null);
 				}
 				
+				doHangUp();
 				isConnected 		 = false;
 				dialButton.enabled   = true;
 				clearButton.enabled  = false;
+				transferButton.visible=false;
 				pickupButton.visible = false;
 				
 				volSlider.enabled    = false;
@@ -298,6 +312,7 @@
 				isConnected 		 = false;
 				dialButton.enabled   = true;
 				clearButton.enabled  = false;
+				transferButton.visible=false;
 				pickupButton.visible = false;
 				indicatorIcon.source = gray;
 				if(isRinging) {
@@ -402,7 +417,12 @@
 				dialedCalls.unshift(dialedCallObj);
 				
 			}
-			
+			public function doTransfer():void {
+				parentApplication.red5Manager.doTransfer(dialnumTxt.text);
+			}
+			public function doTransfer2(transferTo:String):void {
+				parentApplication.red5Manager.doTransfer(dialnumTxt.text);
+			}
 			private function doHangUp():void {
 				parentApplication.red5Manager.doHangUp();
 				
@@ -410,6 +430,7 @@
 				dialButton.enabled   = true;
 				clearButton.enabled  = false;
 				pickupButton.visible = false;
+				transferButton.visible= false;
 				volSlider.enabled    = false;
 				micSlider.enabled    = false;
 				indicatorIcon.source = gray;
@@ -445,6 +466,7 @@
 				
 				dialButton.enabled = false;
 				clearButton.enabled = true;
+			    transferButton.visible= true;
 			}
 			
 			public function doClose1():void {
@@ -457,7 +479,6 @@
 			}
 			
 			public function addChr(chr:String):void {
-				parentApplication.red5Manager.doCallChar(chr);			
 				dialnumTxt.text += chr;
 			}
 			
@@ -522,6 +543,17 @@
 				
 				missedCallIndicator.source = null;
 			}
+			
+			private function doConference():void {
+			
+				conferenceFlag = true;
+				
+				if (isConnected)
+					parentApplication.red5Manager.addToConf();
+				else
+					parentApplication.red5Manager.joinConf();			
+			
+			}
 					
 		]]>
 	</mx:Script>
@@ -571,8 +603,11 @@
 		allowTrackClick="true" liveDragging="true"  thumbDrag="changeMicVolume(event)" enabled="false" />
 	<mx:VSlider id="volSlider" x="210" y="132" height="84" minimum="0" maximum="100" value="40" 
 		allowTrackClick="true" liveDragging="true"  thumbDrag="changeVolume(event)" enabled="false" />
-	<mx:Image x="181" y="105" source="{gray}" id="indicatorIcon"/>
+	<mx:Image x="185" y="105" source="{gray}" id="indicatorIcon"/>
 	<mx:Image x="135" y="105" source="{history}" click="showHistory()" toolTip="Click Icon for CallHistory"/>
+	<mx:Image x="160" y="105" source="{conference}" click="doConference()" toolTip="Click when idle to join a conference or when active to add caller to conference"/>	
+	
+	<mx:Button x="133" y="194" label="Transfer" id="transferButton" click="doTransfer()" visible="false"/>
 
 
 </mx:Canvas>
