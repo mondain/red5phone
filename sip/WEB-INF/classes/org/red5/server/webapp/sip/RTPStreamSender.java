@@ -250,7 +250,7 @@ public class RTPStreamSender {
 
                 for ( int r = 0; r < 3; r++ ) {
                     dtmfpacket.setSequenceNumber( seqn++ );
-                    dtmfpacket.setTimestamp( sipCodec.getOutgoingEncodedFrameSize() );
+                    dtmfpacket.setTimestamp( sipCodec.getOutgoingDecodedFrameSize() );
                     doRtpDelay();
                     rtpSocketSend( dtmfpacket );
                 }
@@ -261,7 +261,7 @@ public class RTPStreamSender {
                 dtmfbuf[ startPayloadPos + 3 ] = 116; // duration 8 bits
                 for ( int r = 0; r < 3; r++ ) {
                     dtmfpacket.setSequenceNumber( seqn++ );
-                    dtmfpacket.setTimestamp(sipCodec.getOutgoingEncodedFrameSize() );
+                    dtmfpacket.setTimestamp(sipCodec.getOutgoingDecodedFrameSize() );
                     doRtpDelay();
                     rtpSocketSend( dtmfpacket );
                 }
@@ -269,7 +269,7 @@ public class RTPStreamSender {
                 // send 200 ms of blank packets
                 for ( int r = 0; r < 200 / sipCodec.getOutgoingPacketization(); r++ ) {
                     blankpacket.setSequenceNumber( seqn++ );
-                    blankpacket.setTimestamp(sipCodec.getOutgoingEncodedFrameSize() );
+                    blankpacket.setTimestamp(sipCodec.getOutgoingDecodedFrameSize() );
                     doRtpDelay();
                     rtpSocketSend( blankpacket );
                 }
@@ -343,7 +343,7 @@ public class RTPStreamSender {
 
                 decoderMap = decoder.decode( decoderMap, audioStream.bytes, 1, tempBuffer, 0 );
 
-                tempBuffer = ResampleUtils.normalize(tempBuffer, 256); 	// normalise volume
+                //tempBuffer = ResampleUtils.normalize(tempBuffer, 256); 	// normalise volume
 
                 tempBufferRemaining = tempBuffer.length;
 
@@ -510,7 +510,7 @@ public class RTPStreamSender {
 
         try {
          	rtpSocket.send( rtpPacket );
-            time += rtpPacket.getPayloadLength();
+            time += sipCodec.getOutgoingDecodedFrameSize();
         }
         catch ( Exception e ) {
         }

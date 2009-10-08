@@ -20,12 +20,12 @@ package {
 		private var red5Url:String;
 		private var sipRealm:String;
 		private var sipServer:String; 
-		private var mailbox:String; 
+		private var conference:String; 
 		private var obproxy:String;
 		
 		private var isConnected:Boolean = false;
 		
-		public function Red5Manager(obproxy:String, uid:String, phone:String, username:String, password:String, red5Url:String, sipRealm:String, sipServer:String, mailbox:String) {	
+		public function Red5Manager(obproxy:String, uid:String, phone:String, username:String, password:String, red5Url:String, sipRealm:String, sipServer:String, conference:String) {	
 			this.uid = uid;
 			this.phone     = phone;
 			this.username  = username;
@@ -33,7 +33,7 @@ package {
 			this.red5Url   = red5Url;
 			this.sipRealm  = sipRealm;
 			this.sipServer = sipServer
-			this.mailbox   = mailbox;
+			this.conference   = conference;
 			this.obproxy   = obproxy;
 			this.init();
 		}
@@ -127,7 +127,7 @@ package {
 			trace("RED5Manager callState " + msg);
 			dispatchEvent (new Red5MessageEvent(Red5MessageEvent.MESSAGE, Red5MessageEvent.CALLSTATE,  msg));
 			
-			if (msg == "onUaCallClosed" ||  msg == "onUaCallFailed") {
+			if (msg == "onUaCallClosed" ||  msg == "onUaCallFailed" || msg == "onUaCallTrasferred") {
 				dispatchEvent (new CallDisconnectedEvent(CallDisconnectedEvent.DISCONNECTED,  msg));
 				isConnected = false;
 			}
@@ -152,15 +152,15 @@ package {
 		}
 		
 		public function mailBoxStatus(isWaitting:Boolean, newMessage:String, oldMessage:String):* {
-			if(mailbox.length > 0) {
-				dispatchEvent (new MailBoxStatusEvent(MailBoxStatusEvent.MAIBOXSTATUS, isWaitting,  newMessage, oldMessage));
-			}
+
+			dispatchEvent (new MailBoxStatusEvent(MailBoxStatusEvent.MAIBOXSTATUS, isWaitting,  newMessage, oldMessage));
+
 		}
 		
 		public function mailBoxCount(newMessage:String, oldMessage:String):* {
-			if(mailbox.length > 0) {
-				dispatchEvent (new MailBoxCountEvent(MailBoxCountEvent.MAIBOXCOUNT, newMessage,  oldMessage));
-			}
+
+			dispatchEvent (new MailBoxCountEvent(MailBoxCountEvent.MAIBOXCOUNT, newMessage,  oldMessage));
+
 		}
 		
 		
@@ -177,6 +177,17 @@ package {
 		
 		public function doCall(dialStr:String):void {
 			netConnection.call("call", null, uid, dialStr);
+		}
+		public function doTransfer(transferTo:String):void {
+			netConnection.call("transfer", null, uid, transferTo);
+		}
+		
+		public function joinConf():void {
+			netConnection.call("call", null, uid, this.conference);
+		}
+
+		public function addToConf():void {
+			netConnection.call("transfer", null, uid, this.conference);
 		}
 		
 		public function doCallChar(chr:String):void {
@@ -211,15 +222,14 @@ package {
 		//********************************************************************************************
 		
 		public function doMialBoxStatus():void {
-			if(mailbox.length > 0) {
-				netConnection.call("vmStatus", null, mailbox);			
-			}
+
+			//netConnection.call("vmStatus", null);			
+
 		}
 		
 		public function doMailBoxCount():void {
-			if(mailbox.length > 0) {
-				netConnection.call("vmCount", null, mailbox);	
-			}		
+
+			//netConnection.call("vmCount", null;			
 		}
 	}
 }

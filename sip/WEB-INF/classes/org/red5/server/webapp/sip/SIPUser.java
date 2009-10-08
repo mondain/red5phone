@@ -136,7 +136,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public SIPUser( String sessionID, IConnection service, int sipPort, int rtpPort ) throws IOException {
 
-        p( "SIPUser Constructor: sip port " + sipPort + " rtp port:" + rtpPort );
+        p( "Constructor: sip port " + sipPort + " rtp port:" + rtpPort );
 
         try {
 
@@ -147,7 +147,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
         }
         catch ( Exception e ) {
-            p( "SIPUser constructor: Exception:>\n" + e );
+            p( "constructor: Exception:>\n" + e );
 
         }
     }
@@ -171,7 +171,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void login( String obproxy, String phone, String username, String password, String realm, String proxy ) {
 
-        p( "SIPUser login" );
+        p( "login" );
 
         this.username = username;
         this.password = password;
@@ -220,7 +220,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void register() {
 
-        p( "SIPUser register" );
+        p( "register" );
 
         try {
 
@@ -239,7 +239,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void dtmf( String digits ) {
 
-        p( "SIPUser dtmf " + digits );
+        p( "dtmf " + digits );
 
         try {
 
@@ -256,7 +256,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void call( String destination ) {
 
-        p( "SIPUser Calling " + destination );
+        p( "Calling " + destination );
 
         try {
 
@@ -285,9 +285,33 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         }
     }
 
+	/** Add by Lior call transfer test */
+
+
+	   public void transfer( String transferTo ) {
+
+	           p( "Transfer To: " + transferTo );
+
+	           try {
+	               if (transferTo.indexOf("@") == -1) {
+					transferTo = transferTo + "@" + proxy ;
+			   }
+
+	               ua.transfer( transferTo );
+
+	           }
+	           catch ( Exception e ) {
+	               p( "call: Exception:>\n" + e );
+	           }
+	       }
+
+	/** end of transfer code */
+
+
+
 
 	public void close() {
-		p("SIPUser close1");
+		p("close1");
          try {
 
 			hangup();
@@ -299,7 +323,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 		}
 
         try {
-            p("SIPUser provider.halt");
+            p("provider.halt");
 			sip_provider.halt();
 
 	    } catch(Exception e) {
@@ -310,7 +334,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void accept() {
 
-        p( "SIPUser accept" );
+        p( "accept" );
 
         if ( ua != null ) {
 
@@ -334,7 +358,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void hangup() {
 
-        p( "SIPUser hangup" );
+        p( "hangup" );
 
         if ( ua != null ) {
 
@@ -351,7 +375,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void streamStatus( String status ) {
 
-        p( "SIPUser streamStatus " + status );
+        p( "streamStatus " + status );
 
         if ( "stop".equals( status ) ) {
             // ua.listen();
@@ -361,7 +385,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void unregister() {
 
-        p( "SIPUser unregister" );
+        p( "unregister" );
 
         if ( ra != null ) {
             if ( ra.isRegistering() ) {
@@ -380,7 +404,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     private void closeStreams() {
 
-        p( "SIPUser closeStreams" );
+        p( "closeStreams" );
 
         try {
 
@@ -425,6 +449,8 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         String destination = callee.getAddress().toString();
         String destinationName = callee.hasDisplayName() ? callee.getDisplayName() : "";
 
+        p( "onUaCallIncoming " + source + " " + destination);
+
         if ( service != null ) {
             ( (IServiceCapableConnection) service ).invoke( "incoming", new Object[] { source, sourceName, destination,
                 destinationName } );
@@ -433,6 +459,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void onUaCallRinging( SIPUserAgent ua ) {
+        p( "onUaCallRinging" );
 
         if ( service != null ) {
             ( (IServiceCapableConnection) service ).invoke( "callState", new Object[] { "onUaCallRinging" } );
@@ -441,6 +468,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void onUaCallAccepted( SIPUserAgent ua ) {
+        p( "onUaCallAccepted" );
 
         if ( service != null ) {
             ( (IServiceCapableConnection) service ).invoke( "callState", new Object[] { "onUaCallAccepted" } );
@@ -451,7 +479,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void onUaCallConnected( SIPUserAgent ua ) {
 
-        p( "SIP Call Connected" );
+        p( "onUaCallConnected" );
         sipReady = true;
 
         if ( service != null ) {
@@ -462,11 +490,17 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void onUaCallTrasferred( SIPUserAgent ua ) {
+        p( "onUaCallTrasferred");
+
+		 if (service != null) {
+		 	((IServiceCapableConnection) service).invoke("callState", new Object[] {"onUaCallTrasferred"});
+		}
 
     }
 
 
     public void onUaCallCancelled( SIPUserAgent ua ) {
+        p( "onUaCallCancelled");
 
         sipReady = false;
         closeStreams();
@@ -480,6 +514,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void onUaCallFailed( SIPUserAgent ua ) {
+        p( "onUaCallFailed");
 
         sipReady = false;
         closeStreams();
@@ -493,6 +528,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 
     public void onUaCallClosed( SIPUserAgent ua ) {
+        p( "onUaCallClosed");
 
         sipReady = false;
         closeStreams();
@@ -528,6 +564,6 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
     private void p( String s ) {
 
         log.debug( s );
-		System.out.println(s);
+		System.out.println("[SIPUser] " + s);
     }
 }

@@ -19,7 +19,7 @@
 			private var red5Url:String;
 			private var sipRealm:String;
 			private var sipServer:String; 
-			private var mailbox:String; 
+			private var conference:String; 
 			private var obProxy:String;
 			public var red5Manager:Red5Manager     = null;
 
@@ -28,7 +28,7 @@
 			public function presetup():void 
 			{
 				
-				externalConfig = {autologin: false, phone: "", username: "", password: "", mailbox: ""};				
+				externalConfig = {autologin: false, phone: "", username: "", password: "", conference: ""};				
 				var tempConfig:Object = ExternalInterface.call("red5phone_getConfig");
 				
 				for (var extKey:String in tempConfig)
@@ -42,13 +42,15 @@
 			    	var request:URLRequest = new URLRequest("config.xml");	
 			    	
 				loader.load(request);
-				loader.addEventListener(Event.COMPLETE, onComplete);	
-				
+				loader.addEventListener(Event.COMPLETE, onComplete);			
 			        ExternalInterface.addCallback("dial", function(destination:String):void {
 				phoneCanvas.doCall2(destination);
 				}); 
-                                ExternalInterface.addCallback("login1", function(obProxy1:String,phone1:String, username1:String, password1:String, realm1:String, server1:String, url1:String, mailbox1:String):void {
-				login(obProxy1,myuid, phone1, username1, password1, realm1,server1,url1,mailbox1);
+                ExternalInterface.addCallback("transfer", function(transferTo:String):void {
+				phoneCanvas.doTransfer2(transferTo);
+				}); 
+                ExternalInterface.addCallback("login1", function(obProxy1:String,phone1:String, username1:String, password1:String, realm1:String, server1:String, url1:String, conference1:String):void {
+				login(obProxy1, myuid, phone1, username1, password1, realm1,server1,url1,conference1);
 				}); 
 				ExternalInterface.addCallback("closeme", function():void {
 				phoneCanvas.doClose1();
@@ -60,18 +62,18 @@
 				red5Url 	= configXML.red5Url[0];
 				sipRealm 	= configXML.sipRealm[0];
 				sipServer 	= configXML.sipServer[0];
-				obProxy     = configXML.obProxy[0];
+                obProxy     = configXML.obProxy[0];
                 
-                                 phone    = externalConfig.phone;
+                phone    = externalConfig.phone;
 				username = externalConfig.username;
 				password = externalConfig.password;
-				mailbox = externalConfig.mailbox;
+				conference = externalConfig.conference;
 					
-				loginCanvas.setParameters(obProxy,sipRealm, sipServer, red5Url, externalConfig.phone, externalConfig.username, externalConfig.password, externalConfig.mailbox, externalConfig.autologin);									
+				loginCanvas.setParameters(obProxy, sipRealm, sipServer, red5Url, externalConfig.phone, externalConfig.username, externalConfig.password, externalConfig.conference, externalConfig.autologin);									
 					
 			}
 			
-			public function login(obProxy:String, myuid:String, phone:String, username:String, password:String, realm:String, server:String, url:String, mailbox:String):void {
+			public function login(obProxy:String, myuid:String, phone:String, username:String, password:String, realm:String, server:String, url:String, conference:String):void {
 				this.myuid = myuid;
 				this.phone = phone;
 				this.username = username;
@@ -80,9 +82,9 @@
 				this.sipRealm = realm;
 				this.sipServer = server;
 				this.obProxy = obProxy;
-				this.mailbox   = mailbox;
+				this.conference   = conference;
 				
-				red5Manager = new Red5Manager(obProxy,myuid, phone, username, password, red5Url, sipRealm, sipServer, mailbox);
+				red5Manager = new Red5Manager(obProxy, myuid, phone, username, password, red5Url, sipRealm, sipServer, conference);
 				red5Manager.connectRed5();
 				red5Manager.addEventListener(Red5MessageEvent.MESSAGE, receivedRed5MessageEvent);
 				red5Manager.addEventListener(IncomingCallEvent.INCOMING, incomingCallEvent);
@@ -101,17 +103,9 @@
 				switch(msgType) {
 					case Red5MessageEvent.NETSTAUS:
 						loginCanvas.alertMessage.text = message;
-						
-						
-						if(message == 'Failed to connect to Red5') {
-							loginCanvas.visible = true;
-							phoneCanvas.visible = false;						
-						}
-						
 						break;
 				
 					case Red5MessageEvent.SIP_REGISTER:
-					
 						if(message == 'SUCCESS') {
 							loginCanvas.alertMessage.text = "Reg. Sucess";
 							
@@ -121,8 +115,8 @@
 							phoneCanvas.registerTxt.text = "Ready";
 							phoneCanvas.setFocus();
 							
-							red5Manager.doMialBoxStatus();
-							red5Manager.doMailBoxCount();
+							//red5Manager.doMialBoxStatus();
+							//red5Manager.doMailBoxCount();
 							
 						} 
 						else {

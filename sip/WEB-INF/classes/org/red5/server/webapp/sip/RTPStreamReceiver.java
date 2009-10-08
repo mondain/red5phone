@@ -1,6 +1,5 @@
 package org.red5.server.webapp.sip;
 
-
 import local.net.RtpPacket;
 import local.net.RtpSocket;
 
@@ -167,7 +166,7 @@ public class RTPStreamReceiver extends Thread {
             tempBufferOffset += copySize;
             pcmBufferOffset += copySize;
 
-            if ( tempBufferOffset == NELLYMOSER_DECODED_PACKET_SIZE ) {
+            if ( tempBufferOffset == NELLYMOSER_DECODED_PACKET_SIZE  ) {
 
                 ByteStream encodedStream = new ByteStream( NELLYMOSER_ENCODED_PACKET_SIZE );
 
@@ -182,20 +181,19 @@ public class RTPStreamReceiver extends Thread {
                     tempBuffer = ResampleUtils.normalize(tempBuffer, 256); 	// normalise volume
 
                     if ( true ) {
-
-						encoderMap = CodecImpl.encode(encoderMap, tempBuffer, encodedStream.bytes);
+                    	encoderMap = CodecImpl.encode(encoderMap, tempBuffer, encodedStream.bytes);
 						rtmpUser.pushAudio(NELLYMOSER_ENCODED_PACKET_SIZE, encodedStream.bytes, timeStamp, 82);
+
                     }
                     else {
-
-                        byte[] aux = ResampleUtils.resample(
+                    	byte[] aux = ResampleUtils.resample(
                                 (float) ( 8.0 / 11.025 ), tempBuffer );
 
                         rtmpUser.pushAudio( aux.length, aux, timeStamp, 6 );
                     }
                 }
                 catch ( Exception exception ) {
-                    println( "forwardAudioToFlashPlayer", "asao Encoder Error." );
+                   println( "forwardAudioToFlashPlayer",  exception.toString() );
                 }
 
                 timeStamp = timeStamp + NELLYMOSER_ENCODED_PACKET_SIZE;
@@ -262,32 +260,35 @@ public class RTPStreamReceiver extends Thread {
                         byte[] packetBuffer = rtpPacket.getPacket();
                         int offset = rtpPacket.getHeaderLength();
                         int length = rtpPacket.getPayloadLength();
+                        int payloadType = rtpPacket.getPayloadType();
 
                         //println( "run",
                         //        "pkt.length = " + packetBuffer.length
                         //        + ", offset = " + offset
                         //        + ", length = " + length + "." );
 
-                        BufferUtils.byteBufferIndexedCopy(
-                                codedBuffer,
-                                0,
-                                packetBuffer,
-                                offset,
-                                sipCodec.getIncomingEncodedFrameSize() );
+                        if(payloadType < 20) {
+	                        BufferUtils.byteBufferIndexedCopy(
+	                                codedBuffer,
+	                                0,
+	                                packetBuffer,
+	                                offset,
+	                                sipCodec.getIncomingEncodedFrameSize() );
 
-                        int decodedBytes = sipCodec.codecToPcm( codedBuffer, decodingBuffer );
+	                        int decodedBytes = sipCodec.codecToPcm( codedBuffer, decodingBuffer );
 
-                        //println( "run",
-                        //        "encodedBytes = " + decodedBytes +
-                        //        ", incomingDecodedFrameSize = " +
-                        //        sipCodec.getIncomingDecodedFrameSize() + "." );
+	                        //println( "run",
+	                        //        "encodedBytes = " + decodedBytes +
+	                        //        ", incomingDecodedFrameSize = " +
+	                        //        sipCodec.getIncomingDecodedFrameSize() + "." );
 
-                        if ( decodedBytes == sipCodec.getIncomingDecodedFrameSize() ) {
+	                        if ( decodedBytes == sipCodec.getIncomingDecodedFrameSize()) {
 
-                            forwardAudioToFlashPlayer( decodingBuffer );
-                        }
-                        else {
-                            println( "fillRtpPacketBuffer", "Failure decoding buffer." );
+	                            forwardAudioToFlashPlayer( decodingBuffer );
+	                        }
+	                        else {
+	                            println( "fillRtpPacketBuffer", "Failure decoding buffer." );
+	                        }
                         }
                     }
                 }

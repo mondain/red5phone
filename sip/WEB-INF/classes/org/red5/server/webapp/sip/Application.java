@@ -21,7 +21,6 @@ import org.red5.server.api.stream.IPlaylistSubscriberStream;
 import org.red5.server.api.stream.IStreamAwareScopeHandler;
 import org.red5.server.api.stream.ISubscriberStream;
 
-
 public class Application extends ApplicationAdapter implements IStreamAwareScopeHandler {
 
     protected static Logger log = Red5LoggerFactory.getLogger( Application.class, "sip" );
@@ -45,6 +44,7 @@ public class Application extends ApplicationAdapter implements IStreamAwareScope
     private Map< String, String > userNames = new HashMap< String, String >();
 
 
+
     @Override
     public boolean appStart( IScope scope ) {
 
@@ -60,8 +60,11 @@ public class Application extends ApplicationAdapter implements IStreamAwareScope
         // stopRTPPort =
         // Integer.parseInt(PacketHandler.getInstance().getEndRTPPort());
 
+		loginfo("Red5SIP using RTP port range " + startRTPPort + "-" + stopRTPPort + ", using SIP port range " + startSIPPort + "-" + stopSIPPort);
+
         sipPort = startSIPPort;
         rtpPort = startRTPPort;
+
         return true;
     }
 
@@ -243,6 +246,52 @@ public class Application extends ApplicationAdapter implements IStreamAwareScope
 		if(sipUser != null) {
 			loginfo("Red5SIP Call found user " + uid + " making call to " + destination);
 			sipUser.call(destination);
+		}
+
+	}
+
+
+	/** call tarensfer test by Lior */
+
+
+	 public void transfer(String uid, String transferTo) {
+			loginfo("Red5SIP transfer " + transferTo);
+
+			SIPUser sipUser = sipManager.getSIPUser(uid);
+
+			if(sipUser != null) {
+				loginfo("Red5SIP Call found user " + uid + " transfering call to " + transferTo);
+				sipUser.transfer(transferTo);
+			}
+
+		}
+
+	/** transfer end tetst */
+
+
+
+	public void addToConf(String uid, String conf) {
+		loginfo("Red5SIP addToConf " + conf);
+
+		SIPUser sipUser = sipManager.getSIPUser(uid);
+
+		if(sipUser != null) {
+			loginfo("Red5SIP addToConf found user " + uid + " adding to conf " + conf);
+			sipUser.transfer("8" + conf);
+		}
+
+	}
+
+
+
+	public void joinConf(String uid, String conf) {
+		loginfo("Red5SIP joinConf " + conf);
+
+		SIPUser sipUser = sipManager.getSIPUser(uid);
+
+		if(sipUser != null) {
+			loginfo("Red5SIP joinConf found user " + uid + " joining conf " + conf);
+			sipUser.call("8" + conf );
 		}
 
 	}
