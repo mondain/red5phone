@@ -278,6 +278,11 @@ public class SIPUserAgent extends CallListenerAdapter {
 
         changeStatus( UA_OUTGOING_CALL );
 
+        if (call != null) {
+        	printLog( "call", "cancelling old object:" + this.call);
+        	this.call.cancel();
+        }
+
         call = new ExtendedCall( sipProvider, userProfile.fromUrl,
                 userProfile.contactUrl, userProfile.username,
                 userProfile.realm, userProfile.passwd, this );
@@ -324,6 +329,11 @@ public class SIPUserAgent extends CallListenerAdapter {
         printLog( "listen", "Init..." );
 
         changeStatus( UA_IDLE );
+
+        if (call != null) {
+        	printLog( "listen", "cancelling old object:" + this.call);
+        	this.call.cancel();
+        }
 
         call = new ExtendedCall( sipProvider, userProfile.fromUrl,
                 userProfile.contactUrl, userProfile.username,
