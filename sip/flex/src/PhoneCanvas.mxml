@@ -272,7 +272,8 @@
 				}
 				if(outgoingNetStream != null) {
 					outgoingNetStream.attachAudio(null);
-					outgoingNetStream.publish(null);
+					//outgoingNetStream.publish(null);
+					outgoingNetStream.close();
 				}
 				
 				doHangUp();
