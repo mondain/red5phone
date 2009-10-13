@@ -34,7 +34,6 @@ public class SIPCodecG729 implements SIPCodec {
     }
 
 
-    @Override
     public void encodeInit( int defaultEncodePacketization ) {
         
         if ( this.outgoingPacketization == 0 ) {
@@ -44,7 +43,6 @@ public class SIPCodecG729 implements SIPCodec {
     }
 
 
-    @Override
     public void decodeInit( int defaultDecodePacketization ) {
         
         if ( this.incomingPacketization == 0 ) {
@@ -54,7 +52,6 @@ public class SIPCodecG729 implements SIPCodec {
     }
 
 
-    @Override
     public String codecNegotiateAttribute( String attributeName, String localAttributeValue, String remoteAttributeValue ) {
 
         // Not applicable for this codec type
@@ -62,7 +59,6 @@ public class SIPCodecG729 implements SIPCodec {
     }
 
 
-    @Override
     public int getCodecBlankPacket( byte[] buffer, int offset ) {
 
         // TODO Auto-generated method stub
@@ -70,7 +66,6 @@ public class SIPCodecG729 implements SIPCodec {
     }
 
 
-    @Override
     public int codecToPcm( byte[] bufferIn, float[] bufferOut ) {
 
         decoder.decode( bufferIn, bufferOut );
@@ -79,7 +74,6 @@ public class SIPCodecG729 implements SIPCodec {
     }
 
 
-    @Override
     public int pcmToCodec( float[] bufferIn, byte[] bufferOut ) {
 
         encoder.encode( bufferIn, bufferOut );
@@ -88,49 +82,42 @@ public class SIPCodecG729 implements SIPCodec {
     }
 
 
-    @Override
     public int getIncomingEncodedFrameSize() {
 
         return ( defaultEncodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * incomingPacketization;
     }
 
 
-    @Override
     public int getIncomingDecodedFrameSize() {
 
         return ( defaultDecodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * incomingPacketization;
     }
 
 
-    @Override
     public int getOutgoingEncodedFrameSize() {
 
         return ( defaultEncodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * outgoingPacketization;
     }
 
 
-    @Override
     public int getOutgoingDecodedFrameSize() {
 
         return ( defaultDecodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * outgoingPacketization;
     }
 
 
-    @Override
     public int getIncomingPacketization() {
 
         return incomingPacketization;
     }
 
 
-    @Override
     public int getOutgoingPacketization() {
 
         return outgoingPacketization;
     }
 
 
-    @Override
     public void setLocalPtime( int localPtime ) {
         
         // Test for prior update during attributes negotiation.
@@ -141,7 +128,6 @@ public class SIPCodecG729 implements SIPCodec {
     }
 
 
-    @Override
     public void setRemotePtime( int remotePtime ) {
         
         // Test for prior update during attributes negotiation.
@@ -152,28 +138,24 @@ public class SIPCodecG729 implements SIPCodec {
     }
 
 
-    @Override
     public int getSampleRate() {
 
         return defaultSampleRate;
     }
 
 
-    @Override
     public String getCodecName() {
 
         return codecName;
     }
 
 
-    @Override
     public int getCodecId() {
 
         return codecId;
     }
 
 
-    @Override
     public String[] getCodecMediaAttributes() {
 
         return codecMediaAttributes;

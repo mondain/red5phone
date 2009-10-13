@@ -64,7 +64,7 @@ public class SIPCodecAttributes {
             
             String attributeValue = codecEncodeAttributes.get( attributeName );
             
-            if ( ( attributeValue != null ) && ( !attributeValue.isEmpty() ) ) {
+            if ( ( attributeValue != null ) && ( attributeValue.length() > 0 ) ) {
                 
                 hasAttribute = true;
             }
@@ -81,7 +81,7 @@ public class SIPCodecAttributes {
             
             String attributeValue = codecEncodeAttributes.get( attributeName );
             
-            if ( ( attributeValue != null ) && ( !attributeValue.isEmpty() ) ) {
+            if ( ( attributeValue != null ) && ( attributeValue.length() > 0 ) ) {
                 
                 hasAttribute = true;
             }

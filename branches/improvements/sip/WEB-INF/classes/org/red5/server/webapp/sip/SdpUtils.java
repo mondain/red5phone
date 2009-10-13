@@ -34,7 +34,7 @@ public class SdpUtils {
         
         printLog( "getNegotiatedAudioCodec", "rtpmap = [" + rtpmap + "]." );
         
-        if ( !rtpmap.isEmpty() ) {
+        if ( rtpmap.length() > 0 ) {
             
             payloadId = Integer.parseInt(
                     rtpmap.substring(0, rtpmap.indexOf(" ")));
@@ -110,7 +110,7 @@ public class SdpUtils {
                 SIPCodec[] audioCodecs;
                 Vector audioAttributes = new Vector();
                 
-                if ( audioCodecsPrecedence.isEmpty() ) {
+                if ( audioCodecsPrecedence.length() == 0 ) {
                     
                     audioCodecs = SIPCodecFactory.getInstance().getAvailableAudioCodecs();
                 }
@@ -345,7 +345,7 @@ public class SdpUtils {
             
             if ( mediaAttribute.getAttributeName().equalsIgnoreCase( SIPCodec.ATTRIBUTE_RTPMAP ) ) {
                 
-                if ( !formatList.isEmpty() ) {
+                if ( formatList.length() > 0 ) {
                     formatList += " ";
                 }
                 
@@ -379,7 +379,7 @@ public class SdpUtils {
                 "attribName = [" + attribName + 
                 "] attribValue  = [" + attribValue + "]." );
         
-        if ( ( !attribName.isEmpty() ) && ( !attribValue.isEmpty() ) ) {
+        if ( ( attribName.length() > 0 ) && ( attribValue.length() > 0 ) ) {
             
             newAttribute = new AttributeField( attribName, attribValue );
         }

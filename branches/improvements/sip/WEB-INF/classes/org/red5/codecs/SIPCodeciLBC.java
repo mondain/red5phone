@@ -51,21 +51,18 @@ public class SIPCodeciLBC implements SIPCodec {
     }
 
 
-    @Override
     public void encodeInit( int defaultEncodePacketization ) {
 
         ilbcEncoder = new ilbc_encoder( outgoingPacketization );
     }
 
 
-    @Override
     public void decodeInit( int defaultDecodePacketization ) {
 
         ilbcDecoder = new ilbc_decoder( incomingPacketization, 1 );
     }
 
 
-    @Override
     public String codecNegotiateAttribute( String attributeName, String localAttributeValue, String remoteAttributeValue ) {
 
         Integer localMode = SIPCodec.DEFAULT_PACKETIZATION;
@@ -79,14 +76,14 @@ public class SIPCodeciLBC implements SIPCodec {
         
         if ( 0 == attributeName.compareTo( SIPCodec.ATTRIBUTE_FMTP ) ) {
             
-            if ( ( null == remoteAttributeValue ) || ( remoteAttributeValue.isEmpty() ) ) {
+            if ( ( null == remoteAttributeValue ) || ( remoteAttributeValue.length() == 0 ) ) {
                 
                 finalAttributeValue = "";
             }
             else {
                 remoteMode = extractModeFromFmtpValue( remoteAttributeValue );
                 
-                if ( ( null != localAttributeValue ) && ( !localAttributeValue.isEmpty() ) ) {
+                if ( ( null != localAttributeValue ) && ( localAttributeValue.length() > 0 ) ) {
                     
                     localMode = extractModeFromFmtpValue( localAttributeValue );
                 }
@@ -121,7 +118,6 @@ public class SIPCodeciLBC implements SIPCodec {
     }
 
 
-    @Override
     public int getCodecBlankPacket( byte[] buffer, int offset ) {
 
         // TODO Auto-generated method stub
@@ -129,7 +125,6 @@ public class SIPCodeciLBC implements SIPCodec {
     }
 
 
-    @Override
     public int codecToPcm( byte[] bufferIn, float[] bufferOut ) {
 
         short[] encodedData = SIPCodecUtils.byteToShortArray(bufferIn, 0, bufferIn.length, false);
@@ -147,7 +142,6 @@ public class SIPCodeciLBC implements SIPCodec {
     }
 
 
-    @Override
     public int pcmToCodec( float[] bufferIn, byte[] bufferOut ) {
 
         short[] encodedData = new short[ getIncomingEncodedFrameSize() / 2 ];
@@ -166,7 +160,6 @@ public class SIPCodeciLBC implements SIPCodec {
     }
 
 
-    @Override
     public int getIncomingEncodedFrameSize() {
 
         if ( incomingPacketization == sampleFrame20ms ) {
@@ -180,7 +173,6 @@ public class SIPCodeciLBC implements SIPCodec {
     }
 
 
-    @Override
     public int getIncomingDecodedFrameSize() {
 
         if ( incomingPacketization == sampleFrame20ms ) {
@@ -194,7 +186,6 @@ public class SIPCodeciLBC implements SIPCodec {
     }
 
 
-    @Override
     public int getOutgoingEncodedFrameSize() {
 
         if ( outgoingPacketization == sampleFrame20ms ) {
@@ -208,7 +199,6 @@ public class SIPCodeciLBC implements SIPCodec {
     }
 
 
-    @Override
     public int getOutgoingDecodedFrameSize() {
 
         if ( outgoingPacketization == sampleFrame20ms ) {
@@ -222,21 +212,18 @@ public class SIPCodeciLBC implements SIPCodec {
     }
 
 
-    @Override
     public int getIncomingPacketization() {
 
         return incomingPacketization;
     }
 
 
-    @Override
     public int getOutgoingPacketization() {
 
         return outgoingPacketization;
     }
 
 
-    @Override
     public void setLocalPtime( int localPtime ) {
         
         // For iLBC we have a "mode" paramater setted and it 
@@ -244,7 +231,6 @@ public class SIPCodeciLBC implements SIPCodec {
     }
 
 
-    @Override
     public void setRemotePtime( int remotePtime ) {
         
         // For iLBC we have a "mode" paramater setted and it 
@@ -252,28 +238,24 @@ public class SIPCodeciLBC implements SIPCodec {
     }
 
 
-    @Override
     public int getSampleRate() {
 
         return defaultSampleRate;
     }
 
 
-    @Override
     public String getCodecName() {
 
         return codecName;
     }
 
 
-    @Override
     public int getCodecId() {
 
         return codecId;
     }
 
 
-    @Override
     public String[] getCodecMediaAttributes() {
 
         return codecMediaAttributes;
