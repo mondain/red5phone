@@ -269,6 +269,11 @@ public class SIPUserAgent extends CallListenerAdapter {
 
         // Set local sdp.
         initSessionDescriptor();
+        
+        // Create only one instance of Call class
+        call = new ExtendedCall( sipProvider, userProfile.fromUrl, 
+                userProfile.contactUrl, userProfile.username,
+                userProfile.realm, userProfile.passwd, this );
     }
 
 
@@ -277,15 +282,6 @@ public class SIPUserAgent extends CallListenerAdapter {
         printLog( "call", "Init..." );
 
         changeStatus( UA_OUTGOING_CALL );
-
-        if (call != null) {
-        	printLog( "call", "cancelling old object:" + this.call);
-        	this.call.cancel();
-        }
-
-        call = new ExtendedCall( sipProvider, userProfile.fromUrl,
-                userProfile.contactUrl, userProfile.username,
-                userProfile.realm, userProfile.passwd, this );
 
         call.setA1Parameter(userProfile.A1ParamMD5);
         
@@ -331,16 +327,7 @@ public class SIPUserAgent extends CallListenerAdapter {
         printLog( "listen", "Init..." );
 
         changeStatus( UA_IDLE );
-
-        if (call != null) {
-        	printLog( "listen", "cancelling old object:" + this.call);
-        	this.call.cancel();
-        }
-
-        call = new ExtendedCall( sipProvider, userProfile.fromUrl,
-                userProfile.contactUrl, userProfile.username,
-                userProfile.realm, userProfile.passwd, this );
-
+        
         call.listen();
     }
 

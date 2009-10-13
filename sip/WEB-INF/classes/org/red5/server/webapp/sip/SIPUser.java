@@ -373,7 +373,6 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         }
 
         closeStreams();
-        rtmpUser.stopStream();
     }
 
 
@@ -411,7 +410,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         p( "closeStreams" );
 
         try {
-
+        	rtmpUser.stopStream();
         }
         catch ( Exception e ) {
             p( "closeStreams: Exception:>\n" + e );
