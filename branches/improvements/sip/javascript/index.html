@@ -1,0 +1,88 @@
+<html>
+<head>
+<title>phone Javascript API</title>
+
+<script type="text/javascript" src="swfobject.js"></script>
+
+<script type="text/javascript">
+	var phone;
+	var fo;
+
+	function registrationSucess(msg) {
+
+		display("registrationSucess " + msg);
+	}
+
+	function registrationFailure(msg) {
+
+		display("registrationFailure " + msg);
+	}
+
+	function phoneError(msg) {
+
+		display("phoneError " + msg);
+	}
+
+	function phoneReady(msg) {
+
+		display("phoneReady");
+	}
+
+	function callIncoming(source) {
+
+		display("callIncoming from " + source);
+	}
+
+	function callConnected(stream) {
+
+		display( "callConnected play: " + stream);
+	}
+
+	function callState(msg) {
+
+		display("callState " + msg);
+	}
+
+	function display(msg) {
+
+		var phoneOut = document.getElementById("phoneview");
+		phoneOut.innerHTML = phoneOut.innerHTML + msg + "<br>"
+	}
+
+
+	function setupApp() {
+
+		fo = new SWFObject("phoneAPI.lzx.swf", "lzapp", "0", "0", "8");
+		fo.addParam("swLiveConnect", "true");
+		fo.addParam("name", "lzapp");
+		fo.addParam("id", "lzapp");
+		fo.write("phoneapi");
+
+		phone = document.getElementById("lzapp");
+
+		if (phone == null)
+			alert("Can't get red5phone Flash object");
+	}
+
+
+</script>
+</head>
+<body topmargin="0" leftmargin="0" bottommargin="0" rightmargin="0" onload="setupApp()">
+<div id="phoneapi"></div>
+<div id="phoneview"></div>
+<hr>
+Phone:<input type="text" name="phoneno" value="1001"><br/>
+Server:<input type="text" name="server" value="192.168.1.20"><br/>
+Realm:<input type="text" name="realm" value="192.168.1.20"><br/>
+Username:<input type="text" name="username" value="1001"><br/>
+Password:<input type="password" name="password" value="1001"><br/>
+Red5URL:<input type="text" name="red5url" value="rtmp://localhost/sip"><br/>
+
+<button onclick='phone.login(phoneno.value, username.value, password.value, realm.value, server.value, red5url.value);'>Connect</button>
+<button onClick="phone.register()">Register</button><p>
+<input type='text' name='exten' value='1000'>
+<button onClick="phone.call(exten.value)">Call</button>
+<button onClick="phone.hangup()">Hangup</button>
+<button onClick="phone.accept()">Accept</button>
+</body>
+</html>
