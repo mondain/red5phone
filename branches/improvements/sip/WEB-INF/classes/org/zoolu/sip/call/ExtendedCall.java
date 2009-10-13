@@ -64,6 +64,8 @@ public class ExtendedCall extends Call implements ExtendedInviteDialogListener
 
    /** Qop for the next authentication. */
    String qop;
+   
+   protected String A1ParamMD5;
 
 
    /** Creates a new ExtendedCall. */
@@ -101,7 +103,7 @@ public class ExtendedCall extends Call implements ExtendedInviteDialogListener
 
    /** Waits for an incoming call */
    public void listen()
-   {  if (username!=null) dialog=new ExtendedInviteDialog(sip_provider,username,realm,passwd,this);
+   {  if (username!=null) dialog=new ExtendedInviteDialog(sip_provider,username,realm,passwd,this, A1ParamMD5);
       else dialog=new ExtendedInviteDialog(sip_provider,this);
       dialog.listen();
    }
@@ -110,7 +112,7 @@ public class ExtendedCall extends Call implements ExtendedInviteDialogListener
    /** Starts a new call, inviting a remote user (<i>r_user</i>) */
    public void call(String r_user, String from, String contact, String sdp)
    {  printLog("calling "+r_user,LogLevel.MEDIUM);
-      if (username!=null) dialog=new ExtendedInviteDialog(sip_provider,username,realm,passwd,this);
+      if (username!=null) dialog=new ExtendedInviteDialog(sip_provider,username,realm,passwd,this, A1ParamMD5);
       else dialog=new ExtendedInviteDialog(sip_provider,this);
       if (from==null) from=from_url;
       if (contact==null) contact=contact_url;
@@ -151,6 +153,11 @@ public class ExtendedCall extends Call implements ExtendedInviteDialogListener
    /** Notifies the satus of an other call */
    public void notify(int code, String reason)
    {  ((ExtendedInviteDialog)dialog).notify(code,reason);
+   }
+   
+   /** Sets A1 Digest Parameter. */
+   public void setA1Parameter(String A1ParamMD5) {  
+	   this.A1ParamMD5 = A1ParamMD5;
    }
 
 

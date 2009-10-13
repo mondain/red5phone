@@ -11,7 +11,6 @@ import org.zoolu.sip.message.*;
 import org.zoolu.sip.transaction.TransactionClient;
 import org.zoolu.sip.transaction.TransactionClientListener;
 import org.zoolu.sip.authentication.DigestAuthentication;
-import org.zoolu.sip.authentication.DigestAuthentication;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -77,6 +76,8 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener
 
    /** Whether the thread is running. */
    boolean is_running;
+   
+   protected String A1ParamMD5;
 
    /** Event logger. */
     private static Logger log = Logger.getLogger(SIPRegisterAgent.class.getName());
@@ -102,6 +103,11 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener
       this.username=username;
       this.realm=realm;
       this.passwd=passwd;
+   }
+   
+   /** Sets A1 digest parameter */
+   public void setA1Parameter(String A1ParamMD5) {
+	   this.A1ParamMD5 = A1ParamMD5;
    }
 
    /** Inits the RegisterAgent. */
@@ -179,7 +185,9 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener
          ah.addNonceParam(next_nonce);
          ah.addUriParam(req.getRequestLine().getAddress().toString());
          ah.addQopParam(qop);
-         String response=(new DigestAuthentication(SipMethods.REGISTER,ah,null,passwd)).getResponse();
+         DigestAuthentication digestAuth = new DigestAuthentication(SipMethods.REGISTER, ah, null, passwd);
+         digestAuth.setA1Parameter(A1ParamMD5);
+         String response = digestAuth.getResponse();
          ah.addResponseParam(response);
          req.setAuthorizationHeader(ah);
       }
@@ -380,7 +388,8 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener
             req.addViaHeader(via);
             qop=(qop_options!=null)? "auth" : null;
 
-			DigestAuthentication digest=new DigestAuthentication(SipMethods.REGISTER,req.getRequestLine().getAddress().toString(),wah,qop,null,username,passwd);
+            DigestAuthentication digest = new DigestAuthentication(SipMethods.REGISTER,req.getRequestLine().getAddress().toString(),wah,qop,null,username,passwd);
+            digest.setA1Parameter(A1ParamMD5);
 			AuthorizationHeader ah;
 			if (code==401) ah=digest.getAuthorizationHeader();
 			else ah=digest.getProxyAuthorizationHeader();

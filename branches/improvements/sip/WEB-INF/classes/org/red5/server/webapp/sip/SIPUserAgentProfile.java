@@ -172,6 +172,8 @@ public class SIPUserAgentProfile {
 	//public String audioCodecsPrecedence = "8;18;0;111";    
 	public String audioCodecsPrecedence = Config.getInstance().getCodecsPrecedence();
     //public String audioCodecsPrecedence = "";
+	
+    public String A1ParamMD5;
 
 
     // ************************** Costructors *************************

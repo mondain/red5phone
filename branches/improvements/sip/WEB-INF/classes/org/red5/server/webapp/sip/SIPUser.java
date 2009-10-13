@@ -133,6 +133,8 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
     private String realm;
 
     private String obproxy;
+    
+    private String A1ParamMD5;
 
     public SIPUser( String sessionID, IConnection service, int sipPort, int rtpPort ) throws IOException {
 
@@ -197,6 +199,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
             user_profile.realm = realm;
             user_profile.fromUrl = fromURL;
 			user_profile.contactUrl = "sip:" + phone + "@" + sip_provider.getViaAddress();
+			user_profile.A1ParamMD5 = A1ParamMD5;
 
             if ( sip_provider.getPort() != SipStack.default_port ) {
                 user_profile.contactUrl += ":" + sip_provider.getPort();
@@ -227,6 +230,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
             if ( sip_provider != null ) {
                 ra = new SIPRegisterAgent( sip_provider, user_profile.fromUrl, user_profile.contactUrl, username,
                     user_profile.realm, password, this );
+            	ra.setA1Parameter(A1ParamMD5);
                 loopRegister( user_profile.expires, user_profile.expires / 2, user_profile.keepaliveTime );
             }
 
@@ -566,4 +570,8 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         log.debug( s );
 		System.out.println("[SIPUser] " + s);
     }
+
+	public void setA1Parameter(String A1ParamMD5) {
+		this.A1ParamMD5 = A1ParamMD5;		
+	}
 }

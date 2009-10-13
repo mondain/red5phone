@@ -22,6 +22,7 @@
 			private var conference:String; 
 			private var obProxy:String;
 			public var red5Manager:Red5Manager     = null;
+			public var configUseEncryptedPwd:Boolean = false;
 
  			private static var externalConfig:Object;
 			
@@ -63,7 +64,7 @@
 				sipRealm 	= configXML.sipRealm[0];
 				sipServer 	= configXML.sipServer[0];
                 obProxy     = configXML.obProxy[0];
-                
+				configUseEncryptedPwd = (parseInt(configXML.useEncryptedPwd[0]) == 1);
                 phone    = externalConfig.phone;
 				username = externalConfig.username;
 				password = externalConfig.password;
@@ -85,6 +86,7 @@
 				this.conference   = conference;
 				
 				red5Manager = new Red5Manager(obProxy, myuid, phone, username, password, red5Url, sipRealm, sipServer, conference);
+				red5Manager.setUseEncryptedPwd(configUseEncryptedPwd);
 				red5Manager.connectRed5();
 				red5Manager.addEventListener(Red5MessageEvent.MESSAGE, receivedRed5MessageEvent);
 				red5Manager.addEventListener(IncomingCallEvent.INCOMING, incomingCallEvent);
