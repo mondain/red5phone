@@ -1,5 +1,6 @@
 package {
 	
+	import com.adobe.crypto.MD5;
 	import flash.events.AsyncErrorEvent;
 	import flash.events.NetStatusEvent;
 	import flash.events.SecurityErrorEvent;
@@ -22,6 +23,7 @@ package {
 		private var sipServer:String; 
 		private var conference:String; 
 		private var obproxy:String;
+		private var useEncryptedPwd:Boolean = false;
 		
 		private var isConnected:Boolean = false;
 		
@@ -36,6 +38,10 @@ package {
 			this.conference   = conference;
 			this.obproxy   = obproxy;
 			this.init();
+		}
+		
+		public function setUseEncryptedPwd(useEncryptedPwd:Boolean):void {
+			this.useEncryptedPwd = useEncryptedPwd;
 		}
 		
 		private function init():void {
@@ -172,7 +178,13 @@ package {
 		
 		
 		public function doOpen():void {
-			netConnection.call("open", null, obproxy, uid, phone, username, password, sipRealm, sipServer);
+			if (useEncryptedPwd) {
+				netConnection.call("initialize", null, uid, username, getA1ParamMD5());
+				netConnection.call("open", null, obproxy, uid, phone, username, "", sipRealm, sipServer);
+			}
+			else {
+				netConnection.call("open", null, obproxy, uid, phone, username, password, sipRealm, sipServer);
+			}
 		}
 		
 		public function doCall(dialStr:String):void {
@@ -230,6 +242,16 @@ package {
 		public function doMailBoxCount():void {
 
 			//netConnection.call("vmCount", null;			
+		}
+		
+		/** Calculates A1 value.
+         *  A1 = username ":" realm ":" passwd
+         */
+		public function getA1ParamMD5():String {
+		    var A1Param:String;
+		    A1Param = username + ":" + sipRealm + ":" + password;
+
+		    return MD5.hash(A1Param);
 		}
 	}
 }

@@ -21,6 +21,7 @@ public class DigestAuthentication
    protected String method;
    protected String username;
    protected String passwd;
+   protected String A1ParamMD5;
 
    protected String realm;
    protected String nonce; // e.g. base 64 encoding of time-stamp H(time-stamp ":" ETag ":" private-key)
@@ -55,6 +56,11 @@ public class DigestAuthentication
       this.uri=uri;
       this.qop=qop;
       this.username=username;
+   }
+   
+   /** Sets A1 Digest Parameter. */
+   public void setA1Parameter(String A1ParamMD5) {  
+	   this.A1ParamMD5 = A1ParamMD5;
    }
 
    /** Costructs a new DigestAuthentication. */
@@ -150,7 +156,15 @@ public class DigestAuthentication
      * <br>   KD ( H(A1), unq(nonce) ":" H(A2) )
      */
    public String getResponse()
-   {  String secret=HEX(MD5(A1()));
+   {  
+	  String secret;
+	  if ((A1ParamMD5 == null) || (A1ParamMD5.length() == 0)) {
+		  secret = HEX(MD5(A1()));
+	  }
+	  else {
+		  secret = A1ParamMD5;
+	  } 
+	   
       StringBuffer sb=new StringBuffer();
       if (nonce!=null) sb.append(nonce);
       sb.append(":");

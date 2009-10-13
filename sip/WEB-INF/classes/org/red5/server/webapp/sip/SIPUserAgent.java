@@ -287,6 +287,8 @@ public class SIPUserAgent extends CallListenerAdapter {
                 userProfile.contactUrl, userProfile.username,
                 userProfile.realm, userProfile.passwd, this );
 
+        call.setA1Parameter(userProfile.A1ParamMD5);
+        
         // In case of incomplete url (e.g. only 'user' is present), try to
         // complete it.
 

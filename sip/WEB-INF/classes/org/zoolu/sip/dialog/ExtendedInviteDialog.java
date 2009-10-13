@@ -76,6 +76,8 @@ public class ExtendedInviteDialog extends org.zoolu.sip.dialog.InviteDialog
 
    /** Number of authentication attempts. */
    int attempts;
+   
+   protected String A1ParamMD5;
 
 
 
@@ -87,12 +89,13 @@ public class ExtendedInviteDialog extends org.zoolu.sip.dialog.InviteDialog
    }
 
    /** Creates a new ExtendedInviteDialog. */
-   public ExtendedInviteDialog(SipProvider provider, String username, String realm, String passwd, ExtendedInviteDialogListener listener)
+   public ExtendedInviteDialog(SipProvider provider, String username, String realm, String passwd, ExtendedInviteDialogListener listener, String A1ParamMD5)
    {  super(provider,listener);
       init(listener);
       this.username=username;
       this.realm=realm;
       this.passwd=passwd;
+      this.A1ParamMD5 = A1ParamMD5;
    }
 
    /** Inits the ExtendedInviteDialog. */
@@ -252,6 +255,7 @@ public class ExtendedInviteDialog extends org.zoolu.sip.dialog.InviteDialog
          qop=(qop_options!=null)? "auth" : null;
          RequestLine rl=req.getRequestLine();
          DigestAuthentication digest=new DigestAuthentication(rl.getMethod(),rl.getAddress().toString(),wah,qop,null,username,passwd);
+         digest.setA1Parameter(A1ParamMD5);
          AuthorizationHeader ah;
          if (code==401) ah=digest.getAuthorizationHeader();
          else ah=digest.getProxyAuthorizationHeader();

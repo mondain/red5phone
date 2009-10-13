@@ -184,47 +184,67 @@ public class Application extends ApplicationAdapter implements IStreamAwareScope
 
         loginfo( "Red5SIP Ping" );
     }
+    
+    /*
+     * Initializes SIPUser setting A1 Digest Parameter MD5 hash
+     * This way we don't need send plain text password from Flash Application
+     */
+    public void initialize(String uid, String username, String A1ParamMD5) {
+    	IConnection conn = Red5.getConnectionLocal();
+    	IServiceCapableConnection service = (IServiceCapableConnection) conn;
 
+    	SIPUser sipUser = sipManager.getSIPUser(uid);
 
-	public void open(String obproxy,String uid, String phone,String username, String password, String realm, String proxy) {
-		loginfo("Red5SIP open");
+    	if(sipUser == null) {
+    		sipUser = createSipUser(uid, username, sipUser);
+    		sipUser.setA1Parameter(A1ParamMD5);
+    	}
+    }
+    
+    public void open(String obproxy,String uid, String phone,String username, String password, String realm, String proxy) {
+    	loginfo("Red5SIP open");
 
 		login(obproxy, uid, phone, username, password, realm, proxy);
 		register(uid);
 	}
 
-
 	public void login(String obproxy, String uid, String phone, String username, String password, String realm, String proxy) {
 		loginfo("Red5SIP login " + uid);
 
-		IConnection conn = Red5.getConnectionLocal();
-		IServiceCapableConnection service = (IServiceCapableConnection) conn;
 
 		SIPUser sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser == null) {
-			loginfo("Red5SIP open creating sipUser for " + username + " on sip port " + sipPort + " audio port " + rtpPort + " uid " + uid );
-
-			try {
-				sipUser = new SIPUser(conn.getClient().getId(), service, sipPort, rtpPort);
-				sipManager.addSIPUser(uid, sipUser);
-
-			} catch (Exception e) {
-				loginfo("open error " + e);
-			}
+			sipUser = createSipUser(uid, username, sipUser);
 		}
 
 		sipUser.login(obproxy,phone,username, password, realm, proxy);
-		userNames.put(conn.getClient().getId(), uid);
+	}
 
+
+	private SIPUser createSipUser(String uid, String username, SIPUser sipUser) {
+		loginfo("Red5SIP open creating sipUser for " + username + " on sip port " + sipPort + " audio port " + rtpPort + " uid " + uid );
+
+		IConnection conn = Red5.getConnectionLocal();
+		IServiceCapableConnection service = (IServiceCapableConnection) conn;
+		
+		try {
+			sipUser = new SIPUser(conn.getClient().getId(), service, sipPort, rtpPort);
+			sipManager.addSIPUser(uid, sipUser);
+
+		} catch (Exception e) {
+			loginfo("open error " + e);
+		}
+		
+		userNames.put(conn.getClient().getId(), uid);
+		
 		sipPort++;
 		if (sipPort > stopSIPPort) sipPort = startSIPPort;
 
 		rtpPort++;
 		if (rtpPort > stopRTPPort) rtpPort = startRTPPort;
-
+		return sipUser;
 	}
-
 
 
 	public void register(String uid) {
