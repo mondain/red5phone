@@ -49,6 +49,8 @@ public class RTPStreamSender {
     private int startPayloadPos;
 
     private int dtmf2833Type = 101;
+    
+    private int dtmfPayloadLength = 4;
 
     private int seqn = 0;
 
@@ -213,7 +215,8 @@ public class RTPStreamSender {
         byte[] dtmfbuf = new byte[ sipCodec.getOutgoingEncodedFrameSize() + RTP_HEADER_SIZE ];
         RtpPacket dtmfpacket = new RtpPacket( dtmfbuf, 0 );
         dtmfpacket.setPayloadType( dtmf2833Type );
-        dtmfpacket.setPayloadLength( sipCodec.getOutgoingEncodedFrameSize() );
+        //dtmfpacket.setPayloadLength( sipCodec.getOutgoingEncodedFrameSize() );		
+        dtmfpacket.setPayloadLength( dtmfPayloadLength );
 
         byte[] blankbuf = new byte[ sipCodec.getOutgoingEncodedFrameSize() + RTP_HEADER_SIZE ];
         RtpPacket blankpacket = new RtpPacket( blankbuf, 0 );
@@ -243,14 +246,15 @@ public class RTPStreamSender {
 
             try {
                 // send start event packet 3 times
-                dtmfbuf[ startPayloadPos + 1 ] = 0; // start event flag
-                // and volume
+            	dtmfbuf[ startPayloadPos + 1 ] = 10; // start event flag and volume
                 dtmfbuf[ startPayloadPos + 2 ] = 1; // duration 8 bits
                 dtmfbuf[ startPayloadPos + 3 ] = -32; // duration 8 bits
 
                 for ( int r = 0; r < 3; r++ ) {
                     dtmfpacket.setSequenceNumber( seqn++ );
-                    dtmfpacket.setTimestamp( sipCodec.getOutgoingDecodedFrameSize() );
+                    //dtmfpacket.setTimestamp( sipCodec.getOutgoingDecodedFrameSize() );
+                    dtmfpacket.setTimestamp( time );
+
                     doRtpDelay();
                     rtpSocketSend( dtmfpacket );
                 }
@@ -261,7 +265,8 @@ public class RTPStreamSender {
                 dtmfbuf[ startPayloadPos + 3 ] = 116; // duration 8 bits
                 for ( int r = 0; r < 3; r++ ) {
                     dtmfpacket.setSequenceNumber( seqn++ );
-                    dtmfpacket.setTimestamp(sipCodec.getOutgoingDecodedFrameSize() );
+                    //dtmfpacket.setTimestamp(sipCodec.getOutgoingDecodedFrameSize() );
+                    dtmfpacket.setTimestamp( time );
                     doRtpDelay();
                     rtpSocketSend( dtmfpacket );
                 }
@@ -269,7 +274,8 @@ public class RTPStreamSender {
                 // send 200 ms of blank packets
                 for ( int r = 0; r < 200 / sipCodec.getOutgoingPacketization(); r++ ) {
                     blankpacket.setSequenceNumber( seqn++ );
-                    blankpacket.setTimestamp(sipCodec.getOutgoingDecodedFrameSize() );
+                    //blankpacket.setTimestamp(sipCodec.getOutgoingDecodedFrameSize() );
+                    blankpacket.setTimestamp( time );
                     doRtpDelay();
                     rtpSocketSend( blankpacket );
                 }
