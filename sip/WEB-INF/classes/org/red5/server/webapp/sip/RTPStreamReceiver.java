@@ -178,7 +178,9 @@ public class RTPStreamReceiver extends Thread {
                     //     82 nellymoser 8000;
                     //     178 speex 8000.
 
-                    tempBuffer = ResampleUtils.normalize(tempBuffer, 256); 	// normalise volume
+                	if (Config.getInstance().getNormalizeVolume()) {
+                		tempBuffer = ResampleUtils.normalize(tempBuffer, 256); 	// normalize volume
+                	}
 
                     if ( true ) {
                     	encoderMap = CodecImpl.encode(encoderMap, tempBuffer, encodedStream.bytes);

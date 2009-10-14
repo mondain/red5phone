@@ -1,9 +1,11 @@
 package org.red5.server.webapp.sip;
 
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.net.*;
 
 import org.slf4j.Logger;
@@ -21,6 +23,7 @@ import org.red5.server.api.stream.IPlaylistSubscriberStream;
 import org.red5.server.api.stream.IStreamAwareScopeHandler;
 import org.red5.server.api.stream.ISubscriberStream;
 
+
 public class Application extends ApplicationAdapter implements IStreamAwareScopeHandler {
 
     protected static Logger log = Red5LoggerFactory.getLogger( Application.class, "sip" );
@@ -31,18 +34,28 @@ public class Application extends ApplicationAdapter implements IStreamAwareScope
 
     private int startSIPPort = 5070;
 
-    private int stopSIPPort = 5099;
-
     private int sipPort;
+    
+    private int numSIPPorts;
+    
+    private int sipStep;
 
     private int startRTPPort = 3000;
 
-    private int stopRTPPort = 3029;
-
     private int rtpPort;
 
-    private Map< String, String > userNames = new HashMap< String, String >();
+    private int numRTPPorts;
 
+    private int rtpStep;
+
+    private LinkedList<Integer> availabeSIPPorts;
+	
+	private LinkedList<Integer> availabeRTPPorts;
+
+    // Application version
+	private String version = "0.0.7";
+	
+    private Map< String, String > userNames = new HashMap< String, String >();
 
 
     @Override
@@ -51,20 +64,24 @@ public class Application extends ApplicationAdapter implements IStreamAwareScope
         loginfo( "Red5SIP starting in scope " + scope.getName() + " " + System.getProperty( "user.dir" ) );
         sipManager = SIPManager.getInstance();
 
-        // startSIPPort =
-        // Integer.parseInt(PacketHandler.getInstance().getStartSIPPort());
-        // stopSIPPort =
-        // Integer.parseInt(PacketHandler.getInstance().getEndSIPPort());
-        // startRTPPort =
-        // Integer.parseInt(PacketHandler.getInstance().getStartRTPPort());
-        // stopRTPPort =
-        // Integer.parseInt(PacketHandler.getInstance().getEndRTPPort());
+        startSIPPort = Config.getInstance().getStartSIPPort();
+        numSIPPorts = Config.getInstance().getSIPPortNum();
+        sipStep = Config.getInstance().getSIPPortStep();
+        startRTPPort = Config.getInstance().getStartRTPPort();
+        numRTPPorts = Config.getInstance().getRTPPortNum();
+        rtpStep = Config.getInstance().getRTPPortStep();
+    	
+        availabeSIPPorts = new LinkedList<Integer>();
+        availabeRTPPorts = new LinkedList<Integer>();
+        initAvaliablePorts(availabeSIPPorts, startSIPPort, numSIPPorts, sipStep);
+        initAvaliablePorts(availabeRTPPorts, startRTPPort, numRTPPorts, rtpStep);
 
-		loginfo("Red5SIP using RTP port range " + startRTPPort + "-" + stopRTPPort + ", using SIP port range " + startSIPPort + "-" + stopSIPPort);
-
-        sipPort = startSIPPort;
-        rtpPort = startRTPPort;
-
+        loginfo(String.format("Start ports -  sip: %d numPorts: %d step: %d - rtp: %d numPorts %d step: %d", 
+				startSIPPort, numSIPPorts, sipStep, startRTPPort, numRTPPorts, rtpStep));
+                
+        //Application version
+        loginfo(String.format("Red5Phone version %s", version));
+    	
         return true;
     }
 
@@ -105,6 +122,13 @@ public class Application extends ApplicationAdapter implements IStreamAwareScope
 
         if ( userNames.containsKey( client.getId() ) ) {
             loginfo( "Red5SIP Client closing client " + userNames.get( client.getId() ) );
+    		SIPUser sipUser = sipManager.getSIPUser( userNames.get( client.getId() ) );
+
+    		if(sipUser != null) {
+    			loginfo("Release ports: sip port " + sipUser.getSipPort() + " audio port " + sipUser.getRtpPort() );
+    			releasePorts(availabeSIPPorts, sipUser.getSipPort());
+    			releasePorts(availabeRTPPorts, sipUser.getRtpPort());
+    		}
             sipManager.closeSIPUser( userNames.get( client.getId() ) );
             userNames.remove( client.getId() );
         }
@@ -197,7 +221,9 @@ public class Application extends ApplicationAdapter implements IStreamAwareScope
 
     	if(sipUser == null) {
     		sipUser = createSipUser(uid, username, sipUser);
-    		sipUser.setA1Parameter(A1ParamMD5);
+    		if (sipUser != null) {
+    			sipUser.setA1Parameter(A1ParamMD5);
+    		}
     	}
     }
     
@@ -211,11 +237,19 @@ public class Application extends ApplicationAdapter implements IStreamAwareScope
 	public void login(String obproxy, String uid, String phone, String username, String password, String realm, String proxy) {
 		loginfo("Red5SIP login " + uid);
 
-
 		SIPUser sipUser = sipManager.getSIPUser(uid);
 
 		if(sipUser == null) {
 			sipUser = createSipUser(uid, username, sipUser);
+			if (sipUser == null) {
+				logerror("There are no ports available!");
+				IConnection conn = Red5.getConnectionLocal();
+				IServiceCapableConnection service = (IServiceCapableConnection) conn;
+		        if ( service != null ) {
+		            ( (IServiceCapableConnection) service ).invoke( "registrationFailure", new Object[] { "registration failure" } );
+		        }
+				return;
+			}
 		}
 
 		sipUser.login(obproxy,phone,username, password, realm, proxy);
@@ -223,29 +257,29 @@ public class Application extends ApplicationAdapter implements IStreamAwareScope
 
 
 	private SIPUser createSipUser(String uid, String username, SIPUser sipUser) {
-		loginfo("Red5SIP open creating sipUser for " + username + " on sip port " + sipPort + " audio port " + rtpPort + " uid " + uid );
 
 		IConnection conn = Red5.getConnectionLocal();
 		IServiceCapableConnection service = (IServiceCapableConnection) conn;
-		
+
 		try {
+			sipPort = allocPorts(availabeSIPPorts);
+			rtpPort = allocPorts(availabeRTPPorts);
+
 			sipUser = new SIPUser(conn.getClient().getId(), service, sipPort, rtpPort);
 			sipManager.addSIPUser(uid, sipUser);
+			userNames.put(conn.getClient().getId(), uid);
 
+			loginfo("Red5SIP open creating sipUser for " + username + " on sip port " + sipPort + " audio port " + rtpPort + " uid " + uid );
+
+		} catch (NoSuchElementException e) {
+			logerror("No port avaliable: " + e);
 		} catch (Exception e) {
 			loginfo("open error " + e);
 		}
 		
-		userNames.put(conn.getClient().getId(), uid);
-		
-		sipPort++;
-		if (sipPort > stopSIPPort) sipPort = startSIPPort;
-
-		rtpPort++;
-		if (rtpPort > stopRTPPort) rtpPort = startRTPPort;
 		return sipUser;
 	}
-
+	
 
 	public void register(String uid) {
 		loginfo("Red5SIP register");
@@ -383,5 +417,65 @@ public class Application extends ApplicationAdapter implements IStreamAwareScope
     private void loginfo( String s ) {
 
         log.info( s );
+        System.out.println( s );
     }
+    
+    private void logerror( String s ) {
+
+        log.error( s );
+        System.out.println( "[ERROR] " + s );
+    }
+    
+	private void initAvaliablePorts(LinkedList<Integer> list, int base, int size, int step)
+	{
+		loginfo("Alloc ports base: " + base + " size: " + size + " step: " + step);
+		
+		if (base <= 1024)
+		{
+			throw new IllegalArgumentException("Invalid base port: " + base);
+		}
+
+		if (step <= 0)
+		{
+			throw new IllegalArgumentException("Invalid port step: " + step);
+		}
+		
+		if ((base + size * step) > 0xffff)
+		{
+			throw new IllegalArgumentException("Invalid port range");
+		}
+
+		int port = base;
+		
+		while (size-- > 0)
+		{
+			loginfo("Alloc port number:" + port);
+			list.add(port);
+			
+			port += step;
+		}
+	}
+
+	private Integer allocPorts(LinkedList<Integer> availablePorts) throws NoSuchElementException
+	{
+		Integer port = null;
+		
+		synchronized (availablePorts)
+		{
+			port = availablePorts.remove();
+			loginfo("Alloc port number:" + port);
+		}
+		
+		return port;
+	}
+	
+	private void releasePorts(LinkedList<Integer> availablePorts, Integer port)
+	{
+		synchronized (availablePorts)
+		{
+			availablePorts.add(port);
+			loginfo("Release port number:" + port);
+		}
+	}
+	
 }

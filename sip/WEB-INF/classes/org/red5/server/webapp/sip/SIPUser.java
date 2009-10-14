@@ -570,7 +570,15 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 		System.out.println("[SIPUser] " + s);
     }
 
-	public void setA1Parameter(String A1ParamMD5) {
+    public void setA1Parameter(String A1ParamMD5) {
 		this.A1ParamMD5 = A1ParamMD5;		
+	}
+	
+	public int getSipPort() {
+		return this.sipPort;
+	}
+
+	public int getRtpPort() {
+		return this.rtpPort;
 	}
 }

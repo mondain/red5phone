@@ -169,12 +169,10 @@ public class SIPUserAgentProfile {
     /** VIC command-line executable */
     public String binVIC = "vic";
 
-	//public String audioCodecsPrecedence = "8;18;0;111";    
-	public String audioCodecsPrecedence = Config.getInstance().getCodecsPrecedence();
-    //public String audioCodecsPrecedence = "";
+	public String audioCodecsPrecedence = "8;18;0;111";    
 	
-    public String A1ParamMD5;
-
+	public String A1ParamMD5;
+    
 
     // ************************** Costructors *************************
 
@@ -182,6 +180,8 @@ public class SIPUserAgentProfile {
     public SIPUserAgentProfile() {
 
         init();
+        
+        audioCodecsPrecedence = Config.getInstance().getCodecsPrecedence();
     }
 
 
