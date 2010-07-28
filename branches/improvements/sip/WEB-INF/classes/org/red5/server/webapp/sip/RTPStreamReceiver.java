@@ -182,7 +182,7 @@ public class RTPStreamReceiver extends Thread {
                 		tempBuffer = ResampleUtils.normalize(tempBuffer, 256); 	// normalize volume
                 	}
 
-                    if ( true ) {
+                    if ( false ) {
                     	encoderMap = CodecImpl.encode(encoderMap, tempBuffer, encodedStream.bytes);
 						rtmpUser.pushAudio(NELLYMOSER_ENCODED_PACKET_SIZE, encodedStream.bytes, timeStamp, 82);
 
@@ -198,7 +198,7 @@ public class RTPStreamReceiver extends Thread {
                    println( "forwardAudioToFlashPlayer",  exception.toString() );
                 }
 
-                timeStamp = timeStamp + NELLYMOSER_ENCODED_PACKET_SIZE;
+                //timeStamp = timeStamp + NELLYMOSER_ENCODED_PACKET_SIZE;
 
                 //println( "forwardAudioToFlashPlayer", "Encoded asao " +
                 //        NELLYMOSER_DECODED_PACKET_SIZE + " bytes." );
