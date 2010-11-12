@@ -29,6 +29,8 @@ public class RTPStreamReceiver extends Thread {
 
    	private float[] encoderMap;
 
+   	private long start = 0;
+
     /**
      * Maximum blocking time, spent waiting for reading new bytes [milliseconds]
      */
@@ -78,6 +80,8 @@ public class RTPStreamReceiver extends Thread {
             socketIsLocal = true;
 
             init( sipCodec, rtmpUser, socket );
+
+            start = System.currentTimeMillis();
         }
         catch ( Exception e ) {
             e.printStackTrace();
@@ -198,7 +202,7 @@ public class RTPStreamReceiver extends Thread {
                    println( "forwardAudioToFlashPlayer",  exception.toString() );
                 }
 
-                //timeStamp = timeStamp + NELLYMOSER_ENCODED_PACKET_SIZE;
+                timeStamp = (int)(System.currentTimeMillis() - start);
 
                 //println( "forwardAudioToFlashPlayer", "Encoded asao " +
                 //        NELLYMOSER_DECODED_PACKET_SIZE + " bytes." );
