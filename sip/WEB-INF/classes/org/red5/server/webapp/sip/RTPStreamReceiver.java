@@ -29,7 +29,7 @@ public class RTPStreamReceiver extends Thread {
 
    	private float[] encoderMap;
 
-   	private long start = 0;
+   	private long start = System.currentTimeMillis();
 
     /**
      * Maximum blocking time, spent waiting for reading new bytes [milliseconds]

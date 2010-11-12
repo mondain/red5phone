@@ -180,6 +180,7 @@
 						outgoingNetStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 						outgoingNetStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
 						outgoingNetStream.attachAudio(mic);
+						outgoingNetStream.bufferTime = 0;
 						outgoingNetStream.publish(publishName, "live"); 
 						var custom_obj:Object = new Object();
 						custom_obj.onPlayStatus = playStatus;
@@ -227,11 +228,13 @@
 				setNetConnection(netConnection);
 				setPublishName(publishName);
 				incomingNetStream = new NetStream(netConnection);
+				incomingNetStream.bufferTime = 0;
 				incomingNetStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 				incomingNetStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);
 				
 				
 				outgoingNetStream = new NetStream(netConnection);
+				outgoingNetStream.bufferTime = 0;
 				outgoingNetStream.addEventListener(NetStatusEvent.NET_STATUS, netStatus);
 				outgoingNetStream.addEventListener(AsyncErrorEvent.ASYNC_ERROR, asyncErrorHandler);		
 				outgoingNetStream.attachAudio(mic);
