@@ -1,34 +1,17 @@
 package org.red5.server.webapp.sip;
 
 
-import java.util.Map;
-import java.util.HashMap;
-
 import java.io.IOException;
-import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.io.File;
 
-import org.red5.io.ITag;
-import org.red5.io.ITagReader;
-import org.red5.io.ITagWriter;
-import org.red5.io.flv.IFLV;
-import org.red5.io.flv.meta.IMetaData;
-import org.red5.io.flv.meta.IMetaService;
-import org.red5.server.api.cache.ICacheStore;
-import org.red5.server.api.cache.ICacheable;
-
-import org.red5.server.api.service.IServiceCapableConnection;
-import org.red5.server.api.IConnection;
-
-import local.ua.*;
-import org.zoolu.sip.address.*;
-import org.zoolu.sip.provider.*;
-import org.zoolu.net.SocketAddress;
-
-import org.slf4j.Logger;
 import org.red5.logging.Red5LoggerFactory;
-
+import org.red5.server.api.IConnection;
+import org.red5.server.api.service.IServiceCapableConnection;
+import org.slf4j.Logger;
+import org.zoolu.net.SocketAddress;
+import org.zoolu.sip.address.NameAddress;
+import org.zoolu.sip.provider.SipProvider;
+import org.zoolu.sip.provider.SipStack;
 
 public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
@@ -135,6 +118,11 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
     private String obproxy;
     
     private String A1ParamMD5;
+    
+    //Flag that specify if a RTMP session will be created or not
+    private boolean useRTMP = true;
+    
+    
 
     public SIPUser( String sessionID, IConnection service, int sipPort, int rtpPort ) throws IOException {
 
@@ -184,7 +172,8 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         String fromURL = "\"" + phone + "\" <sip:" + phone + "@" + proxy + ">";
 
         try {
-            rtmpUser = new RTMPUser();
+        	if(isUseRTMP())
+        		rtmpUser = new RTMPUser();
             SipStack.init();
             SipStack.debug_level = 8;
             SipStack.log_path = "log";
@@ -267,10 +256,12 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
             publishName = "microphone_" + System.currentTimeMillis();
             playName = "speaker_" + System.currentTimeMillis();
 
-            rtmpUser.startStream( "localhost", "sip", 1935, publishName, playName );
+            if(useRTMP)
+            	rtmpUser.startStream( "localhost", "sip", 1935, publishName, playName );
 
             sipReady = false;
-            ua.setMedia( rtmpUser );
+            if(useRTMP)
+            	ua.setMedia( rtmpUser );
             ua.hangup();
 
             if ( destination.indexOf( "@" ) == -1 ) {
@@ -346,10 +337,13 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
                 publishName = "microphone_" + System.currentTimeMillis();
                 playName = "speaker_" + System.currentTimeMillis();
 
-                rtmpUser.startStream( "localhost", "sip", 1935, publishName, playName );
+                if(useRTMP)
+                	rtmpUser.startStream( "localhost", "sip", 1935, publishName, playName );
 
                 sipReady = false;
-                ua.setMedia( rtmpUser );
+                
+                if(useRTMP)
+                	ua.setMedia( rtmpUser );
                 ua.accept();
 
             }
@@ -410,7 +404,8 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         p( "closeStreams" );
 
         try {
-        	rtmpUser.stopStream();
+        	if(useRTMP)
+        		rtmpUser.stopStream();
         }
         catch ( Exception e ) {
             p( "closeStreams: Exception:>\n" + e );
@@ -580,5 +575,17 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
 	public int getRtpPort() {
 		return this.rtpPort;
+	}
+	
+	
+	//seter for useRTMP
+	public void setUseRTMP(boolean useRTMP) {
+		this.useRTMP = useRTMP;
+	}
+
+
+	//getter for useRTMP
+	public boolean isUseRTMP() {
+		return useRTMP;
 	}
 }
