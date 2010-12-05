@@ -247,6 +247,10 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 
    /** Connections */
    Hashtable connections=null;
+   
+   
+   /** Log file append */
+   private String logNameAppend = "";
 
 
    // *************************** Costructors ***************************
@@ -335,8 +339,9 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
    private void initlog()
    {  if (SipStack.debug_level>0)
       {  String filename=SipStack.log_path+"//"+via_addr+"."+host_port;
-         event_log=new RotatingLog(filename+"_events.log",null,SipStack.debug_level,SipStack.max_logsize*1024,SipStack.log_rotations,SipStack.rotation_scale,SipStack.rotation_time);
-         message_log=new RotatingLog(filename+"_messages.log",null,SipStack.debug_level,SipStack.max_logsize*1024,SipStack.log_rotations,SipStack.rotation_scale,SipStack.rotation_time);
+         
+         event_log=new RotatingLog(filename+"_events"+logNameAppend+".log",null,SipStack.debug_level,SipStack.max_logsize*1024,SipStack.log_rotations,SipStack.rotation_scale,SipStack.rotation_time);
+         message_log=new RotatingLog(filename+"_messages"+logNameAppend+".log",null,SipStack.debug_level,SipStack.max_logsize*1024,SipStack.log_rotations,SipStack.rotation_scale,SipStack.rotation_time);
       }
       printLog("Date: "+DateFormat.formatHHMMSS(new Date()),LogLevel.HIGH);
       printLog("SipStack: "+SipStack.release,LogLevel.HIGH);
@@ -823,6 +828,11 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
       }
       // logs
       String dest_addr=dest_ipaddr.toString();
+      
+      if(msg.toString().indexOf("SIP/2.0 200 OK") != -1) {
+    	  System.out.println("Remove this code, its for debug.");
+      }
+      
       printMessageLog(proto,dest_addr,dest_port,msg.getLength(),msg,"sent");
       return conn_id;
    }
@@ -1422,5 +1432,15 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
          }
       }
    }
+
+
+public void setLogNameAppend(String logNameAppend) {
+	this.logNameAppend = logNameAppend;
+}
+
+
+public String getLogNameAppend() {
+	return logNameAppend;
+}
 
 }
