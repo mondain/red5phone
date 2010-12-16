@@ -105,6 +105,14 @@
 				switch(msgType) {
 					case Red5MessageEvent.NETSTAUS:
 						loginCanvas.alertMessage.text = message;
+						phoneCanvas.statusTxt.text = message;
+						
+						if (message == 'Failed to connect to Red5')
+						{
+							loginCanvas.visible = true;
+							phoneCanvas.visible = false;						
+						}
+						
 						break;
 				
 					case Red5MessageEvent.SIP_REGISTER:

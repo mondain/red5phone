@@ -38,9 +38,7 @@ public class RTPStreamSender {
 
     private int syncAdj = 0;
 
-    private Decoder decoder;
-
-    private DecoderMap decoderMap;
+    private final float[] state = new float[64];
 
     private byte[] packetBuffer;
 
@@ -49,9 +47,9 @@ public class RTPStreamSender {
     private int startPayloadPos;
 
     private int dtmf2833Type = 101;
-    
+
     private int dtmfPayloadLength = 4;
-    
+
     private int seqn = 0;
 
     private long time = 0;
@@ -204,9 +202,6 @@ public class RTPStreamSender {
         time = 0;
 
         println( "start()", "using blocks of " + ( packetBuffer.length - RTP_HEADER_SIZE ) + " bytes." );
-
-        decoder = new Decoder();
-        decoderMap = null;
     }
 
 
@@ -216,7 +211,7 @@ public class RTPStreamSender {
         RtpPacket dtmfpacket = new RtpPacket( dtmfbuf, 0 );
         dtmfpacket.setPayloadType( dtmf2833Type );
         dtmfpacket.setPayloadLength( dtmfPayloadLength );
-        
+
         byte[] blankbuf = new byte[ sipCodec.getOutgoingEncodedFrameSize() + RTP_HEADER_SIZE ];
         RtpPacket blankpacket = new RtpPacket( blankbuf, 0 );
         blankpacket.setPayloadType( sipCodec.getCodecId() );
@@ -252,7 +247,7 @@ public class RTPStreamSender {
                 for ( int r = 0; r < 3; r++ ) {
                     dtmfpacket.setSequenceNumber( seqn++ );
                     dtmfpacket.setTimestamp( time );
-                    
+
                     doRtpDelay();
                     rtpSocketSend( dtmfpacket );
                 }
@@ -341,9 +336,7 @@ public class RTPStreamSender {
 
                 asao_buffer_processed = true;
 
-                ByteStream audioStream = new ByteStream( asaoBuffer, 1, NELLYMOSER_ENCODED_PACKET_SIZE );
-
-                decoderMap = decoder.decode( decoderMap, audioStream.bytes, 1, tempBuffer, 0 );
+                CodecImpl.decode(state, asaoBuffer, tempBuffer);
 
                 if (Config.getInstance().getNormalizeVolume()) {
                 	tempBuffer = ResampleUtils.normalize(tempBuffer, 256); 	// normalize volume
@@ -422,7 +415,7 @@ public class RTPStreamSender {
     }
 
 
-    public void send( byte[] asaoBuffer, int offset, int num ) {
+    public void send( byte[] asaoInput, int offset, int num ) {
 
         if ( rtpSocket == null ) {
             return;
@@ -439,13 +432,15 @@ public class RTPStreamSender {
         }
 
         //println( "send",
-        //        "asaoBuffer.length = [" + asaoBuffer.length + "], offset = ["
+        //        "asaoBuffer.length = [" + asaoInput.length + "], offset = ["
         //        + offset + "], num = [" + num + "]." );
 
         if ( num > 0 ) {
 
             do {
 
+				byte [] asaoBuffer = new byte[num];
+				System.arraycopy(asaoInput, offset, asaoBuffer, 0, num);
                 int encodedBytes = fillRtpPacketBuffer( asaoBuffer );
 
                 //println( "send", sipCodec.getCodecName() + " encoded " + encodedBytes + " bytes." );

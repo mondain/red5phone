@@ -25,9 +25,7 @@ public class RTPStreamReceiver extends Thread {
 
     private static final int NELLYMOSER_ENCODED_PACKET_SIZE = 64;
 
-    private Encoder encoder;
-
-   	private float[] encoderMap;
+   	private float[] encoderMap = new float[64];
 
    	private long start = System.currentTimeMillis();
 
@@ -172,7 +170,7 @@ public class RTPStreamReceiver extends Thread {
 
             if ( tempBufferOffset == NELLYMOSER_DECODED_PACKET_SIZE  ) {
 
-                ByteStream encodedStream = new ByteStream( NELLYMOSER_ENCODED_PACKET_SIZE );
+                byte[] encodedStream = new byte[ NELLYMOSER_ENCODED_PACKET_SIZE ];
 
                 try {
                     // First byte indicates audio format:
@@ -186,9 +184,9 @@ public class RTPStreamReceiver extends Thread {
                 		tempBuffer = ResampleUtils.normalize(tempBuffer, 256); 	// normalize volume
                 	}
 
-                    if ( false ) {
-                    	encoderMap = CodecImpl.encode(encoderMap, tempBuffer, encodedStream.bytes);
-						rtmpUser.pushAudio(NELLYMOSER_ENCODED_PACKET_SIZE, encodedStream.bytes, timeStamp, 82);
+                    if ( true ) {
+                    	CodecImpl.encode(encoderMap, tempBuffer, encodedStream);
+						rtmpUser.pushAudio(NELLYMOSER_ENCODED_PACKET_SIZE, encodedStream, timeStamp, 82);
 
                     }
                     else {
@@ -229,8 +227,6 @@ public class RTPStreamReceiver extends Thread {
             println( "run", "RTP socket is null." );
             return;
         }
-
-        encoder = new Encoder();
       	encoderMap = new float[64];
 
         tempBuffer = new float[ NELLYMOSER_DECODED_PACKET_SIZE ];
