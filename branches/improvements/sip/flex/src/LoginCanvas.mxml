@@ -131,30 +131,31 @@
 	</mx:Script>
 	
 	<mx:Text x="10" y="0" text="Phone#" width="85" height="20" fontSize="13" color="#E98F02" fontWeight="bold"/>
-	<mx:TextInput x="107" y="1" width="137" id="phoneTxt"/>
+	<mx:TextInput x="107" y="1" width="137" id="phoneTxt" text="1001"/>
 	
 	<mx:Text x="10" y="30" text="Username" width="85" height="20" fontSize="13" color="#E98F02" fontWeight="bold"/>
-	<mx:TextInput x="107" y="31" width="137" id="usernameTxt"/>
+	<mx:TextInput x="107" y="31" width="137" id="usernameTxt" text="1001"/>
 	
 	<mx:Text x="10" y="55" text="Password" width="85" height="20" fontSize="13" color="#E98F02" fontWeight="bold"/>
-	<mx:TextInput x="107" y="56" width="137" displayAsPassword="true" id="passwordTxt"/>
+	<mx:TextInput x="107" y="56" width="137" displayAsPassword="true" id="passwordTxt" text="1001"/>
 	
 	<mx:Text x="10" y="80" text="Conference" width="85" height="20" fontSize="13" color="#E98F02" fontWeight="bold" visible="true"/>
-	<mx:TextInput x="108" y="81" width="137" id="conferenceTxt" visible="true" />
+	<mx:TextInput x="108" y="81" width="137" id="conferenceTxt" visible="true" text="1001" />
 
 	<mx:Text x="10" y="105" text="SIP Realm" width="85" height="20" fontSize="13" color="#E98F02" fontWeight="bold" visible="true"/>
-	<mx:TextInput x="107" y="106" width="137" id="realmTxt" visible="true" />
+	<mx:TextInput x="107" y="106" width="137" id="realmTxt" visible="true" text="192.168.1.90" />
 	
 	<mx:Text x="10" y="130" text="SIP Server" width="85" height="20" fontSize="13" color="#E98F02" fontWeight="bold" visible="true"/>
-	<mx:TextInput x="107" y="131" width="137" id="serverTxt" visible="true"/>
+	<mx:TextInput x="107" y="131" width="137" id="serverTxt" visible="true" text="192.168.1.90" />
+
+	<mx:Text x="10" y="158" text="OB Proxy" width="89" height="23" fontSize="13" color="#E98F02" fontWeight="bold" visible="true"/>
+	<mx:TextInput x="107" y="159" width="137" id="obproxyTxt" visible="true"  text="192.168.1.90" />
 	
 	<mx:Text x="10" y="184" text="Red5 URL" width="85" height="20" fontSize="13" color="#E98F02" fontWeight="bold" visible="true"/>
-	<mx:TextInput x="107" y="185" width="137" id="urlTxt" visible="true"/>
+	<mx:TextInput x="107" y="185" width="137" id="urlTxt" visible="true" text="rtmp:/sip" />
 	
 	<mx:Button x="188" y="224" label="Login" click="login()" fillAlphas="[1.0, 1.0]" fillColors="[#FF0000, #DD0000]" color="#FFFFFF" themeColor="#DD0000"/>
 	<mx:Text x="10" y="226"  color="#FD0202" fontSize="9" id="alertMessage" width="106"/>
-	<mx:Text x="10" y="158" text="OB Proxy" width="89" height="23" fontSize="13" color="#E98F02" fontWeight="bold" visible="true"/>
-	<mx:TextInput x="107" y="159" width="137" id="obproxyTxt" visible="true"/>
 	
 	
 </mx:Canvas>

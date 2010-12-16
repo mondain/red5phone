@@ -11,7 +11,7 @@ import org.w3c.dom.Element;
 
 public class Config {
 
-	private String codecsPrecedence = "18;111;8;0";
+	private String codecsPrecedence = "18;111;8;0,100";
 	private int startSIPPort = 5070;
 	private int startRTPPort = 3000;
 	private int SIPPortNum = 30;
@@ -73,7 +73,7 @@ public class Config {
 			if ((tagRTPPortStep.getTextContent() != null) && (tagRTPPortStep.getTextContent().length() > 0)) {
 				RTPPortStep = Integer.parseInt(tagRTPPortStep.getTextContent());
 			}
-			
+
 			// Read normalizeVolume TAG
 			Element tagNormalizeVolume = (Element) doc.getElementsByTagName("normalizeVolume").item(0);
 			if ((tagNormalizeVolume.getTextContent() != null) && (tagNormalizeVolume.getTextContent().length() > 0)) {

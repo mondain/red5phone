@@ -156,7 +156,7 @@ public class CodecImpl {
         }
     }
 
-    public static float[] encode(float[] state, float[] in, byte[] out) {
+    public static void encode(float[] state, float[] in, byte[] out) {
 
         float var_8d8[] = new float[256];
         float var_2e8[] = new float[23];
@@ -227,11 +227,9 @@ public class CodecImpl {
                 }
             }
         }
-
-        return state;
     }
 
-    public static float[] decode(float[] state, byte[] in, float[] out) {
+    public static void decode(float[] state, byte[] in, float[] out) {
 
         byte[] unpacked_input = new byte[124];
         float[] var_808 = new float[128];
@@ -301,8 +299,6 @@ public class CodecImpl {
 
             iTransfm(state, var_808, 7, out, out_off);
         }
-
-        return state;
     }
 
     private static void iTransfm(float[] state, float[] in,
@@ -691,8 +687,8 @@ public class CodecImpl {
                     }
                 }
 
-                final int dev_1 = Math.abs(bits_used_1 - total_bits);
-                final int dev_2 = Math.abs(bits_used_2 - total_bits);
+                final int dev_1 = Math.abs((int)bits_used_1 - total_bits);
+                final int dev_2 = Math.abs((int)bits_used_2 - total_bits);
 
                 if (dev_1 < dev_2) {
                     scaled_input_base = scaled_input_base_1;
