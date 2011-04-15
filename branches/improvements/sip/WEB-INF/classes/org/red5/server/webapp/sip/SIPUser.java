@@ -116,13 +116,13 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
     private String realm;
 
     private String obproxy;
-    
+
     private String A1ParamMD5;
-    
+
     //Flag that specify if a RTMP session will be created or not
     private boolean useRTMP = true;
-    
-    
+
+
 
     public SIPUser( String sessionID, IConnection service, int sipPort, int rtpPort ) throws IOException {
 
@@ -260,8 +260,10 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
             	rtmpUser.startStream( "localhost", "sip", 1935, publishName, playName );
 
             sipReady = false;
+
             if(useRTMP)
             	ua.setMedia( rtmpUser );
+
             ua.hangup();
 
             if ( destination.indexOf( "@" ) == -1 ) {
@@ -341,7 +343,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
                 	rtmpUser.startStream( "localhost", "sip", 1935, publishName, playName );
 
                 sipReady = false;
-                
+
                 if(useRTMP)
                 	ua.setMedia( rtmpUser );
                 ua.accept();
@@ -356,17 +358,14 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 
     public void hangup() {
 
-        p( "hangup" );
+        p( "hangup " +  ua.call_state);
 
         if ( ua != null ) {
 
             if ( ua.call_state != SIPUserAgent.UA_IDLE ) {
                 ua.hangup();
-                ua.listen();
             }
         }
-
-        closeStreams();
     }
 
 
@@ -494,6 +493,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 		 	((IServiceCapableConnection) service).invoke("callState", new Object[] {"onUaCallTrasferred"});
 		}
 
+        //ua.listen();
     }
 
 
@@ -506,8 +506,6 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
         if ( service != null ) {
             ( (IServiceCapableConnection) service ).invoke( "callState", new Object[] { "onUaCallCancelled" } );
         }
-
-        ua.listen();
     }
 
 
@@ -521,7 +519,7 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
             ( (IServiceCapableConnection) service ).invoke( "callState", new Object[] { "onUaCallFailed" } );
         }
 
-        ua.listen();
+       // ua.listen();
     }
 
 
@@ -566,9 +564,9 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
     }
 
     public void setA1Parameter(String A1ParamMD5) {
-		this.A1ParamMD5 = A1ParamMD5;		
+		this.A1ParamMD5 = A1ParamMD5;
 	}
-	
+
 	public int getSipPort() {
 		return this.sipPort;
 	}
@@ -576,8 +574,8 @@ public class SIPUser implements SIPUserAgentListener, SIPRegisterAgentListener {
 	public int getRtpPort() {
 		return this.rtpPort;
 	}
-	
-	
+
+
 	//seter for useRTMP
 	public void setUseRTMP(boolean useRTMP) {
 		this.useRTMP = useRTMP;
