@@ -247,8 +247,8 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 
    /** Connections */
    Hashtable connections=null;
-   
-   
+
+
    /** Log file append */
    private String logNameAppend = "";
 
@@ -262,13 +262,13 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 
    /** Creates a new SipProvider. */
    public SipProvider(String via_addr, int port, String logNameAppend)
-   {  
+   {
 	   setLogNameAppend(logNameAppend);
 	   init(via_addr,port,null,null);
 	   initlog();
 	   startTrasport();
    }
-   
+
    public SipProvider(String via_addr, int port)
    {  init(via_addr,port,null,null);
       initlog();
@@ -347,7 +347,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
    private void initlog()
    {  if (SipStack.debug_level>0)
       {  String filename=SipStack.log_path+"//"+via_addr+"."+host_port;
-         
+
          event_log=new RotatingLog(filename+"_events"+logNameAppend+".log",null,SipStack.debug_level,SipStack.max_logsize*1024,SipStack.log_rotations,SipStack.rotation_scale,SipStack.rotation_time);
          message_log=new RotatingLog(filename+"_messages"+logNameAppend+".log",null,SipStack.debug_level,SipStack.max_logsize*1024,SipStack.log_rotations,SipStack.rotation_scale,SipStack.rotation_time);
       }
@@ -836,11 +836,11 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
       }
       // logs
       String dest_addr=dest_ipaddr.toString();
-      
+
       if(msg.toString().indexOf("SIP/2.0 200 OK") != -1) {
-    	  System.out.println("Remove this code, its for debug.");
+    	  //System.out.println("Remove this code, its for debug.");
       }
-      
+
       printMessageLog(proto,dest_addr,dest_port,msg.getLength(),msg,"sent");
       return conn_id;
    }
