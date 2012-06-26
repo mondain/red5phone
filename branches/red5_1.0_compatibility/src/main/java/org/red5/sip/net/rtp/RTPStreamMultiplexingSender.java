@@ -1,16 +1,22 @@
-package org.red5.sip.app;
+package org.red5.sip.net.rtp;
+
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 import local.net.RtpPacket;
 import local.net.RtpSocket;
+
+import org.apache.commons.lang.NotImplementedException;
 import org.red5.codecs.SIPCodec;
 import org.red5.codecs.asao.ByteStream;
 import org.red5.codecs.asao.Decoder;
 import org.red5.codecs.asao.DecoderMap;
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.sip.IMediaReceiver;
+import org.red5.sip.IMediaSender;
+import org.red5.sip.util.BufferUtils;
+import org.red5.sip.util.ResampleUtils;
 import org.slf4j.Logger;
-
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 
 public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
     protected static Logger log = Red5LoggerFactory.getLogger(RTPStreamMultiplexingSender.class, "sip");
@@ -207,6 +213,10 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
         sendThread = new Thread(this);
         sendInterval = System.currentTimeMillis();
         sendThread.start();
+    }
+    
+    public void queueSipDtmfDigits( String argDigits ) {
+    	throw new NotImplementedException();
     }
 
     private void fillDecodedBuffer(byte[] asaoBuffer, float[] tempBuffer) {

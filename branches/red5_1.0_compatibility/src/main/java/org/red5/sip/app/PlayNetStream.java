@@ -10,6 +10,8 @@ import org.red5.server.net.rtmp.event.SerializeUtils;
 import org.red5.server.net.rtmp.event.VideoData;
 import org.red5.server.stream.AbstractClientStream;
 import org.red5.server.stream.IStreamData;
+import org.red5.sip.IMediaSender;
+import org.red5.sip.net.rtp.RTPStreamMultiplexingSender;
 import org.slf4j.Logger;
 
 public class PlayNetStream extends AbstractClientStream implements IEventDispatcher {

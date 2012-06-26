@@ -1,4 +1,4 @@
-package org.red5.sip.app;
+package org.red5.sip.net.rtmp;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.openmeetings.app.persistence.beans.recording.RoomClient;
@@ -22,6 +23,11 @@ import org.red5.server.net.rtmp.event.AudioData;
 import org.red5.server.net.rtmp.event.Notify;
 import org.red5.server.net.rtmp.status.StatusCodes;
 import org.red5.server.stream.message.RTMPMessage;
+import org.red5.sip.IMediaReceiver;
+import org.red5.sip.IMediaSender;
+import org.red5.sip.ISipNumberListener;
+import org.red5.sip.app.PlayNetStream;
+import org.red5.sip.net.rtp.RTPStreamMultiplexingSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,9 +80,9 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         getSipNumber
     }
 
-    final private int roomId;
-    final private String context;
-    final private String host;
+    private final String roomId;
+    private final String context;
+    private final String host;
 
     @Override
     public void connectionOpened( RTMPConnection conn, RTMP state ) {
@@ -106,7 +112,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         }
     }
 
-    public RTMPRoomClient(String host, String context, int roomId) {
+    public RTMPRoomClient(String host, String context, String roomId) {
         super();
         this.roomId = roomId;
         this.context = context;
@@ -115,8 +121,12 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         this.setExceptionHandler(this);
     }
 
+    public RTMPRoomClient(String host, String context, int roomId) {
+    	this(host, context, roomId + "");
+    }
+
     public void start() {
-        log.debug( "Connecting. Host: {}, Port: {}, Context: {}, RoomID: {}", new String[]{host, "1935", context, ""+roomId} );
+        log.debug( "Connecting. Host: {}, Port: {}, Context: {}, RoomID: {}", new String[]{host, "1935", context, roomId} );
         connect(host, 1935, context + "/" + roomId, this);
     }
 
@@ -213,7 +223,11 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
     }
 
     protected void setSipTransport() {
-        conn.invoke("setSipTransport", new Object[]{Long.valueOf(roomId), publicSID, ""+broadCastId}, this);
+    	if (StringUtils.isNumeric(roomId)) {
+            conn.invoke("setSipTransport", new Object[]{Long.valueOf(roomId), publicSID, ""+broadCastId}, this);   		
+    	} else {
+            conn.invoke("setSipTransport", new Object[]{roomId, publicSID, ""+broadCastId}, this);    		
+    	}
     }
 
     protected void setUserAVSettings() {
@@ -225,7 +239,11 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
     }
 
     protected void getSipNumber() {
-        conn.invoke("getSipNumber", new Object[]{Integer.valueOf(roomId).longValue()}, this);
+    	if (StringUtils.isNumeric(roomId)) {
+            conn.invoke("getSipNumber", new Object[]{Integer.valueOf(roomId).longValue()}, this);    		
+    	} else {
+    		conn.invoke("getSipNumber", new Object[]{roomId}, this);
+    	}
     }
 
     protected void startStreaming() {

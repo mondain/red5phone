@@ -1,4 +1,4 @@
-package org.red5.sip.app;
+package org.red5.sip;
 
 
 import org.red5.codecs.SIPCodec;

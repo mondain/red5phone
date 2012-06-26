@@ -1,4 +1,4 @@
-package org.red5.sip.app;
+package org.red5.sip;
 
 public interface IMediaSender {
 
@@ -7,5 +7,7 @@ public interface IMediaSender {
     void start();
 
     void halt();
+
+	void queueSipDtmfDigits(String digits);
 
 }

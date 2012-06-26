@@ -1,4 +1,4 @@
-package org.red5.sip.app;
+package org.red5.sip;
 
 import java.io.IOException;
 
