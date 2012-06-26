@@ -1,11 +1,11 @@
-package org.red5.sip.app;
+package org.red5.sip.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BufferUtils {
 
-    protected static Logger log = LoggerFactory.getLogger( RTPStreamSender.class );
+    protected static Logger log = LoggerFactory.getLogger( BufferUtils.class );
 
 
     /**

@@ -1,16 +1,20 @@
-package org.red5.sip.app;
+package org.red5.sip.net.rtp;
+
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 import local.net.RtpPacket;
 import local.net.RtpSocket;
+
 import org.red5.codecs.SIPCodec;
 import org.red5.codecs.asao.ByteStream;
 import org.red5.codecs.asao.Decoder;
 import org.red5.codecs.asao.DecoderMap;
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.sip.IMediaReceiver;
+import org.red5.sip.IMediaSender;
+import org.red5.sip.util.BufferUtils;
 import org.slf4j.Logger;
-
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 
 
 public class RTPStreamSender implements IMediaSender {
@@ -281,8 +285,6 @@ public class RTPStreamSender implements IMediaSender {
 
     /** Fill the buffer of RtpPacket with necessary data. */
     private int fillRtpPacketBuffer(byte[] asaoBuffer) {
-
-        boolean isBufferFilled = false;
         int copyingSize = 0;
         int finalCopySize = 0;
         byte[] codedBuffer = new byte[ sipCodec.getOutgoingEncodedFrameSize() ];
@@ -382,8 +384,6 @@ public class RTPStreamSender implements IMediaSender {
 
             if (encodingOffset == encodingBuffer.length)
             {
-                isBufferFilled = true;
-
                 int encodedBytes = sipCodec.pcmToCodec( encodingBuffer, codedBuffer );
 
                 //println( "fillRtpPacketBuffer",
