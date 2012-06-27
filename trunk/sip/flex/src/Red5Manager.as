@@ -39,8 +39,7 @@ package {
 		}
 		
 		private function init():void {
-			
-			NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;	
+			NetConnection.defaultObjectEncoding = flash.net.ObjectEncoding.AMF0;
 			netConnection = new NetConnection();
 			netConnection.client = this;
 			netConnection.addEventListener( NetStatusEvent.NET_STATUS , netStatus );
@@ -55,13 +54,13 @@ package {
 			netConnection.close();
 		}
 		
-		private function netStatus (evt:NetStatusEvent ):void {		 
+		private function netStatus (evt:NetStatusEvent ):void {
 
 			switch(evt.info.code) {
 				
 				case "NetConnection.Connect.Success":
 					dispatchEvent (new Red5MessageEvent(Red5MessageEvent.MESSAGE, Red5MessageEvent.NETSTAUS,  'Connection success'));
-					this.doOpen();									
+					this.doOpen();
 					break;
 		
 				case "NetConnection.Connect.Failed":
@@ -83,12 +82,12 @@ package {
 					this.doStreamStatus("failed");
 					break;
 					
-				case "NetStream.Play.Start":	
-					this.doStreamStatus("start");	
+				case "NetStream.Play.Start":
+					this.doStreamStatus("start");
 					break;
 					
-				case "NetStream.Play.Stop":			
-					this.doStreamStatus("stop");	
+				case "NetStream.Play.Stop":	
+					this.doStreamStatus("stop");
 					break;
 					
 				case "NetStream.Buffer.Full":
@@ -96,7 +95,7 @@ package {
 					
 				default:
 					
-			}			 
+			}
 		} 
 		
 		private function asyncErrorHandler(event:AsyncErrorEvent):void {
@@ -107,7 +106,16 @@ package {
             trace("securityErrorHandler: " + event);
         }
         
-     
+		public function onBWDone(... rest):void {
+			var bw:Number = Number(rest[0].kbitDown);
+			var latency:Number = Number(rest[0].latency);
+			trace('Bandwidth check completed. Bandwidth: ' + bw + " Kbps Latency: " + latency);
+		}
+			
+		public function onBWCheck(... rest):uint {
+			trace("onBWCheck");
+			return 0;
+		}     
         
         //********************************************************************************************
 		//			
@@ -142,25 +150,21 @@ package {
 			}
 		}
 		
-		public function incoming(source:String, sourceName:String, destination:String, destinationName:String):*  {		
+		public function incoming(source:String, sourceName:String, destination:String, destinationName:String):*  {
 			dispatchEvent (new IncomingCallEvent(IncomingCallEvent.INCOMING, source,  sourceName, destination, destinationName ));
 		}
         
-                public function connected(publishName:String, playName:String):* {
+        public function connected(publishName:String, playName:String):* {
 			dispatchEvent (new CallConnectedEvent(CallConnectedEvent.CONNECTED, publishName,  playName));
 			isConnected = true;
 		}
 		
 		public function mailBoxStatus(isWaitting:Boolean, newMessage:String, oldMessage:String):* {
-
 			dispatchEvent (new MailBoxStatusEvent(MailBoxStatusEvent.MAIBOXSTATUS, isWaitting,  newMessage, oldMessage));
-
 		}
 		
 		public function mailBoxCount(newMessage:String, oldMessage:String):* {
-
 			dispatchEvent (new MailBoxCountEvent(MailBoxCountEvent.MAIBOXCOUNT, newMessage,  oldMessage));
-
 		}
 		
 		
@@ -204,15 +208,15 @@ package {
 		}
 		
 		public function doAccept():void {
-			netConnection.call("accept", null, uid);			
+			netConnection.call("accept", null, uid);
 		}
 		
 		public function doStreamStatus(status:String):void {
-			netConnection.call("streamStatus", null, uid, status);	
+			netConnection.call("streamStatus", null, uid, status);
 		}
 		
 		public function doClose1():void {
-			netConnection.call("unregister", null, uid);	
+			netConnection.call("unregister", null, uid);
 		}
 		
 		//********************************************************************************************
@@ -222,14 +226,11 @@ package {
 		//********************************************************************************************
 		
 		public function doMialBoxStatus():void {
-
-			//netConnection.call("vmStatus", null);			
-
+			//netConnection.call("vmStatus", null);
 		}
-		
-		public function doMailBoxCount():void {
 
-			//netConnection.call("vmCount", null;			
+		public function doMailBoxCount():void {
+			//netConnection.call("vmCount", null);
 		}
 	}
 }
