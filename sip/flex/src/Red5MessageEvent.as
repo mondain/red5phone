@@ -6,7 +6,7 @@ package {
 		
 		public static var MESSAGE:String    = "message";
 		public static var NETSTAUS:String   = "netstatus";
-		public static var SIP_REGISTER:String 		= "sip_register";
+		public static var SIP_REGISTER:String = "sip_register";
 		public static var CALLSTATE:String  = "callstate";
 		public var msgType:String;
 		public var message:String;
