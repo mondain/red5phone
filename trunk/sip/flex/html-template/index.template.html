@@ -1,25 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!-- saved from url=(0014)about:internet -->
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"> 
-    <!-- 
-    Smart developers always View Source. 
-    
-    This application was built using Adobe Flex, an open source framework
-    for building rich Internet applications that get delivered via the
-    Flash Player or to desktops via Adobe AIR. 
-    
-    Learn more about Flex at http://flex.org 
-    // -->
     <head>
         <title>${title}</title>
         <meta name="google" value="notranslate" />         
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <!-- Include CSS to eliminate any default margins/padding and set the height of the html element and 
-             the body element to 100%, because Firefox, or any Gecko based browser, interprets percentage as 
-             the percentage of the height of its parent container, which has to be set explicitly.  Fix for
-             Firefox 3.6 focus border issues.  Initially, don't display flashContent div so it won't show 
-             if JavaScript disabled.
-        -->
         <style type="text/css" media="screen"> 
             html, body  { height:100%; }
             body { margin:0; padding:0; overflow:auto; text-align:center; 
@@ -27,13 +12,6 @@
             object:focus { outline:none; }
             #flashContent { display:none; }
         </style>
-        
-        <!-- Enable Browser History by replacing useBrowserHistory tokens with two hyphens -->
-        <!-- BEGIN Browser History required section ${useBrowserHistory}>
-        <link rel="stylesheet" type="text/css" href="history/history.css" />
-        <script type="text/javascript" src="history/history.js"></script>
-        <!${useBrowserHistory} END Browser History required section -->  
-            
         <script type="text/javascript" src="swfobject.js"></script>
         <script type="text/javascript">
             // For version detection, set to min. required Flash Player version, or 0 (or 0.0.0), for no version detection. 
@@ -58,12 +36,44 @@
             // JavaScript enabled so display the flashContent div in case it is not replaced with a swf object.
             swfobject.createCSS("#flashContent", "display:block;text-align:left;");
         </script>
+        <script type="text/javascript">
+            function red5phone_getConfig() {
+                var username = getPageParameter('username', '');
+                var password = getPageParameter('password', '');
+                var mailbox = getPageParameter('mailbox', '');
+                return {
+                    username: username, password: password, mailbox: mailbox, autologin: false
+                };
+            }
+
+            function getParameter(string, parm, delim) {
+                if (string.length == 0) {
+                    return '';
+                }
+                var sPos = string.indexOf(parm + "=");
+                if (sPos == -1) {return '';}
+                sPos = sPos + parm.length + 1;
+                var ePos = string.indexOf(delim, sPos);
+                if (ePos == -1) {
+                    ePos = string.length;
+                }
+                return unescape(string.substring(sPos, ePos));
+            }
+
+            function getPageParameter(parameterName, defaultValue) {
+                var s = self.location.search;
+                if ((s == null) || (s.length < 1)) {
+                    return defaultValue;
+                }
+                s = getParameter(s, parameterName, '&');
+                if ((s == null) || (s.length < 1)) {
+                    s = defaultValue;
+                }
+                return s;
+            }
+    </script>
     </head>
     <body>
-        <!-- SWFObject's dynamic embed method replaces this alternative HTML content with Flash content when enough 
-             JavaScript and Flash plug-in support is available. The div is initially hidden so that it doesn't show
-             when JavaScript is disabled.
-        -->
         <div id="flashContent">
             <p>
                 To view this page ensure that Adobe Flash Player version 
@@ -71,11 +81,9 @@
             </p>
             <script type="text/javascript"> 
                 var pageHost = ((document.location.protocol == "https:") ? "https://" : "http://"); 
-                document.write("<a href='http://www.adobe.com/go/getflashplayer'><img src='" 
-                                + pageHost + "www.adobe.com/images/shared/download_buttons/get_flash_player.gif' alt='Get Adobe Flash player' /></a>" ); 
+                document.write("<a href='http://www.adobe.com/go/getflashplayer'><img src='" + pageHost +  "www.adobe.com/images/shared/download_buttons/get_flash_player.gif' alt='Get Adobe Flash player' /></a>" ); 
             </script> 
         </div>
-        
         <noscript>
             <object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="${width}" height="${height}" id="${application}">
                 <param name="movie" value="${swf}.swf" />
@@ -103,6 +111,9 @@
                 </object>
                 <!--<![endif]-->
             </object>
-        </noscript>     
+        </noscript>
+        <form name="demo">
+            <input type="text" name="destination" /><button onclick="red5phone.dial(demo.destination.value)">Dial</button>
+        </form>
    </body>
 </html>
