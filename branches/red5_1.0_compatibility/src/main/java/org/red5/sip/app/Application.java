@@ -41,14 +41,20 @@ public class Application implements Daemon {
         return sipTransport;
     }
 
-    public void init(String[] args) {
+    public boolean init(String[] args) {
         log.info("Red5SIP starting...");
+        if(args.length == 0) {
+        	log.error("The Settings file is expected as a command line parameter.");
+            return false;
+        }
+        
         File settings = new File(args[0]);
         if(!settings.exists()) {
             log.error("Settings file " + args[0] + " not found");
-            return;
+            return false;
         }
         props = PropertiesUtils.load(settings);
+        return true;
     }
 
     public void init(DaemonContext daemonContext) throws Exception {
