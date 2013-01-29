@@ -2,23 +2,27 @@ package org.red5.sip.app;
 
 import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.buffer.IoBuffer;
-import org.openmeetings.app.persistence.beans.recording.RoomClient;
+import org.apache.openmeetings.persistence.beans.rooms.Client;
 import org.red5.io.utils.ObjectMap;
+import org.red5.server.api.IScope;
+import org.red5.server.api.event.IEvent;
 import org.red5.server.api.service.IPendingServiceCall;
 import org.red5.server.api.service.IPendingServiceCallback;
-import org.red5.server.net.rtmp.ClientExceptionHandler;
-import org.red5.server.net.rtmp.INetStreamEventHandler;
-import org.red5.server.net.rtmp.RTMPClient;
-import org.red5.server.net.rtmp.RTMPConnection;
+import org.red5.server.api.service.IServiceCall;
+import org.red5.server.api.service.IServiceInvoker;
+import org.red5.server.net.rtmp.*;
 import org.red5.server.net.rtmp.codec.RTMP;
 import org.red5.server.net.rtmp.event.AudioData;
 import org.red5.server.net.rtmp.event.Notify;
+import org.red5.server.net.rtmp.message.Header;
 import org.red5.server.net.rtmp.status.StatusCodes;
+import org.red5.server.service.Call;
 import org.red5.server.stream.message.RTMPMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.*;
 
 public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler, ClientExceptionHandler, IPendingServiceCallback, IMediaReceiver {
@@ -74,34 +78,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
     final private String context;
     final private String host;
 
-    @Override
-    public void connectionOpened( RTMPConnection conn, RTMP state ) {
-        log.debug("RTMP Connection opened");
-        super.connectionOpened( conn, state );
-        this.conn = conn;
-        retryNumber = 0;
-        updateThread.start();
-    }
-
-    @Override
-    public void connectionClosed( RTMPConnection conn, RTMP state ) {
-        log.debug( "RTMP Connection closed" );
-        super.connectionClosed( conn, state );
-        if(reconnect && ++retryNumber < MAX_RETRY_NUMBER) {
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                log.error("Reconnection pause was interrupted", e);
-            }
-            log.debug( "Try reconnect..." );
-            this.start();
-        } else {
-            if(updateThread.isAlive()) {
-                updateThread.interrupt();
-            }
-        }
-    }
-
     public RTMPRoomClient(String host, String context, int roomId) {
         super();
         this.roomId = roomId;
@@ -109,10 +85,31 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         this.host = host;
         this.setServiceProvider(this);
         this.setExceptionHandler(this);
+        Field serviceInvoker = null;
+        try {
+            serviceInvoker = BaseRTMPClientHandler.class.getDeclaredField("serviceInvoker");
+            serviceInvoker.setAccessible(true);
+            serviceInvoker.set(this, new IServiceInvoker() {
+                public boolean invoke(IServiceCall call, IScope iScope) {
+                    call.setStatus(Call.STATUS_SUCCESS_VOID);
+                    return true;
+                }
+                public boolean invoke(IServiceCall call, Object o) {
+                    call.setStatus(Call.STATUS_SUCCESS_VOID);
+                    return true;
+                }
+            });
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        }
     }
 
     public void start() {
         log.debug( "Connecting. Host: {}, Port: {}, Context: {}, RoomID: {}", new String[]{host, "1935", context, ""+roomId} );
+        stop();
+        reconnect = true;
         connect(host, 1935, context + "/" + roomId, this);
     }
 
@@ -120,45 +117,15 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         this.sipNumberListener = sipNumberListener;
     }
 
-    @Override
-    public void handleException(Throwable throwable) {
-        log.error("Exception was: {}", throwable.getStackTrace());
-        if(throwable instanceof RuntimeIoException) {
-            if(reconnect && ++retryNumber < MAX_RETRY_NUMBER) {
-                try {
-                    Thread.sleep(3000);
-                } catch (InterruptedException e) {
-                    log.error("Reconnection pause was interrupted", e);
-                }
-                this.start();
-            } else {
-                if(updateThread.isAlive()) {
-                    updateThread.interrupt();
-                }
-            }
-        }
-
-    }
-
     public void init() {
         getPublicSID();
     }
 
     public void stop() {
-        disconnect();
-    }
-
-    public void stopStream() {
-
-        System.out.println( "RoomClient stopStream" );
-
-        try {
+        reconnect = false;
+        if(conn != null) {
             disconnect();
         }
-        catch ( Exception e ) {
-            log.error( "RoomClient stopStream exception " + e );
-        }
-
     }
 
     public void setSender(IMediaSender sender) {
@@ -196,7 +163,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 
             Integer streamIdInt = (Integer) call.getResult();
 
-            if (conn != null && streamIdInt != null) {
+            if (conn != null && streamIdInt != null && (publishStreamId == null || streamIdInt.intValue() != publishStreamId)) {
                 clientStreamMap.put(broadCastId, streamIdInt);
                 PlayNetStream stream = new PlayNetStream(sender);
                 stream.setConnection(conn);
@@ -237,29 +204,110 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
     protected void updateSipTransport() {
         conn.invoke("updateSipTransport", this);
     }
+
+    @Override
+    public void connectionOpened( RTMPConnection conn, RTMP state ) {
+        log.debug("RTMP Connection opened");
+        super.connectionOpened( conn, state );
+        this.conn = conn;
+        retryNumber = 0;
+    }
+
+    @Override
+    public void connectionClosed( RTMPConnection conn, RTMP state ) {
+        log.debug( "RTMP Connection closed" );
+        super.connectionClosed( conn, state );
+        if(reconnect && ++retryNumber < MAX_RETRY_NUMBER) {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e) {
+                log.error("Reconnection pause was interrupted", e);
+            }
+            log.debug( "Try reconnect..." );
+            this.start();
+        } else {
+            if(updateThread.isAlive()) {
+                updateThread.interrupt();
+            }
+        }
+    }
+
+
+    @Override
+	protected void onInvoke(RTMPConnection conn, Channel channel,
+			Header source, Notify invoke, RTMP rtmp) {
+		super.onInvoke(conn, channel, source, invoke, rtmp);
+
+        if (invoke.getType() == IEvent.Type.STREAM_DATA) {
+			return;
+		}
+        try {
+            String methodName = invoke.getCall().getServiceMethodName();
+            InvokeMethods method;
+            try {
+                method = InvokeMethods.valueOf(methodName);
+            } catch (IllegalArgumentException e) {
+                return;
+            }
+            switch(method) {
+                case receiveExclusiveAudioFlag:
+                    receiveExclusiveAudioFlag(Client.class.cast(invoke.getCall().getArguments()[0]));
+                    break;
+                case sendVarsToMessageWithClient:
+                    sendVarsToMessageWithClient(invoke.getCall().getArguments()[0]);
+                    break;
+                case newStream:
+                    newStream(Client.class.cast(invoke.getCall().getArguments()[0]));
+                    break;
+                case closeStream:
+                    closeStream(Client.class.cast(invoke.getCall().getArguments()[0]));
+                    break;
+                default:
+                    log.debug("Method not found: " + method + ", args number: " + invoke.getCall().getArguments().length);
+            }
+        } catch (ClassCastException e) {
+            log.error("onInvoke error", e);
+        }
+	}
+
+	@Override
+    public void handleException(Throwable throwable) {
+        log.error("Exception was: {}", throwable.getStackTrace());
+        if(throwable instanceof RuntimeIoException) {
+            if(reconnect && ++retryNumber < MAX_RETRY_NUMBER) {
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    log.error("Reconnection pause was interrupted", e);
+                }
+                this.start();
+            } else {
+                if(updateThread.isAlive()) {
+                    updateThread.interrupt();
+                }
+            }
+        }
+
+    }
+
     /******************************************************************************************************************/
     /** Serive provider methods */
     /******************************************************************************************************************/
 
-    public void sendSyncCompleteFlag(Object param) {
-
+    enum InvokeMethods {
+        receiveExclusiveAudioFlag,
+        sendVarsToMessageWithClient,
+        closeStream,
+        newStream
     }
 
-    public void roomDisconnect(RoomClient client) {
-        log.debug("roomDisconnect:" + client.getPublicSID());
-    }
-
-    public void sendImagesSyncCompleteFlag(Object message) {
-        log.debug("sendImagesSyncCompleteFlag:" + message.toString());
-    }
-
-    public void receiveExclusiveAudioFlag(RoomClient client) {
+    public void receiveExclusiveAudioFlag(Client client) {
         log.debug("receiveExclusiveAudioFlag:" + client.getPublicSID());
         this.micMuted = !client.getPublicSID().equals(this.publicSID);
         log.info("Mic switched: " + this.micMuted);
     }
 
-    public void receiveMicMuteSwitched(RoomClient client) {
+    public void receiveMicMuteSwitched(Client client) {
         log.debug("receiveMicMuteSwitched:" + client.getPublicSID());
         if(client.getPublicSID().equals(this.publicSID)) {
             log.info("Mic switched: " + client.getMicMuted());
@@ -267,28 +315,25 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         }
     }
 
-    public void sendVarsToMessage(Object message) {
-        log.debug("sendVarsToMessage:" + message.toString());
-    }
-
     public void sendVarsToMessageWithClient(Object message) {
         if(message instanceof Map) {
             try {
                 Map map = Map.class.cast(message);
-                if("kick".equals(map.get(0)) || "kick".equals(Map.class.cast(map.get("message")).get(0))) {
+                Map msgValue = Map.class.cast(map.get("message"));
+                if("kick".equals(map.get(0)) || "kick".equals(msgValue.get(0))) {
                     log.info("Kicked by moderator. Reconnect");
                     this.conn.close();
+                } else if("updateMuteStatus".equals(msgValue.get(0))) {
+                    Client client = (Client)msgValue.get(1);
+                    log.info("Mic switched: " + client.getMicMuted());
+                    this.micMuted = client.getMicMuted();
                 }
             } catch (Exception ignored) {}
         }
         log.debug("sendVarsToMessageWithClient:" + message.toString());
     }
 
-    public void addNewUser(RoomClient client) {
-        log.debug("addNewUser:" + client.getPublicSID());
-    }
-
-    public void closeStream(RoomClient client) {
+    public void closeStream(Client client) {
         log.debug("closeStream:" + client.getBroadCastID());
         Integer streamId = clientStreamMap.get(client.getBroadCastID());
         if(streamId != null) {
@@ -300,7 +345,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         }
     }
 
-    public void newStream(RoomClient client) {
+    public void newStream(Client client) {
         log.debug("newStream:" + client.getBroadCastID());
         createPlayStream(client.getBroadCastID());
     }
@@ -351,6 +396,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
                 break;
             case setSipTransport:
                 log.info("setSipTransport");
+                updateThread.start();
                 break;
             case updateSipTransport:
                 log.info("updateSipTransport");
@@ -410,6 +456,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         }
 
         if(silence) {
+            log.debug("Silence...");
             return;
         }
 
@@ -437,6 +484,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         if ( kt < 10 ) {
             log.debug( "+++ " + audioData );
         }
+
 
         RTMPMessage rtmpMsg = new RTMPMessage();
         rtmpMsg.setBody( audioData );

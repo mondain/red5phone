@@ -7,11 +7,13 @@ import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.provider.SipProvider;
 import org.zoolu.sip.provider.SipStack;
 
-public class SIPTransport  implements SIPUserAgentListener, SIPRegisterAgentListener, ISipNumberListener{
+public abstract class SIPTransport  implements SIPUserAgentListener, SIPRegisterAgentListener, ISipNumberListener {
 
     protected static Logger log = Red5LoggerFactory.getLogger(SIPTransport.class, "sip");
 
     public boolean sipReady = false;
+
+    public RTMPRoomClient roomClient;
 
     private SipProvider sip_provider;
 
@@ -22,8 +24,6 @@ public class SIPTransport  implements SIPUserAgentListener, SIPRegisterAgentList
     private SIPUserAgent ua;
 
     private SIPRegisterAgent ra;
-
-    private RTMPRoomClient roomClient;
 
     private String username;
 
@@ -36,6 +36,8 @@ public class SIPTransport  implements SIPUserAgentListener, SIPRegisterAgentList
     private int rtpPort;
 
     private String proxy;
+
+    private String number;
 
 
     private void p( String s ) {
@@ -101,7 +103,6 @@ public class SIPTransport  implements SIPUserAgentListener, SIPRegisterAgentList
         p( "Calling " + destination );
 
         try {
-
             roomClient.init();
 
             sipReady = false;
@@ -144,24 +145,26 @@ public class SIPTransport  implements SIPUserAgentListener, SIPRegisterAgentList
     }
 
     public void close() {
-		p("close1");
-         try {
+		p("close");
 
-			hangup();
-			unregister();
-		    Thread.sleep(3000);
-
-		} catch(Exception e) {
-			p("close: Exception:>\n" + e);
-		}
+        try {
+            hangup();
+        } catch(Exception e) {
+            p("close: Exception:>\n" + e);
+        }
 
         try {
             p("provider.halt");
-			sip_provider.halt();
+            sip_provider.halt();
+        } catch(Exception e) {
+            p("close: Exception:>\n" + e);
+        }
 
-	    } catch(Exception e) {
+        try {
+			unregister();
+		} catch(Exception e) {
 			p("close: Exception:>\n" + e);
-	    }
+		}
 	}
 
     public void hangup() {
@@ -177,7 +180,7 @@ public class SIPTransport  implements SIPUserAgentListener, SIPRegisterAgentList
         }
 
         closeStreams();
-        roomClient.stopStream();
+        roomClient.stop();
     }
 
     private void closeStreams() {
@@ -212,14 +215,6 @@ public class SIPTransport  implements SIPUserAgentListener, SIPRegisterAgentList
         ra.loopRegister( expire_time, renew_time, keepalive_time );
     }
 
-    public void onUaRegistrationSuccess(SIPRegisterAgent ra, NameAddress target, NameAddress contact, String result) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void onUaRegistrationFailure(SIPRegisterAgent ra, NameAddress target, NameAddress contact, String result) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     public void onUaCallIncoming(SIPUserAgent ua, NameAddress callee, NameAddress caller) {
         //To change body of implemented methods use File | Settings | File Templates.
     }
@@ -241,18 +236,38 @@ public class SIPTransport  implements SIPUserAgentListener, SIPRegisterAgentList
     }
 
     public void onUaCallFailed(SIPUserAgent ua) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        log.info("Call failed");
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            log.info( "Reconnection pause was interrupted" ) ;
+        }
+        roomClient.start();
+    }
+
+    public void onUaCallClosing(SIPUserAgent ua) {
+        log.info("Call closing");
     }
 
     public void onUaCallClosed(SIPUserAgent ua) {
         //To change body of implemented methods use File | Settings | File Templates.
+        log.info("Call closed");
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            log.info( "Reconnection pause was interrupted" ) ;
+        }
+        log.info("Try reconnect: Call " + number);
+        register();
     }
 
     public void onUaCallConnected(SIPUserAgent ua) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        log.info( "Call connected" );
     }
 
     public void onSipNumber(String number) {
+        log.info("Room number: " + number);
+        this.number = number;
         this.call(number);
     }
 }

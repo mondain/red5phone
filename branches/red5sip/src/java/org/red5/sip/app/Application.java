@@ -5,11 +5,10 @@ import org.apache.commons.daemon.DaemonContext;
 import org.openmeetings.utils.PropertiesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.zoolu.sip.address.NameAddress;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 public class Application implements Daemon {
 
@@ -23,19 +22,36 @@ public class Application implements Daemon {
 
     private Properties props = null;
 
-    private List<SIPTransport> transportList = new ArrayList<SIPTransport>();
+    private Map<Integer, SIPTransport> transportMap = new HashMap<Integer, SIPTransport>();
+
+    private RTMPControlClient rtmpControlClient;
 
     public static SIPTransport createSIPTransport(Properties prop, int room_id) {
         log.info("Creating SIP trasport for room: " + room_id);
+        RTPStreamSender.useASAO = prop.getProperty("red5.codec", "asao").equals("asao");
         RTMPRoomClient roomClient = new RTMPRoomClient(prop.getProperty("red5.host"), "openmeetings", room_id);
-        SIPTransport sipTransport = new SIPTransport(roomClient, sipPort++, soundPort++);
+        SIPTransport sipTransport = new SIPTransport(roomClient, sipPort++, soundPort++) {
+            public void onUaRegistrationSuccess(SIPRegisterAgent ra, NameAddress target, NameAddress contact, String result) {
+
+                log.info("Registered successfully");
+                this.roomClient.setSipNumberListener(this);
+                this.roomClient.start();
+            }
+
+            public void onUaRegistrationFailure(SIPRegisterAgent ra, NameAddress target, NameAddress contact, String result) {
+                log.info("Register failure");
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    log.info( "Reconnection pause was interrupted" ) ;
+                }
+                this.register();
+            }
+        };
         sipTransport.login(prop.getProperty("sip.obproxy"), prop.getProperty("sip.phone"),
                 prop.getProperty("sip.authid"), prop.getProperty("sip.secret"), prop.getProperty("sip.realm"),
                 prop.getProperty("sip.proxy"));
         sipTransport.register();
-
-        roomClient.setSipNumberListener(sipTransport);
-        roomClient.start();
         return sipTransport;
     }
 
@@ -54,16 +70,31 @@ public class Application implements Daemon {
     }
 
     public void start() throws Exception {
-        String[] rooms = props.getProperty("rooms").split(",");
-        for(String room: rooms) {
-            transportList.add(createSIPTransport(props, Integer.parseInt(room)));
-        }
+        this.rtmpControlClient = new RTMPControlClient(props.getProperty("red5.host"), "openmeetings") {
+            @Override
+            protected void startRoomClient(int id) {
+                transportMap.put(id, createSIPTransport(props, id));
+            }
+
+            @Override
+            protected void stopRoomClient(int id) {
+                SIPTransport t = transportMap.remove(id);
+                if(t != null) {
+                    t.close();
+                }
+            }
+        };
+        this.rtmpControlClient.start();
     }
 
     public void stop() throws Exception {
-        for(SIPTransport s: transportList) {
-            s.close();
+        if(this.rtmpControlClient != null) {
+            this.rtmpControlClient.stop();
         }
+        for(SIPTransport t: transportMap.values()) {
+            t.close();
+        }
+        transportMap.clear();
     }
 
     public void destroy() {

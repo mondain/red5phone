@@ -7,21 +7,15 @@
 # Default-Stop:      0 1 6
 ### END INIT INFO
 
-# Shell script to show how to start/stop EC2 backend application using jsvc
-
-JAVA_HOME=/usr/lib/jvm/java-6-sun
-LIB_DIR=/opt/red5sip/lib
-LOGS_DIR=/opt/red5sip/logs
+JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
+echo $JAVA_HOME
+INSTALL_DIR=$(pwd)
+LIB_DIR=$INSTALL_DIR/lib
+LOGS_DIR=$INSTALL_DIR/logs
 JSVC_ERR=$LOGS_DIR/jsvc_red5sip.err
-# for multi instances adapt those lines.
-TMP_DIR=/var/tmp
 PID_FILE=/var/run/red5sip.pid
-SETTINGS_FILE=/opt/red5sip/settings.properties
-
+SETTINGS_FILE=$INSTALL_DIR/settings.properties
 CLASSPATH=$(echo $LIB_DIR/*.jar | sed 's/ /:/g')
-
-cd $EC2_BACKEND_INSTALL_DIR
-
 case "$1" in
   start)
     #

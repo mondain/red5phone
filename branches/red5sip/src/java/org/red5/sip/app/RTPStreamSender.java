@@ -8,6 +8,7 @@ import org.red5.codecs.asao.Decoder;
 import org.red5.codecs.asao.DecoderMap;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+import org.zoolu.tools.Random;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -16,6 +17,8 @@ import java.net.InetAddress;
 public class RTPStreamSender implements IMediaSender {
 
     protected static Logger log = Red5LoggerFactory.getLogger( RTPStreamSender.class, "sip" );
+
+    public static boolean useASAO = true;
 
     public static int RTP_HEADER_SIZE = 12;
 
@@ -32,8 +35,6 @@ public class RTPStreamSender implements IMediaSender {
 
     boolean doSync = true;
 
-    private int syncAdj = 0;
-
     private Decoder decoder;
 
     private DecoderMap decoderMap;
@@ -41,10 +42,6 @@ public class RTPStreamSender implements IMediaSender {
     private byte[] packetBuffer;
 
     private RtpPacket rtpPacket;
-
-    private int startPayloadPos;
-
-    private int dtmf2833Type = 101;
 
     private int seqn = 0;
 
@@ -179,20 +176,11 @@ public class RTPStreamSender implements IMediaSender {
         }
     }
 
-
-    /** Sets the synchronization adjustment time (in milliseconds). */
-    public void setSyncAdj( int millisecs ) {
-
-        syncAdj = millisecs;
-    }
-
-
     public void start() {
 
         packetBuffer = new byte[ sipCodec.getOutgoingEncodedFrameSize() + RTP_HEADER_SIZE ];
         rtpPacket = new RtpPacket( packetBuffer, 0 );
         rtpPacket.setPayloadType( sipCodec.getCodecId() );
-        startPayloadPos = rtpPacket.getHeaderLength();
 
         seqn = 0;
         time = 0;
@@ -202,82 +190,6 @@ public class RTPStreamSender implements IMediaSender {
         decoder = new Decoder();
         decoderMap = null;
     }
-
-
-    public void queueSipDtmfDigits( String argDigits ) {
-
-        byte[] dtmfbuf = new byte[ sipCodec.getOutgoingEncodedFrameSize() + RTP_HEADER_SIZE ];
-        RtpPacket dtmfpacket = new RtpPacket( dtmfbuf, 0 );
-        dtmfpacket.setPayloadType( dtmf2833Type );
-        dtmfpacket.setPayloadLength( sipCodec.getOutgoingEncodedFrameSize() );
-
-        byte[] blankbuf = new byte[ sipCodec.getOutgoingEncodedFrameSize() + RTP_HEADER_SIZE ];
-        RtpPacket blankpacket = new RtpPacket( blankbuf, 0 );
-        blankpacket.setPayloadType( sipCodec.getCodecId() );
-        blankpacket.setPayloadLength( sipCodec.getOutgoingEncodedFrameSize() );
-
-        for ( int d = 0; d < argDigits.length(); d++ ) {
-
-            char digit = argDigits.charAt( d );
-
-            if ( digit == '*' ) {
-                dtmfbuf[ startPayloadPos ] = 10;
-            }
-            else if ( digit == '#' ) {
-                dtmfbuf[ startPayloadPos ] = 11;
-            }
-            else if ( digit >= 'A' && digit <= 'D' ) {
-                dtmfbuf[ startPayloadPos ] = (byte) ( digit - 53 );
-            }
-            else {
-                dtmfbuf[ startPayloadPos ] = (byte) ( digit - 48 );
-            }
-
-            //println( "queueSipDtmfDigits", "Sending digit:" + dtmfbuf[ startPayloadPos ] );
-
-            // notice we are bumping times/seqn just like audio packets
-
-            try {
-                // send start event packet 3 times
-                dtmfbuf[ startPayloadPos + 1 ] = 0; // start event flag
-                // and volume
-                dtmfbuf[ startPayloadPos + 2 ] = 1; // duration 8 bits
-                dtmfbuf[ startPayloadPos + 3 ] = -32; // duration 8 bits
-
-                for ( int r = 0; r < 3; r++ ) {
-                    dtmfpacket.setSequenceNumber( seqn++ );
-                    dtmfpacket.setTimestamp( sipCodec.getOutgoingDecodedFrameSize() );
-                    doRtpDelay();
-                    rtpSocketSend( dtmfpacket );
-                }
-
-                // send end event packet 3 times
-                dtmfbuf[ startPayloadPos + 1 ] = -128; // end event flag
-                dtmfbuf[ startPayloadPos + 2 ] = 3; // duration 8 bits
-                dtmfbuf[ startPayloadPos + 3 ] = 116; // duration 8 bits
-                for ( int r = 0; r < 3; r++ ) {
-                    dtmfpacket.setSequenceNumber( seqn++ );
-                    dtmfpacket.setTimestamp(sipCodec.getOutgoingDecodedFrameSize() );
-                    doRtpDelay();
-                    rtpSocketSend( dtmfpacket );
-                }
-
-                // send 200 ms of blank packets
-                for ( int r = 0; r < 200 / sipCodec.getOutgoingPacketization(); r++ ) {
-                    blankpacket.setSequenceNumber( seqn++ );
-                    blankpacket.setTimestamp(sipCodec.getOutgoingDecodedFrameSize() );
-                    doRtpDelay();
-                    rtpSocketSend( blankpacket );
-                }
-
-            }
-            catch ( Exception e ) {
-                println( "queueSipDtmfDigits", e.getLocalizedMessage() );
-            }
-        }
-    }
-
-
 
     /** Fill the buffer of RtpPacket with necessary data. */
     private int fillRtpPacketBuffer(byte[] asaoBuffer) {
@@ -413,8 +325,40 @@ public class RTPStreamSender implements IMediaSender {
         return finalCopySize;
     }
 
+    public void send( int streamId, byte[] asaoInput, int offset, int num ) {
+        if(this.useASAO) {
+            sendASAO(streamId, asaoInput, offset, num);
+        } else {
+            sendRaw(streamId, asaoInput, offset, num);
+        }
+    }
 
-    public void send(int streamId, byte[] asaoBuffer, int offset, int num ) {
+    public void sendRaw( int streamId, byte[] asaoInput, int offset, int num ) {
+
+        if ( rtpSocket == null ) {
+            return;
+        }
+
+        if ( num > 0 ) {
+
+            byte [] asaoBuffer = new byte[num];
+            System.arraycopy(asaoInput, offset, packetBuffer, RTP_HEADER_SIZE, num);
+
+            Random.setSeed(streamId);
+            rtpPacket.setSscr(Random.nextLong());
+            rtpPacket.setSequenceNumber( seqn++);
+            rtpPacket.setTimestamp( time );
+            rtpPacket.setPayloadLength( sipCodec.getOutgoingEncodedFrameSize() );
+            rtpSocketSend( rtpPacket );
+
+        } else if ( num < 0 ) {
+
+            println( "send", "Closing" );
+        }
+    }
+
+
+    public void sendASAO(int streamId, byte[] asaoBuffer, int offset, int num) {
 
         if ( rtpSocket == null ) {
             return;
@@ -452,7 +396,8 @@ public class RTPStreamSender implements IMediaSender {
                     //println( "send", "Seding packet with " + encodedBytes + " bytes." );
 
                     try {
-
+                        Random.setSeed(streamId);
+                        rtpPacket.setSscr(Random.nextLong());
                         rtpPacket.setSequenceNumber(seqn++);
                         rtpPacket.setTimestamp(time);
                         rtpPacket.setPayloadLength(sipCodec.getOutgoingEncodedFrameSize());
@@ -473,10 +418,6 @@ public class RTPStreamSender implements IMediaSender {
         else if ( num < 0 ) {
             println( "send", "Closing" );
         }
-    }
-
-    public void append(int streamId, long timestamp, byte[] asaoBuffer, int offset, int num) {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 
 

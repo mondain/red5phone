@@ -32,6 +32,9 @@ public interface SIPUserAgentListener {
 
 
     /** When a call has been locally or remotly closed */
+    public void onUaCallClosing( SIPUserAgent ua );
+
+    /** When a call has been locally or remotly closed */
     public void onUaCallClosed( SIPUserAgent ua );
 
 
