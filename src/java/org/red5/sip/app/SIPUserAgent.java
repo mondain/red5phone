@@ -833,7 +833,7 @@ public class SIPUserAgent extends CallListenerAdapter {
         }
 
         if ( listener != null ) {
-            listener.onUaCallClosed( this );
+            listener.onUaCallClosing( this );
         }
 
         changeStatus( UA_IDLE );

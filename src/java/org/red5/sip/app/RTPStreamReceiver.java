@@ -4,9 +4,11 @@ import local.net.RtpPacket;
 import local.net.RtpSocket;
 import org.red5.codecs.SIPCodec;
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.server.net.rtmp.codec.RTMPProtocolDecoder;
 import org.slf4j.Logger;
 
 import java.net.DatagramSocket;
+import java.util.Arrays;
 
 
 public class RTPStreamReceiver extends Thread {
@@ -20,7 +22,7 @@ public class RTPStreamReceiver extends Thread {
     private RtpSocket rtp_socket = null;
     private boolean socketIsLocal = false;		// Whether the socket has been created here
     private boolean running = false;
-    private int timeStamp = 0;
+    private long timeStamp = 0;
     private int frameCounter = 0;
 
 
@@ -139,16 +141,11 @@ public class RTPStreamReceiver extends Thread {
                         int length = rtpPacket.getPayloadLength();
                         int payloadType = rtpPacket.getPayloadType();
 
-                        //println( "run",
-                        //        "pkt.length = " + packetBuffer.length
-                        //        + ", offset = " + offset
-                        //        + ", length = " + length + "." );
-
                         if(payloadType < 20)
                         {
 							System.arraycopy(packetBuffer, offset, codedBuffer, 0, sipCodec.getIncomingEncodedFrameSize());
-
-							timeStamp = (int)(System.currentTimeMillis() - start);
+                            //timeStamp = (System.currentTimeMillis() - start);
+                            timeStamp += sipCodec.getIncomingPacketization();
 							rtmpUser.pushAudio(codedBuffer, timeStamp, 130);
                         }
                     }

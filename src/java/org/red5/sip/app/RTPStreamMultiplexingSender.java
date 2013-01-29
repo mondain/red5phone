@@ -234,7 +234,7 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
                         }
                         multiplexedStreams[multiplexingCount++] = streamId;
                     }
-                    System.out.println("Multiplex: " + multiplexingCount + "("+streamId+")");
+                    //System.out.println("Multiplex: " + multiplexingCount + "("+streamId+")");
                 } else {
                     Thread.yield();
                 }
