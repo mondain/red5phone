@@ -11,7 +11,7 @@ JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
 echo $JAVA_HOME
 INSTALL_DIR=$(pwd)
 LIB_DIR=$INSTALL_DIR/lib
-LOGS_DIR=$INSTALL_DIR/logs
+LOGS_DIR=$INSTALL_DIR/log
 JSVC_ERR=$LOGS_DIR/jsvc_red5sip.err
 PID_FILE=/var/run/red5sip.pid
 SETTINGS_FILE=$INSTALL_DIR/settings.properties
@@ -25,6 +25,7 @@ case "$1" in
     jsvc -pidfile $PID_FILE \
         -home $JAVA_HOME \
         -errfile $JSVC_ERR \
+        -Dlogs=$LOGS_DIR \
         -cp $CLASSPATH org.red5.sip.app.Application $SETTINGS_FILE
     ;;
 
@@ -41,7 +42,7 @@ case "$1" in
     #
     # Run red5sip
     #
-    $JAVA_HOME/bin/java -cp $CLASSPATH org.red5.sip.app.Main $SETTINGS_FILE
+    $JAVA_HOME/bin/java -Dlogs=$LOGS_DAIR -cp $CLASSPATH org.red5.sip.app.Main $SETTINGS_FILE
     ;;
 
   *)
