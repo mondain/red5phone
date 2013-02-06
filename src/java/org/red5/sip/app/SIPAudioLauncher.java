@@ -36,10 +36,10 @@ public class SIPAudioLauncher implements MediaLauncher {
                     "sender configs: payloadType = [" + sipCodec.getCodecId() + 
                     "], payloadName = [" + sipCodec.getCodecName() + "].");
             
-            sender = new RTPStreamSender( mediaReceiver, false,
-                    sipCodec, socket, remoteAddr, remotePort );
-//            sender = new RTPStreamMultiplexingSender( mediaReceiver, false,
+//            sender = new RTPStreamSender( mediaReceiver, false,
 //                    sipCodec, socket, remoteAddr, remotePort );
+            sender = new RTPStreamMultiplexingSender( mediaReceiver, false,
+                    sipCodec, socket, remoteAddr, remotePort );
 
             printLog( "SIPAudioLauncher", "New audio receiver on " + localPort + "." );
             

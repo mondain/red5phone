@@ -12,6 +12,8 @@ import org.zoolu.tools.Random;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 
 public class RTPStreamSender implements IMediaSender {
@@ -35,37 +37,13 @@ public class RTPStreamSender implements IMediaSender {
 
     boolean doSync = true;
 
-    private Decoder decoder;
+    protected Decoder decoder;
 
-    private DecoderMap decoderMap;
-
-    private byte[] packetBuffer;
-
-    private RtpPacket rtpPacket;
+    protected DecoderMap decoderMap;
 
     private int seqn = 0;
 
-    private long time = 0;
-
-    // Temporary buffer with received PCM audio from FlashPlayer.
-    float[] tempBuffer;
-
-    // Floats remaining on temporary buffer.
-    int tempBufferRemaining = 0;
-
-    // Encoding buffer used to encode to final codec format;
-    float[] encodingBuffer;
-
-    // Offset of encoding buffer.
-    int encodingOffset = 0;
-
-    // Indicates whether the current asao buffer was processed.
-    boolean asao_buffer_processed = false;
-
-    // Indicates whether the handling buffers have already
-    // been initialized.
-    boolean hasInitilializedBuffers = false;
-
+    private AtomicLong syncSourceBase = new AtomicLong(Random.nextLong());
 
     /**
      * Constructs a RtpStreamSender.
@@ -176,248 +154,26 @@ public class RTPStreamSender implements IMediaSender {
         }
     }
 
+    public IMediaStream createStream(int streamId) {
+        return new RTPStream(streamId, syncSourceBase.getAndIncrement(), this);
+    }
+
+    public void deleteStream(int streamId) {
+        //nothing to do
+    }
+
     public void start() {
-
-        packetBuffer = new byte[ sipCodec.getOutgoingEncodedFrameSize() + RTP_HEADER_SIZE ];
-        rtpPacket = new RtpPacket( packetBuffer, 0 );
-        rtpPacket.setPayloadType( sipCodec.getCodecId() );
-
         seqn = 0;
-        time = 0;
-
-        println( "start()", "using blocks of " + ( packetBuffer.length - RTP_HEADER_SIZE ) + " bytes." );
-
         decoder = new Decoder();
         decoderMap = null;
     }
 
-    /** Fill the buffer of RtpPacket with necessary data. */
-    private int fillRtpPacketBuffer(byte[] asaoBuffer) {
-
-        boolean isBufferFilled = false;
-        int copyingSize = 0;
-        int finalCopySize = 0;
-        byte[] codedBuffer = new byte[ sipCodec.getOutgoingEncodedFrameSize() ];
-
-        try {
-            //println( "fillRtpPacketBuffer",
-            //        "packetBuffer.length = " + packetBuffer.length
-            //        + ", asaoBuffer.length = " + asaoBuffer.length
-            //        + ", tempBuffer.length = " + tempBuffer.length
-            //        + ", encodingOffset = " + encodingOffset
-            //        + ", tempBufferRemaining = " + tempBufferRemaining + "." );
-
-            if ( ( tempBufferRemaining + encodingOffset ) >= sipCodec.getOutgoingDecodedFrameSize() ) {
-
-                copyingSize = encodingBuffer.length - encodingOffset;
-
-                BufferUtils.floatBufferIndexedCopy(
-                        encodingBuffer,
-                        encodingOffset,
-                        tempBuffer,
-                        tempBuffer.length - tempBufferRemaining,
-                        copyingSize );
-
-                encodingOffset = sipCodec.getOutgoingDecodedFrameSize();
-                tempBufferRemaining -= copyingSize;
-                finalCopySize = sipCodec.getOutgoingDecodedFrameSize();
-
-                //println( "fillRtpPacketBuffer", "Simple copy of " + copyingSize + " bytes." );
-            }
-            else {
-                if ( tempBufferRemaining > 0 ) {
-                    BufferUtils.floatBufferIndexedCopy(
-                            encodingBuffer,
-                            encodingOffset,
-                            tempBuffer,
-                            tempBuffer.length - tempBufferRemaining,
-                            tempBufferRemaining );
-
-                    encodingOffset += tempBufferRemaining;
-                    finalCopySize += tempBufferRemaining;
-                    tempBufferRemaining = 0;
-
-                    //println( "fillRtpPacketBuffer",
-                    //        "tempBufferRemaining copied -> "
-                    //        + "encodingOffset = " + encodingOffset
-                    //        + ", tempBufferRemaining = " + tempBufferRemaining + "." );
-                }
-
-                // Decode new asao packet.
-
-                asao_buffer_processed = true;
-
-                ByteStream audioStream = new ByteStream( asaoBuffer, 1, NELLYMOSER_ENCODED_PACKET_SIZE );
-
-                decoderMap = decoder.decode( decoderMap, audioStream.bytes, 1, tempBuffer, 0 );
-
-//                tempBuffer = ResampleUtils.normalize(tempBuffer, 256); 	// normalise volume
-
-                tempBufferRemaining = tempBuffer.length;
-
-                //println( "fillRtpPacketBuffer",
-                //        "Decoded pcm " + tempBuffer.length + " floats." );
-
-                if ( tempBuffer.length <= 0 ) {
-
-                    println( "fillRtpPacketBuffer", "Asao decoder Error." );
-                }
-
-                // Try to complete the encodingBuffer with necessary data.
-
-                //println( "fillRtpPacketBuffer",
-                //        "New buffer processed -> "
-                //        + "finalCopySize = " + finalCopySize
-                //        + ", encodingOffset = " + encodingOffset
-                //        + ", tempBufferRemaining = " + tempBufferRemaining + "." );
-
-                if ( ( encodingOffset + tempBufferRemaining ) > sipCodec.getOutgoingDecodedFrameSize() ) {
-                    copyingSize = encodingBuffer.length - encodingOffset;
-                }
-                else {
-                    copyingSize = tempBufferRemaining;
-                }
-
-                //println( "fillRtpPacketBuffer", "CopyingSize = " + copyingSize + "." );
-
-                BufferUtils.floatBufferIndexedCopy(
-                        encodingBuffer,
-                        encodingOffset,
-                        tempBuffer,
-                        0,
-                        copyingSize );
-
-                encodingOffset += copyingSize;
-                tempBufferRemaining -= copyingSize;
-                finalCopySize += copyingSize;
-            }
-
-            if (encodingOffset == encodingBuffer.length)
-            {
-                isBufferFilled = true;
-
-                int encodedBytes = sipCodec.pcmToCodec( encodingBuffer, codedBuffer );
-
-                //println( "fillRtpPacketBuffer",
-                //        "encodedBytes = " + encodedBytes +
-                //        ", outgoingEncodedFrameSize = " + sipCodec.getOutgoingEncodedFrameSize() + "." );
-
-                if ( encodedBytes == sipCodec.getOutgoingEncodedFrameSize() ) {
-
-                    BufferUtils.byteBufferIndexedCopy( packetBuffer,
-                            RTP_HEADER_SIZE, codedBuffer, 0, codedBuffer.length );
-                }
-                else {
-                    //println( "fillRtpPacketBuffer", "Failure encoding buffer." );
-                }
-            }
-
-            //println( "fillRtpPacketBuffer",
-            //        "finalCopySize = " + finalCopySize
-            //        + ", isBufferFilled = " + isBufferFilled
-            //        + ", encodingOffset = " + encodingOffset
-            //        + ", tempBufferRemaining = " + tempBufferRemaining + "." );
-        }
-        catch ( Exception e ) {
-            e.printStackTrace();
-        }
-
-        return finalCopySize;
-    }
-
-    public void send( int streamId, byte[] asaoInput, int offset, int num ) {
-        if(this.useASAO) {
-            sendASAO(streamId, asaoInput, offset, num);
-        } else {
-            sendRaw(streamId, asaoInput, offset, num);
-        }
-    }
-
-    public void sendRaw( int streamId, byte[] asaoInput, int offset, int num ) {
-
+    protected void send(RtpPacket rtpPacket) {
         if ( rtpSocket == null ) {
             return;
         }
-
-        if ( num > 0 ) {
-
-            byte [] asaoBuffer = new byte[num];
-            System.arraycopy(asaoInput, offset, packetBuffer, RTP_HEADER_SIZE, num);
-
-            Random.setSeed(streamId);
-            rtpPacket.setSscr(Random.nextLong());
-            rtpPacket.setSequenceNumber( seqn++);
-            rtpPacket.setTimestamp( time );
-            rtpPacket.setPayloadLength( sipCodec.getOutgoingEncodedFrameSize() );
-            rtpSocketSend( rtpPacket );
-
-        } else if ( num < 0 ) {
-
-            println( "send", "Closing" );
-        }
-    }
-
-
-    public void sendASAO(int streamId, byte[] asaoBuffer, int offset, int num) {
-
-        if ( rtpSocket == null ) {
-            return;
-        }
-
-        asao_buffer_processed = false;
-
-        if ( !hasInitilializedBuffers ) {
-
-            tempBuffer = new float[ NELLYMOSER_DECODED_PACKET_SIZE ];
-            encodingBuffer = new float[ sipCodec.getOutgoingDecodedFrameSize() ];
-
-            hasInitilializedBuffers = true;
-        }
-
-        //println( "send",
-        //        "asaoBuffer.length = [" + asaoBuffer.length + "], offset = ["
-        //        + offset + "], num = [" + num + "]." );
-
-        if ( num > 0 ) {
-
-            do {
-
-                int encodedBytes = fillRtpPacketBuffer( asaoBuffer );
-
-                //println( "send", sipCodec.getCodecName() + " encoded " + encodedBytes + " bytes." );
-
-                if ( encodedBytes == 0 ) {
-
-                    break;
-                }
-
-                if ( encodingOffset == sipCodec.getOutgoingDecodedFrameSize() ) {
-
-                    //println( "send", "Seding packet with " + encodedBytes + " bytes." );
-
-                    try {
-                        Random.setSeed(streamId);
-                        rtpPacket.setSscr(Random.nextLong());
-                        rtpPacket.setSequenceNumber(seqn++);
-                        rtpPacket.setTimestamp(time);
-                        rtpPacket.setPayloadLength(sipCodec.getOutgoingEncodedFrameSize());
-                        rtpSocketSend( rtpPacket );
-                    }
-                    catch ( Exception e ) {
-                        println( "send", sipCodec.getCodecName() + " encoder error." );
-                    }
-
-                    encodingOffset = 0;
-                }
-
-                //println( "send", "asao_buffer_processed = ["
-                //        + asao_buffer_processed + "] ." );
-            }
-            while ( !asao_buffer_processed );
-        }
-        else if ( num < 0 ) {
-            println( "send", "Closing" );
-        }
+        rtpPacket.setSequenceNumber(seqn++);
+        rtpSocketSend( rtpPacket );
     }
 
 
@@ -438,7 +194,6 @@ public class RTPStreamSender implements IMediaSender {
 
 
     private void doRtpDelay() {
-
         try {
             Thread.sleep( sipCodec.getOutgoingPacketization() - 2 );
         }
@@ -448,17 +203,15 @@ public class RTPStreamSender implements IMediaSender {
 
 
     private synchronized void rtpSocketSend(RtpPacket rtpPacket) {
-
         try {
          	rtpSocket.send( rtpPacket );
-            time += sipCodec.getOutgoingDecodedFrameSize();
+            System.out.println(rtpPacket.getSscr() + " : " + rtpPacket.getTimestamp());
         }
         catch ( Exception e ) {
         }
     }
 
     private static void println( String method, String message ) {
-
         log.debug( "RTPStreamSender - " + method + " -> " + message );
         System.out.println( "RTPStreamSender - " + method + " -> " + message );
     }

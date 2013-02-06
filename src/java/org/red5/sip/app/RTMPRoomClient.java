@@ -2,7 +2,7 @@ package org.red5.sip.app;
 
 import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.openmeetings.persistence.beans.rooms.Client;
+import org.apache.openmeetings.persistence.beans.room.Client;
 import org.red5.io.utils.ObjectMap;
 import org.red5.server.api.IScope;
 import org.red5.server.api.event.IEvent;
@@ -31,7 +31,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
     private static final int MAX_RETRY_NUMBER = 100;
     private static final int UPDATE_MS = 10000;
 
-    private List<Integer> broadcastIds = new ArrayList<Integer>();
+    private Set<Integer> broadcastIds = new HashSet<Integer>();
     private Map<Long,Integer> clientStreamMap = new HashMap<Long, Integer>();
     private String publicSID = null;
     private long broadCastId = -1;
@@ -170,6 +170,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
                 stream.setStreamId(streamIdInt.intValue());
                 conn.addClientStream(stream);
                 play(streamIdInt, "" + broadCastId, -2000, -1000);
+                stream.start();
             }
         }
 
@@ -193,7 +194,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 
     protected void startStreaming() {
         //red5 -> SIP
-        //createPlayStream(56);
         for(long broadCastId: broadcastIds) {
             if(broadCastId != this.broadCastId) {
                 createPlayStream(broadCastId);
@@ -307,14 +307,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         log.info("Mic switched: " + this.micMuted);
     }
 
-    public void receiveMicMuteSwitched(Client client) {
-        log.debug("receiveMicMuteSwitched:" + client.getPublicSID());
-        if(client.getPublicSID().equals(this.publicSID)) {
-            log.info("Mic switched: " + client.getMicMuted());
-            this.micMuted = client.getMicMuted();
-        }
-    }
-
     public void sendVarsToMessageWithClient(Object message) {
         if(message instanceof Map) {
             try {
@@ -337,11 +329,10 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         log.debug("closeStream:" + client.getBroadCastID());
         Integer streamId = clientStreamMap.get(client.getBroadCastID());
         if(streamId != null) {
-            if(sender instanceof RTPStreamMultiplexingSender) {
-                ((RTPStreamMultiplexingSender) sender).streamRemoved();
-            }
             clientStreamMap.remove(client.getBroadCastID());
+            conn.getStreamById(streamId).stop();
             conn.removeClientStream(streamId);
+            conn.deleteStreamById(streamId);
         }
     }
 
