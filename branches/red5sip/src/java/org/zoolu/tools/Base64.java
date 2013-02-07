@@ -130,9 +130,9 @@ public class Base64
       
       if (i==iter)
       {
-         // per come è costruita la codifica a base64
+         // per come e costruita la codifica a base64
          // togliendo gli eventuali caratteri "=" di padding
-         // il resto può essere 0, 2 o 3
+         // il resto puo essere 0, 2 o 3
      	   if (resto==0)
      	   {
      	   } 
@@ -177,6 +177,6 @@ public class Base64
       strdecodificato = new String (decodificato,"ISO-8859-1"); 
       }
       catch (Exception e) { e.printStackTrace();}
-      System.out.println("messaggio decodificato è: "+strdecodificato);      
+      System.out.println("messaggio decodificato e: "+strdecodificato);      
    }
 }
