@@ -42,7 +42,7 @@ case "$1" in
     #
     # Run red5sip
     #
-    $JAVA_HOME/bin/java -Dlogs=$LOGS_DAIR -cp $CLASSPATH org.red5.sip.app.Main $SETTINGS_FILE
+    $JAVA_HOME/bin/java -Dlogs=$LOGS_DIR -cp $CLASSPATH org.red5.sip.app.Main $SETTINGS_FILE
     ;;
 
   *)
