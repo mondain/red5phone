@@ -85,6 +85,10 @@
     <pathelement location="${basedir}/lib/red5.jar"/>
     <pathelement location="${basedir}/lib/xmlrpc-2.0.1.jar"/>
   </path>
+
+    <path id="library.libresample4j.classpath">
+        <pathelement location="${basedir}/lib/libresample4j-1.0.jar"/>
+    </path>
   
   <path id="library.red5sip.classpath">
     <pathelement location="${basedir}/lib/red5sip.jar"/>
@@ -149,6 +153,7 @@
     <path refid="library.mjsip.classpath"/>
     <path refid="library.red5.classpath"/>
     <path refid="library.log.classpath"/>
+    <path refid="library.libresample4j.classpath"/>
     <path refid="library.apache-commons.classpath"/>
     <path refid="library.openmeetings.classpath"/>
     <path refid="library.springframwork.classpath"/>
@@ -160,6 +165,7 @@
     <path refid="library.mjsip.classpath"/>
     <path refid="library.red5.classpath"/>
     <path refid="library.log.classpath"/>
+    <path refid="library.libresample4j.classpath"/>
     <path refid="library.apache-commons.classpath"/>
     <path refid="library.openmeetings.classpath"/>
     <path refid="library.springframwork.classpath"/>
@@ -171,6 +177,7 @@
     <path refid="library.mjsip.classpath"/>
     <path refid="library.red5.classpath"/>
     <path refid="library.log.classpath"/>
+    <path refid="library.libresample4j.classpath"/>
     <path refid="library.apache-commons.classpath"/>
     <path refid="library.openmeetings.classpath"/>
     <path refid="library.springframwork.classpath"/>
@@ -183,6 +190,7 @@
     <path refid="library.mjsip.classpath"/>
     <path refid="library.red5.classpath"/>
     <path refid="library.log.classpath"/>
+    <path refid="library.libresample4j.classpath"/>
     <path refid="library.apache-commons.classpath"/>
     <path refid="library.openmeetings.classpath"/>
     <path refid="library.springframwork.classpath"/>

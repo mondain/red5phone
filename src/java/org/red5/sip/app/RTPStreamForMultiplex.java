@@ -1,73 +1,63 @@
 package org.red5.sip.app;
 
+import org.red5.codecs.asao.DecoderMap;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+
+import static org.red5.sip.app.RTPStreamMultiplexingSender.NELLYMOSER_ENCODED_PACKET_SIZE;
 
 public class RTPStreamForMultiplex implements IMediaStream {
     protected static Logger log = Red5LoggerFactory.getLogger(RTPStreamForMultiplex.class, "sip");
 
     private int streamId;
-    private RTPStreamMultiplexingSender sender;
-    private long syncSource;
-    private static int BUFFERS_COUNT = 1024;
-    private byte[][] buffer = new byte[BUFFERS_COUNT][65];
-    private int[] bufLen = new int[BUFFERS_COUNT];
-    private int start, end;
     private boolean ready = false;
+    protected DecoderMap decoderMap = null;
+    private BytesBuffer buffer = new BytesBuffer(NELLYMOSER_ENCODED_PACKET_SIZE, 200) {
+        @Override
+        protected void onBufferOverflow() {
+            super.onBufferOverflow();
+            log.error("Stream %d buffer overflow. Buffer is cleared");
+        }
 
-    protected RTPStreamForMultiplex(int streamId, long syncSource, RTPStreamMultiplexingSender sender) {
+        @Override
+        protected void onBufferEmpty() {
+            super.onBufferEmpty();
+            ready = false;
+        }
+    };
+
+    protected RTPStreamForMultiplex(int streamId) {
         this.streamId = streamId;
-        this.sender = sender;
-        this.syncSource = syncSource;
-        end = 0;
-        start = -1;
     }
 
     public int getStreamId() {
         return streamId;
     }
 
-    public synchronized void send(long timestamp, byte[] asaoBuffer, int offset, int num) {
-        if(end == start) {
-            log.error("Stream buffer overflow: streamId: " + streamId + ", start: " + start + ", end: " + end);
-            return;
+    public void send(long timestamp, byte[] asaoBuffer, int offset, int num) {
+        System.out.println("Stream " + streamId + " send");
+        for(int i=0;i<num;i+=NELLYMOSER_ENCODED_PACKET_SIZE) {
+            synchronized (this) {
+                buffer.push(asaoBuffer, offset+i, NELLYMOSER_ENCODED_PACKET_SIZE);
+            }
+            Thread.yield();
         }
-        System.arraycopy(asaoBuffer, 0, buffer[end], 0, asaoBuffer.length);
-        bufLen[end++] = num;
-        if(end == BUFFERS_COUNT) {
-            end = 0;
+        synchronized (this) {
+            if(!ready && buffer.bufferUsage() > 0.2) {
+                ready = true;
+            }
         }
-        if(start == -1) {
-            start = 0;
-        }
-
-        if(!ready && available() > 10) {
-            ready = true;
-        }
-    }
-
-    protected synchronized int available() {
-        return (end > start) ? (end - start) : (BUFFERS_COUNT - start + end);
     }
 
     protected synchronized boolean ready() {
         return ready;
     }
 
+    protected synchronized float bufferUsage() {
+        return buffer.bufferUsage();
+    }
+
     protected synchronized int read(byte[] dst, int offset) {
-        int res = -1;
-        if(start >= 0) {
-            System.arraycopy(buffer[start], 0, dst, offset, dst.length);
-            res = start++;
-            if(start == BUFFERS_COUNT) {
-                start = 0;
-            }
-            if(start == end) {
-                start = -1;
-                end = 0;
-                ready = false;
-            }
-        }
-        return res;
+        return buffer.take(dst, offset);
     }
 }

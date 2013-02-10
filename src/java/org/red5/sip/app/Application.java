@@ -63,6 +63,12 @@ public class Application implements Daemon {
             return;
         }
         props = PropertiesUtils.load(settings);
+        try {
+            RTPStreamMultiplexingSender.sampling = RTPStreamMultiplexingSender.SAMPLE_RATE.findByShortName(Integer.parseInt(props.getProperty("red5.codec.rate", "22")));
+        } catch (NumberFormatException e) {
+            log.error("Can't parse red5.codec.rate value", e);
+        }
+
     }
 
     public void init(DaemonContext daemonContext) throws Exception {
@@ -70,21 +76,34 @@ public class Application implements Daemon {
     }
 
     public void start() throws Exception {
-        this.rtmpControlClient = new RTMPControlClient(props.getProperty("red5.host"), "openmeetings") {
-            @Override
-            protected void startRoomClient(int id) {
-                transportMap.put(id, createSIPTransport(props, id));
-            }
-
-            @Override
-            protected void stopRoomClient(int id) {
-                SIPTransport t = transportMap.remove(id);
-                if(t != null) {
-                    t.close();
+        String roomsStr = props.getProperty("rooms",null);
+        if(props.getProperty("rooms.forceStart","no").equals("yes") && roomsStr != null) {
+            String[] rooms = roomsStr.split(",");
+            for(String room: rooms) {
+                try {
+                    int id = Integer.parseInt(room);
+                    transportMap.put(id, createSIPTransport(props, id));
+                } catch (NumberFormatException e) {
+                    log.error("Room id parsing error: id=\"" + room + "\"");
                 }
             }
-        };
-        this.rtmpControlClient.start();
+        } else {
+            this.rtmpControlClient = new RTMPControlClient(props.getProperty("red5.host"), "openmeetings") {
+                @Override
+                protected void startRoomClient(int id) {
+                    transportMap.put(id, createSIPTransport(props, id));
+                }
+
+                @Override
+                protected void stopRoomClient(int id) {
+                    SIPTransport t = transportMap.remove(id);
+                    if(t != null) {
+                        t.close();
+                    }
+                }
+            };
+            this.rtmpControlClient.start();
+        }
     }
 
     public void stop() throws Exception {

@@ -147,6 +147,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
     private void createPlayStream( long broadCastId ) {
 
         log.debug( "create play stream" );
+        broadcastIds.add((int)broadCastId);
         IPendingServiceCallback wrapper = new CreatePlayStreamCallBack(broadCastId);
         invoke( "createStream", null, wrapper );
     }
@@ -338,6 +339,9 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 
     public void newStream(Client client) {
         log.debug("newStream:" + client.getBroadCastID());
+        if(broadcastIds.contains((int)client.getBroadCastID())) {
+            closeStream(client);
+        }
         createPlayStream(client.getBroadCastID());
     }
 
