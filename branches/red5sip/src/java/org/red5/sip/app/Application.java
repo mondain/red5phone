@@ -29,7 +29,10 @@ public class Application implements Daemon {
     public static SIPTransport createSIPTransport(Properties prop, int room_id) {
         log.info("Creating SIP trasport for room: " + room_id);
         RTPStreamSender.useASAO = prop.getProperty("red5.codec", "asao").equals("asao");
-        RTMPRoomClient roomClient = new RTMPRoomClient(prop.getProperty("red5.host"), "openmeetings", room_id);
+        RTMPRoomClient roomClient = new RTMPRoomClient(
+			prop.getProperty("red5.host")
+			, prop.getProperty("om.context", "openmeetings")
+			, room_id);
         SIPTransport sipTransport = new SIPTransport(roomClient, sipPort++, soundPort++) {
             public void onUaRegistrationSuccess(SIPRegisterAgent ra, NameAddress target, NameAddress contact, String result) {
 
@@ -88,7 +91,7 @@ public class Application implements Daemon {
                 }
             }
         } else {
-            this.rtmpControlClient = new RTMPControlClient(props.getProperty("red5.host"), "openmeetings") {
+            this.rtmpControlClient = new RTMPControlClient(props.getProperty("red5.host"), props.getProperty("om.context", "openmeetings")) {
                 @Override
                 protected void startRoomClient(int id) {
                     transportMap.put(id, createSIPTransport(props, id));
