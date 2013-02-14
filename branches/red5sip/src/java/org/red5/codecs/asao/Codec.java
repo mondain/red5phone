@@ -149,7 +149,7 @@ public final class Codec {
 
         int k3 = process( af5, 124, 198, ai );
 
-        for ( int i4 = 0; i4 < 256; i4 += 128 ) {
+        for ( int i4 = 0; i4 < 256; /* FIXME DEAD CODE i4 += 128 */ ) {
             for ( int l4 = 0; l4 < 124; l4++ ) {
                 int k5 = ai[ l4 ];
                 if ( k5 > 0 ) {

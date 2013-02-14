@@ -36,38 +36,39 @@
 package org.zoolu.sip.provider;
 
 
-import org.zoolu.net.*;
-import org.zoolu.sip.header.*;
+import java.io.IOException;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.Hashtable;
+
+import org.zoolu.net.IpAddress;
+import org.zoolu.net.SocketAddress;
+import org.zoolu.net.TcpServer;
+import org.zoolu.net.TcpServerListener;
+import org.zoolu.net.TcpSocket;
+import org.zoolu.sip.address.NameAddress;
+import org.zoolu.sip.address.SipURL;
+import org.zoolu.sip.header.ViaHeader;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.MessageFactory;
 import org.zoolu.sip.message.SipResponses;
-import org.zoolu.sip.address.*;
-import org.zoolu.sip.transaction.TransactionServer;
 import org.zoolu.sip.transaction.InviteTransactionServer;
-import org.zoolu.sip.transaction.Transaction;
-import org.zoolu.tools.Configure;
+import org.zoolu.sip.transaction.TransactionServer;
 import org.zoolu.tools.Configurable;
-import org.zoolu.tools.Parser;
-import org.zoolu.tools.Random;
+import org.zoolu.tools.Configure;
+import org.zoolu.tools.DateFormat;
+import org.zoolu.tools.HashSet;
+import org.zoolu.tools.Iterator;
 import org.zoolu.tools.Log;
 import org.zoolu.tools.LogLevel;
+import org.zoolu.tools.Parser;
+import org.zoolu.tools.Random;
 import org.zoolu.tools.RotatingLog;
-//import org.zoolu.tools.MD5;
 import org.zoolu.tools.SimpleDigest;
-import org.zoolu.tools.DateFormat;
-
-import java.util.Hashtable;
-import java.io.IOException;
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+//import org.zoolu.tools.MD5;
 //PersonalJava
 //import java.util.HashSet;
 //import java.util.Iterator;
-import org.zoolu.tools.HashSet;
-import org.zoolu.tools.Iterator;
-import java.util.Enumeration;
-import java.util.Vector;
-import java.util.Date;
 
 
 /** SipProvider implements the SIP transport layer, that is the layer responsable for
@@ -246,7 +247,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
    TcpServer tcp_server=null;
 
    /** Connections */
-   Hashtable connections=null;
+   Hashtable<ConnectionIdentifier, ConnectedTransport> connections=null;
 
 
    // *************************** Costructors ***************************
@@ -324,10 +325,10 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 
       exception_listeners=new HashSet();
       //listeners=new Hashtable();
-      Hashtable dupeKeys=new Hashtable();
+      Hashtable<Identifier, String> dupeKeys=new Hashtable<Identifier, String>();
 	   dupeKeys.put(INVITE, "");
       listeners=new SpcHashtable(dupeKeys);
-      connections=new Hashtable();
+      connections=new Hashtable<ConnectionIdentifier, ConnectedTransport>();
    }
 
 
@@ -399,8 +400,8 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
       }
       if (connections!=null)
       {  printLog("connections are going down",LogLevel.LOWER);
-         for (Enumeration e=connections.elements(); e.hasMoreElements(); )
-         {  ConnectedTransport c=(ConnectedTransport)e.nextElement();
+         for (Enumeration<ConnectedTransport> e=connections.elements(); e.hasMoreElements(); )
+         {  ConnectedTransport c=e.nextElement();
             c.halt();
          }
          connections=null;

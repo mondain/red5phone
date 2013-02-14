@@ -35,15 +35,15 @@ public class SpcHashtable extends Hashtable<Object,Object>
 {
 	static final long serialVersionUID = 2423442L;
 	
-	Hashtable dupeKeysList=null;
+	Hashtable<? extends Object,? extends Object> dupeKeysList=null;
 	
-	SpcHashtable (Hashtable dupeKeys)
+	SpcHashtable (Hashtable<? extends Object,? extends Object> dupeKeys)
 	{
 		super();
 		if (dupeKeys!=null)
 			dupeKeysList=dupeKeys;
 		else
-			dupeKeysList=new Hashtable();
+			dupeKeysList=new Hashtable<Object,Object>();
 	}
 	
 	

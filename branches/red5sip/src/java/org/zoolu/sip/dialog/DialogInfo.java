@@ -24,16 +24,9 @@
 package org.zoolu.sip.dialog;
 
 
-import org.zoolu.sip.address.*;
-import org.zoolu.sip.message.*;
-import org.zoolu.sip.header.*;
-import org.zoolu.sip.provider.*;
-import org.zoolu.tools.Log;
-import org.zoolu.tools.LogLevel;
-import org.zoolu.tools.AssertException;
-
-
 import java.util.Vector;
+
+import org.zoolu.sip.address.NameAddress;
 
 
 /** Class DialogInfo maintains a complete information status of a generic SIP dialog.

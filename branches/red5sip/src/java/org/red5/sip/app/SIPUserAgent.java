@@ -1,8 +1,12 @@
 package org.red5.sip.app;
 
 
+import java.util.Enumeration;
+import java.util.Vector;
+
 import local.media.AudioClipPlayer;
 import local.ua.MediaLauncher;
+
 import org.red5.codecs.SIPCodec;
 import org.red5.codecs.SIPCodecUtils;
 import org.slf4j.Logger;
@@ -18,9 +22,6 @@ import org.zoolu.sip.header.StatusLine;
 import org.zoolu.sip.message.Message;
 import org.zoolu.sip.provider.SipProvider;
 import org.zoolu.tools.Parser;
-
-import java.util.Enumeration;
-import java.util.Vector;
 
 //import java.util.Iterator;
 
@@ -407,8 +408,8 @@ public class SIPUserAgent extends CallListenerAdapter {
         int localVideoPort = 0;
 
         // parse local sdp
-        for ( Enumeration e = localSdp.getMediaDescriptors().elements(); e.hasMoreElements(); ) {
-            MediaField media = ( (MediaDescriptor) e.nextElement() ).getMedia();
+        for ( Enumeration<MediaDescriptor> e = localSdp.getMediaDescriptors().elements(); e.hasMoreElements(); ) {
+            MediaField media = e.nextElement().getMedia();
             if ( media.getMedia().equals( "audio" ) ) {
                 localAudioPort = media.getPort();
             }
@@ -431,9 +432,9 @@ public class SIPUserAgent extends CallListenerAdapter {
         int remoteAudioPort = 0;
         int remoteVideoPort = 0;
 
-        for ( Enumeration e = remoteSdp.getMediaDescriptors().elements(); e.hasMoreElements(); ) {
+        for ( Enumeration<MediaDescriptor> e = remoteSdp.getMediaDescriptors().elements(); e.hasMoreElements(); ) {
 
-            MediaDescriptor descriptor = (MediaDescriptor) e.nextElement();
+            MediaDescriptor descriptor = e.nextElement();
             MediaField media = descriptor.getMedia();
 
             if ( media.getMedia().equals( "audio" ) ) {
@@ -768,7 +769,7 @@ public class SIPUserAgent extends CallListenerAdapter {
 
 
     /** Callback function called when arriving a 3xx (call redirection) */
-    public void onCallRedirection( Call call, String reason, Vector contact_list, Message resp ) {
+    public void onCallRedirection( Call call, String reason, Vector<String> contact_list, Message resp ) {
 
         printLog( "onCallRedirection", "Init..." );
 

@@ -11,9 +11,6 @@ import org.red5.server.net.rtmp.event.VideoData;
 import org.red5.server.stream.AbstractClientStream;
 import org.red5.server.stream.IStreamData;
 import org.slf4j.Logger;
-import org.zoolu.tools.Random;
-
-import java.util.concurrent.atomic.AtomicLong;
 
 public class PlayNetStream extends AbstractClientStream implements IEventDispatcher {
 
@@ -73,7 +70,7 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
         } else if (rtmpEvent instanceof AudioData) {
             audioTs = rtmpEvent.getTimestamp();
 
-            IoBuffer audioData = ((IStreamData) rtmpEvent).getData().asReadOnlyBuffer();
+            IoBuffer audioData = ((AudioData) rtmpEvent).getData().asReadOnlyBuffer();
             byte[] data = SerializeUtils.ByteBufferToByteArray(audioData);
 
             try {

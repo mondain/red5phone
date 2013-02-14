@@ -1,5 +1,8 @@
 package org.red5.sip.app;
 
+import java.util.Enumeration;
+import java.util.Vector;
+
 import org.red5.codecs.SIPCodec;
 import org.red5.codecs.SIPCodecFactory;
 import org.slf4j.Logger;
@@ -8,9 +11,6 @@ import org.zoolu.sdp.AttributeField;
 import org.zoolu.sdp.MediaDescriptor;
 import org.zoolu.sdp.MediaField;
 import org.zoolu.sdp.SessionDescriptor;
-
-import java.util.Enumeration;
-import java.util.Vector;
 
 public class SdpUtils {
 
@@ -96,18 +96,10 @@ public class SdpUtils {
             
             initialDescriptor = new SessionDescriptor( userName, viaAddress );
             
-            if ( initialDescriptor == null ) {
-                
-                printLog( "createInitialSdp", 
-                        "Error instantiating the initialDescriptor!" ); 
-                
-                return null;
-            }
-            
             if ( audioCodecsNumber > 0 ) {
                 
                 SIPCodec[] audioCodecs;
-                Vector audioAttributes = new Vector();
+                Vector<AttributeField> audioAttributes = new Vector<AttributeField>();
                 
                 if ( audioCodecsPrecedence.isEmpty() ) {
                     
@@ -167,9 +159,9 @@ public class SdpUtils {
                 // Calculate the format list to be used on MediaDescriptor creation.
                 String formatList = getFormatList( audioAttributes );
                 
-                for ( Enumeration attributesEnum = audioAttributes.elements(); attributesEnum.hasMoreElements(); ) {
+                for ( Enumeration<AttributeField> attributesEnum = audioAttributes.elements(); attributesEnum.hasMoreElements(); ) {
                     
-                    AttributeField audioAttribute = (AttributeField) attributesEnum.nextElement();
+                    AttributeField audioAttribute = attributesEnum.nextElement();
                     
                     if ( initialDescriptor.getMediaDescriptor( SIPCodec.MEDIA_TYPE_AUDIO ) == null ) {
                         
@@ -223,7 +215,7 @@ public class SdpUtils {
             if ( videoCodecsNumber > 0 ) {
                 
                 SIPCodec[] videoCodecs = SIPCodecFactory.getInstance().getAvailableVideoCodecs();
-                Vector videoAttributes = new Vector();
+                Vector<AttributeField> videoAttributes = new Vector<AttributeField>();
                 
                 for ( int videoIndex = 0; videoIndex < audioCodecsNumber; videoIndex++ ) {
                     
@@ -272,9 +264,9 @@ public class SdpUtils {
                 // Calculate the format list to be used on MediaDescriptor creation.
                 String formatList = getFormatList( videoAttributes );
                 
-                for ( Enumeration attributesEnum = videoAttributes.elements(); attributesEnum.hasMoreElements(); ) {
+                for ( Enumeration<AttributeField> attributesEnum = videoAttributes.elements(); attributesEnum.hasMoreElements(); ) {
                     
-                    AttributeField videoAttribute = (AttributeField) attributesEnum.nextElement();
+                    AttributeField videoAttribute = attributesEnum.nextElement();
                     
                     if ( initialDescriptor.getMediaDescriptor( SIPCodec.MEDIA_TYPE_VIDEO ) == null ) {
                         
@@ -331,14 +323,14 @@ public class SdpUtils {
     }
     
     
-    private static String getFormatList( Vector mediaAttributes ) {
+    private static String getFormatList( Vector<AttributeField> mediaAttributes ) {
         
         AttributeField mediaAttribute = null;
         String formatList = "";
         
         printLog( "getFormatList", "Init..." );
         
-        for ( Enumeration attributeEnum = mediaAttributes.elements(); attributeEnum.hasMoreElements(); ) {
+        for ( Enumeration<AttributeField> attributeEnum = mediaAttributes.elements(); attributeEnum.hasMoreElements(); ) {
             
             mediaAttribute = (AttributeField) attributeEnum.nextElement();
             
@@ -412,9 +404,9 @@ public class SdpUtils {
             newSdp = new SessionDescriptor( remoteSdp.getOrigin(), remoteSdp.getSessionName(),
                     localSdp.getConnection(), localSdp.getTime() );
             
-            Vector remoteDescriptors = remoteSdp.getMediaDescriptors();
+            Vector<MediaDescriptor> remoteDescriptors = remoteSdp.getMediaDescriptors();
             
-            for ( Enumeration descriptorsEnum = remoteDescriptors.elements(); descriptorsEnum.hasMoreElements(); ) {
+            for ( Enumeration<MediaDescriptor> descriptorsEnum = remoteDescriptors.elements(); descriptorsEnum.hasMoreElements(); ) {
                 
                 MediaDescriptor remoteDescriptor = (MediaDescriptor) descriptorsEnum.nextElement();
                 MediaDescriptor localDescriptor = localSdp.getMediaDescriptor( 
@@ -422,12 +414,12 @@ public class SdpUtils {
                 
                 if ( localDescriptor != null ) {
                     
-                    Vector remoteAttributes = remoteDescriptor.getAttributes( SIPCodec.ATTRIBUTE_RTPMAP );
-                    Vector newSdpAttributes = new Vector();
+                    Vector<AttributeField> remoteAttributes = remoteDescriptor.getAttributes( SIPCodec.ATTRIBUTE_RTPMAP );
+                    Vector<AttributeField> newSdpAttributes = new Vector<AttributeField>();
                     
-                    for ( Enumeration attributesEnum = remoteAttributes.elements(); attributesEnum.hasMoreElements(); ) {
+                    for ( Enumeration<AttributeField> attributesEnum = remoteAttributes.elements(); attributesEnum.hasMoreElements(); ) {
                         
-                        AttributeField remoteAttribute = (AttributeField) attributesEnum.nextElement();
+                        AttributeField remoteAttribute = attributesEnum.nextElement();
                         
                         String payloadId = getPayloadIdFromAttribute( remoteAttribute );
                         
@@ -449,9 +441,9 @@ public class SdpUtils {
                     // Calculate the format list to be used on MediaDescriptor creation.
                     String formatList = getFormatList( newSdpAttributes );
                     
-                    for ( Enumeration attributesEnum = newSdpAttributes.elements(); attributesEnum.hasMoreElements(); ) {
+                    for ( Enumeration<AttributeField> attributesEnum = newSdpAttributes.elements(); attributesEnum.hasMoreElements(); ) {
                         
-                        AttributeField mediaAttribute = (AttributeField) attributesEnum.nextElement();
+                        AttributeField mediaAttribute = attributesEnum.nextElement();
                         
                         if ( newSdp.getMediaDescriptors().size() == 0 ) {
                             
@@ -512,11 +504,11 @@ public class SdpUtils {
                 return;
             }
             
-            Vector remoteDescriptors = remoteSdp.getMediaDescriptors();
+            Vector<MediaDescriptor> remoteDescriptors = remoteSdp.getMediaDescriptors();
             
-            for ( Enumeration descriptorsEnum = remoteDescriptors.elements(); descriptorsEnum.hasMoreElements(); ) {
+            for ( Enumeration<MediaDescriptor> descriptorsEnum = remoteDescriptors.elements(); descriptorsEnum.hasMoreElements(); ) {
                 
-                MediaDescriptor remoteDescriptor = (MediaDescriptor) descriptorsEnum.nextElement();
+                MediaDescriptor remoteDescriptor = descriptorsEnum.nextElement();
                 MediaDescriptor localDescriptor = localSdp.getMediaDescriptor( 
                         remoteDescriptor.getMedia().getMedia() );
                 
@@ -525,11 +517,11 @@ public class SdpUtils {
                     // First we make the negotiation of remote attributes with 
                     // local ones to generate the new SDP "newSdp".
                     
-                    Vector remoteAttributes = remoteDescriptor.getAttributes();
+                    Vector<AttributeField> remoteAttributes = remoteDescriptor.getAttributes();
                     
-                    for ( Enumeration atributesEnum = remoteAttributes.elements(); atributesEnum.hasMoreElements(); ) {
+                    for ( Enumeration<AttributeField> atributesEnum = remoteAttributes.elements(); atributesEnum.hasMoreElements(); ) {
                         
-                        AttributeField remoteAttribute = (AttributeField) atributesEnum.nextElement();
+                        AttributeField remoteAttribute = atributesEnum.nextElement();
                         
                         makeAttributeNegotiation( newSdp, localDescriptor, remoteAttribute );
                     }
@@ -537,9 +529,9 @@ public class SdpUtils {
                     // Now we add to "newSdp" all the local attributes that 
                     // were not negotiated yet.
                     
-                    Vector localAttributes = localDescriptor.getAttributes();
+                    Vector<AttributeField> localAttributes = localDescriptor.getAttributes();
                     
-                    for ( Enumeration atributesEnum = localAttributes.elements(); atributesEnum.hasMoreElements(); ) {
+                    for ( Enumeration<AttributeField> atributesEnum = localAttributes.elements(); atributesEnum.hasMoreElements(); ) {
                         
                         AttributeField localAttribute = (AttributeField) atributesEnum.nextElement();
                         MediaDescriptor newLocalDescriptor = 
@@ -688,9 +680,9 @@ public class SdpUtils {
                 "attributeName = [" + attributeName + 
                 "], payloadId = [" + payloadId + "]." );
         
-        Vector mediaAttributes = mediaDescriptor.getAttributes( attributeName );
+        Vector<AttributeField> mediaAttributes = mediaDescriptor.getAttributes( attributeName );
         
-        for ( Enumeration attributesEnum = mediaAttributes.elements(); attributesEnum.hasMoreElements(); ) {
+        for ( Enumeration<AttributeField> attributesEnum = mediaAttributes.elements(); attributesEnum.hasMoreElements(); ) {
             
             AttributeField mediaAttribute = (AttributeField) attributesEnum.nextElement();
             

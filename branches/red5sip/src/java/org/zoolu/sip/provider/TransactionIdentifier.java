@@ -24,11 +24,7 @@
 package org.zoolu.sip.provider;
 
 
-import org.zoolu.sip.transaction.Transaction;
-import org.zoolu.sip.message.Message;
 import org.zoolu.sip.message.SipMethods;
-import org.zoolu.sip.header.ViaHeader;
-import org.zoolu.sip.header.CSeqHeader;
 
 
 /** TransactionIdentifier is used to address specific transaction to the SipProvider.

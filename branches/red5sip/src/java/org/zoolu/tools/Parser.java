@@ -24,7 +24,7 @@
 package org.zoolu.tools;
 
 
-import java.util.*;
+import java.util.Vector;
 
 
 /** Class Parser allows the parsing of String objects.

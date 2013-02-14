@@ -5,7 +5,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/MjSIP"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/red5"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/log"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/apache-commons" />
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/apache-commons"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-beanutils-1.8.2.jar">
 		<attributes>
 			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
@@ -21,6 +21,7 @@
 			<attribute name="org.eclipse.jst.component.nondependency" value=""/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/libresample4j-1.0.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/openmeetings"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/springframwork"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/red5sip"/>
@@ -70,5 +71,5 @@
 	<classpathentry kind="lib" path="lib/slf4j-api-1.6.4.jar"/>
 	<classpathentry kind="lib" path="lib/ua.jar"/>
 	<classpathentry kind="lib" path="lib/xmlrpc-2.0.1.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="output" path="out/eclipse"/>
 </classpath>

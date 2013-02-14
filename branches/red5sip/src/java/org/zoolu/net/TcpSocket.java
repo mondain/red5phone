@@ -24,10 +24,10 @@
 package org.zoolu.net;
 
 
-import java.net.Socket;
-//import java.net.InetAddress;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.Socket;
+//import java.net.InetAddress;
 
 
 /** TcpSocket provides a uniform interface to TCP transport protocol,

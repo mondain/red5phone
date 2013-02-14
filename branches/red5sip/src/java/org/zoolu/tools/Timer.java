@@ -27,8 +27,6 @@ package org.zoolu.tools;
 //PersonalJava
 //import java.util.HashSet;
 //import java.util.Iterator;
-import org.zoolu.tools.HashSet;
-import org.zoolu.tools.Iterator;
 
 
 

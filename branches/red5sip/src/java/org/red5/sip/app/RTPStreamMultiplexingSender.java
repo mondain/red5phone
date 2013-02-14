@@ -1,8 +1,13 @@
 package org.red5.sip.app;
 
-import com.laszlosystems.libresample4j.Resampler;
+import java.lang.ref.WeakReference;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.util.Iterator;
+
 import local.net.RtpPacket;
 import local.net.RtpSocket;
+
 import org.apache.mina.util.ConcurrentHashSet;
 import org.red5.codecs.SIPCodec;
 import org.red5.codecs.asao.ByteStream;
@@ -11,10 +16,7 @@ import org.red5.codecs.asao.DecoderMap;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
-import java.lang.ref.WeakReference;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.util.*;
+import com.laszlosystems.libresample4j.Resampler;
 
 public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
     protected static Logger log = Red5LoggerFactory.getLogger(RTPStreamMultiplexingSender.class, "sip");

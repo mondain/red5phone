@@ -1,5 +1,9 @@
 package org.red5.sip.app;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.mina.core.RuntimeIoException;
 import org.red5.server.api.service.IPendingServiceCall;
 import org.red5.server.api.service.IPendingServiceCallback;
@@ -9,8 +13,6 @@ import org.red5.server.net.rtmp.RTMPConnection;
 import org.red5.server.net.rtmp.codec.RTMP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.*;
 
 public abstract class RTMPControlClient extends RTMPClient implements ClientExceptionHandler, IPendingServiceCallback{
 

@@ -24,7 +24,6 @@
 package org.zoolu.sip.transaction;
 
 
-import org.zoolu.sip.message.Message;
 
 
 /** A AckTransactionServerListener listens for AckTransactionServer onTransAckTimeout(AckTransactionServer) events.

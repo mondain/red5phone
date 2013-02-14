@@ -24,14 +24,16 @@
 package org.zoolu.tools;
 
 
-import java.io.*;
-import java.net.URL;
-//import java.net.URI;
 import java.awt.Image;
 import java.awt.Toolkit;
-import javax.swing.ImageIcon;
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
+
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
+import javax.swing.ImageIcon;
+//import java.net.URI;
 
 
 /** Collection of static methods for handling files and jar archives.

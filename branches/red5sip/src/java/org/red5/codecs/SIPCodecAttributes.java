@@ -100,7 +100,7 @@ public class SIPCodecAttributes {
             toStringRet += "Encode attributes:\n";
         }
         
-        for ( Enumeration keysEnum = codecEncodeAttributes.keys(); keysEnum.hasMoreElements(); ) {
+        for ( Enumeration<String> keysEnum = codecEncodeAttributes.keys(); keysEnum.hasMoreElements(); ) {
             
             String attributeName = (String) keysEnum.nextElement();
             toStringRet += "\t" + attributeName + "=" + codecEncodeAttributes.get( attributeName );
@@ -116,7 +116,7 @@ public class SIPCodecAttributes {
             toStringRet += "Decode attributes:\n";
         }
         
-        for ( Enumeration keysEnum = codecDecodeAttributes.keys(); keysEnum.hasMoreElements(); ) {
+        for ( Enumeration<String> keysEnum = codecDecodeAttributes.keys(); keysEnum.hasMoreElements(); ) {
             
             String attributeName = (String) keysEnum.nextElement();
             toStringRet += "\t" + attributeName + "=" + codecDecodeAttributes.get( attributeName );

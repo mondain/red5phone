@@ -1,14 +1,13 @@
 package org.red5.sip.app;
 
+import java.net.DatagramSocket;
+
 import local.net.RtpPacket;
 import local.net.RtpSocket;
+
 import org.red5.codecs.SIPCodec;
 import org.red5.logging.Red5LoggerFactory;
-import org.red5.server.net.rtmp.codec.RTMPProtocolDecoder;
 import org.slf4j.Logger;
-
-import java.net.DatagramSocket;
-import java.util.Arrays;
 
 
 public class RTPStreamReceiver extends Thread {

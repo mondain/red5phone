@@ -25,15 +25,13 @@ package org.zoolu.sip.message;
 
 
 
-import org.zoolu.sip.address.*;
-import org.zoolu.sip.header.ContentLengthHeader;
-import org.zoolu.sip.header.ContentTypeHeader;
-import org.zoolu.sip.header.SubjectHeader;
+import org.zoolu.sip.address.NameAddress;
+import org.zoolu.sip.address.SipURL;
+import org.zoolu.sip.dialog.Dialog;
+import org.zoolu.sip.header.EventHeader;
 import org.zoolu.sip.header.ReferToHeader;
 import org.zoolu.sip.header.ReferredByHeader;
-import org.zoolu.sip.header.EventHeader;
-import org.zoolu.sip.dialog.Dialog;
-import org.zoolu.sip.provider.SipStack;
+import org.zoolu.sip.header.SubjectHeader;
 import org.zoolu.sip.provider.SipProvider;
 
 

@@ -28,28 +28,20 @@ d_stop() {
 	rm -f $PIDFILE
 }
 
-d_stop() {
-    start-stop-daemon --stop --quiet --pidfile $PIDFILE --name java
-    rm -f $PIDFILE
-}
-
 case "$1" in
 	start)
 		echo -n "Starting $DESC: $NAME\n"
 		d_start
-#		echo ".\n"
 	;;
 	stop)
 		echo -n "Stopping $DESC: $NAME\n"
 		d_stop
-#		echo ".\n"
 	;;
 	restart|force-reload)
 		echo -n "Restarting $DESC: $NAME\n"
 		d_stop
 		sleep 1
 		d_start
-#		echo ".\n"
 	;;
 	*)
 		echo "Usage: $SCRIPTNAME {start|stop|restart|force-reload}" >&2

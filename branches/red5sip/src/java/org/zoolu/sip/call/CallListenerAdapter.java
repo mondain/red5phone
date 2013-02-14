@@ -24,16 +24,12 @@
 package org.zoolu.sip.call;
 
 
-import org.zoolu.sip.call.*;
-import org.zoolu.sip.provider.SipStack;
+import java.util.Vector;
+
+import org.zoolu.sdp.SessionDescriptor;
 import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.message.Message;
-import org.zoolu.tools.Log;
-import org.zoolu.tools.LogLevel;
-import org.zoolu.sdp.*;
 //import java.util.Iterator;
-import java.util.Enumeration;
-import java.util.Vector;
 
 
 /** Class CallListenerAdapter implements CallListener interface
@@ -134,7 +130,7 @@ public abstract class CallListenerAdapter implements ExtendedCallListener
 
    /** Redirects the call when remotly requested.
      * Callback function called when arriving a 3xx (call redirection) */
-   public void onCallRedirection(Call call, String reason, Vector contact_list, Message resp)
+   public void onCallRedirection(Call call, String reason, Vector<String> contact_list, Message resp)
    {  //printLog("REDIRECTION ("+reason+")");
       call.call((String)contact_list.elementAt(0)); 
    }
