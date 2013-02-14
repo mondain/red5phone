@@ -1,5 +1,13 @@
 package org.red5.sip.app;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.openmeetings.persistence.beans.room.Client;
@@ -10,7 +18,12 @@ import org.red5.server.api.service.IPendingServiceCall;
 import org.red5.server.api.service.IPendingServiceCallback;
 import org.red5.server.api.service.IServiceCall;
 import org.red5.server.api.service.IServiceInvoker;
-import org.red5.server.net.rtmp.*;
+import org.red5.server.net.rtmp.BaseRTMPClientHandler;
+import org.red5.server.net.rtmp.Channel;
+import org.red5.server.net.rtmp.ClientExceptionHandler;
+import org.red5.server.net.rtmp.INetStreamEventHandler;
+import org.red5.server.net.rtmp.RTMPClient;
+import org.red5.server.net.rtmp.RTMPConnection;
 import org.red5.server.net.rtmp.codec.RTMP;
 import org.red5.server.net.rtmp.event.AudioData;
 import org.red5.server.net.rtmp.event.Notify;
@@ -20,10 +33,6 @@ import org.red5.server.service.Call;
 import org.red5.server.stream.message.RTMPMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.*;
 
 public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler, ClientExceptionHandler, IPendingServiceCallback, IMediaReceiver {
 
@@ -407,6 +416,8 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
                     log.error("getSipNumber invalid result: " + call.getResult());
                 }
                 break;
+			default:
+				break;
         }
     }
 

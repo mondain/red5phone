@@ -1,14 +1,16 @@
 package org.red5.sip.app;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.openmeetings.utils.PropertiesUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zoolu.sip.address.NameAddress;
-
-import java.io.File;
-import java.util.*;
 
 public class Application implements Daemon {
 

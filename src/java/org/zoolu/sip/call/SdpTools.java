@@ -24,9 +24,12 @@
 package org.zoolu.sip.call;
 
 
-import org.zoolu.sdp.*;
 import java.util.Enumeration;
 import java.util.Vector;
+
+import org.zoolu.sdp.AttributeField;
+import org.zoolu.sdp.MediaDescriptor;
+import org.zoolu.sdp.SessionDescriptor;
 
 
 /** Class SdpTools collects some static methods for managing SDP materials.
@@ -40,28 +43,28 @@ public class SdpTools
      * @param sdp the given SessionDescriptor
      * @param m_descs Vector of MediaDescriptor with the selecting media types and attributes
      * @return this SessionDescriptor */
-   public static SessionDescriptor sdpMediaProduct(SessionDescriptor sdp, Vector m_descs)
-   {  Vector new_media=new Vector();
+   public static SessionDescriptor sdpMediaProduct(SessionDescriptor sdp, Vector<MediaDescriptor> m_descs)
+   {  Vector<MediaDescriptor> new_media=new Vector<MediaDescriptor>();
       if (m_descs!=null)
-      {  for (Enumeration e=m_descs.elements(); e.hasMoreElements(); )
-         {  MediaDescriptor spec_md=(MediaDescriptor)e.nextElement();
+      {  for (Enumeration<MediaDescriptor> e=m_descs.elements(); e.hasMoreElements(); )
+         {  MediaDescriptor spec_md=e.nextElement();
             //System.out.print("DEBUG: SDP: sdp_select: "+spec_md.toString());
             MediaDescriptor prev_md=sdp.getMediaDescriptor(spec_md.getMedia().getMedia());
             //System.out.print("DEBUG: SDP: sdp_origin: "+prev_md.toString());
             if (prev_md!=null)
-            {  Vector spec_attributes=spec_md.getAttributes();
-               Vector prev_attributes=prev_md.getAttributes();
+            {  Vector<AttributeField> spec_attributes=spec_md.getAttributes();
+               Vector<AttributeField> prev_attributes=prev_md.getAttributes();
                if (spec_attributes.size()==0 || prev_attributes.size()==0)
                {  new_media.addElement(prev_md);
                }
                else
-               {  Vector new_attributes=new Vector();
-                  for (Enumeration i=spec_attributes.elements(); i.hasMoreElements(); )
-                  {  AttributeField spec_attr=(AttributeField)i.nextElement();
+               {  Vector<AttributeField> new_attributes=new Vector<AttributeField>();
+                  for (Enumeration<AttributeField> i=spec_attributes.elements(); i.hasMoreElements(); )
+                  {  AttributeField spec_attr=i.nextElement();
                      String spec_name=spec_attr.getAttributeName();
                      String spec_value=spec_attr.getAttributeValue();
-                     for (Enumeration k=prev_attributes.elements(); k.hasMoreElements(); )
-                     {  AttributeField prev_attr=(AttributeField)k.nextElement();
+                     for (Enumeration<AttributeField> k=prev_attributes.elements(); k.hasMoreElements(); )
+                     {  AttributeField prev_attr=k.nextElement();
                         String prev_name=prev_attr.getAttributeName();
                         String prev_value=prev_attr.getAttributeValue();
                         if (prev_name.equals(spec_name) && prev_value.equalsIgnoreCase(spec_value))
@@ -89,9 +92,9 @@ public class SdpTools
      * @param a_name the attribute name
      * @return this SessionDescriptor */
    public static SessionDescriptor sdpAttirbuteSelection(SessionDescriptor sdp, String a_name)
-   {  Vector new_media=new Vector();
-      for (Enumeration e=sdp.getMediaDescriptors().elements(); e.hasMoreElements(); )
-      {  MediaDescriptor md=(MediaDescriptor)e.nextElement();
+   {  Vector<MediaDescriptor> new_media=new Vector<MediaDescriptor>();
+      for (Enumeration<MediaDescriptor> e=sdp.getMediaDescriptors().elements(); e.hasMoreElements(); )
+      {  MediaDescriptor md=e.nextElement();
          AttributeField attr=md.getAttribute(a_name);
          if (attr!=null)
          { new_media.addElement(new MediaDescriptor(md.getMedia(),md.getConnection(),attr));

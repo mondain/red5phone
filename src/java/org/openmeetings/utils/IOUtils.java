@@ -1,11 +1,11 @@
 package org.openmeetings.utils;
 
-import org.apache.commons.io.FileUtils;
-import org.slf4j.Logger;
-
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
 
 /**
  * IO related utility classes

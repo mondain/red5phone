@@ -23,10 +23,10 @@
 
 package org.zoolu.sip.call;
 
-import org.zoolu.sip.message.*;
-import org.zoolu.sip.address.NameAddress;
-import org.zoolu.sdp.*;
 import java.util.Vector;
+
+import org.zoolu.sip.address.NameAddress;
+import org.zoolu.sip.message.Message;
 
 
 /** Interface CallListener can be implemented to manage SIP calls (sipx.call.Call).
@@ -51,7 +51,7 @@ public interface CallListener
    public void onCallRefused(Call call, String reason, Message resp);
 
    /** Callback function called when arriving a 3xx (call redirection) */
-   public void onCallRedirection(Call call, String reason, Vector contact_list, Message resp);
+   public void onCallRedirection(Call call, String reason, Vector<String> contact_list, Message resp);
 
    /** Callback function called when arriving an ACK method (call confirmed) */
    public void onCallConfirmed(Call call, String sdp, Message ack);

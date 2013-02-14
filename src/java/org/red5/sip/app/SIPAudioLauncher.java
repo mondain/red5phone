@@ -1,12 +1,13 @@
 package org.red5.sip.app;
 
 
+import java.net.DatagramSocket;
+
 import local.ua.MediaLauncher;
+
 import org.red5.codecs.SIPCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.DatagramSocket;
 
 
 public class SIPAudioLauncher implements MediaLauncher {

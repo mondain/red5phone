@@ -24,16 +24,19 @@
 package org.zoolu.sip.dialog;
 
 
-import org.zoolu.sip.address.*;
-import org.zoolu.sip.message.*;
-import org.zoolu.sip.header.*;
-import org.zoolu.sip.provider.*;
+import java.util.Vector;
+
+import org.zoolu.sip.header.FromHeader;
+import org.zoolu.sip.header.Header;
+import org.zoolu.sip.header.RecordRouteHeader;
+import org.zoolu.sip.header.ToHeader;
+import org.zoolu.sip.message.Message;
+import org.zoolu.sip.provider.DialogIdentifier;
+import org.zoolu.sip.provider.SipProvider;
+import org.zoolu.sip.provider.SipProviderListener;
+import org.zoolu.sip.provider.SipStack;
 import org.zoolu.tools.Log;
 import org.zoolu.tools.LogLevel;
-import org.zoolu.tools.AssertException;
-
-
-import java.util.Vector;
 
 
 /** Class Dialog maintains a complete information status of a generic SIP dialog.

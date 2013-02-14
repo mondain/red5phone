@@ -23,11 +23,8 @@
 
 package org.zoolu.sip.call;
 
-import org.zoolu.sip.call.*;
-import org.zoolu.sip.message.*;
 import org.zoolu.sip.address.NameAddress;
-import org.zoolu.sdp.*;
-import java.util.Vector;
+import org.zoolu.sip.message.Message;
 
 
 /** Interface ExtendedCallListener can be implemented to manage exteded SIP calls (sipx.call.ExtendedCall).

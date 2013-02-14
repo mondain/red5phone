@@ -24,9 +24,6 @@
 package org.zoolu.tools;
 
 
-import java.io.*;
-import java.util.Vector;
-import java.util.Random;
 
 
 /** Mangle collects some static methods for mangling binary-data structures 
