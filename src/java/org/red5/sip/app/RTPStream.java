@@ -87,7 +87,6 @@ public class RTPStream implements IMediaStream {
     /** Fill the buffer of RtpPacket with necessary data. */
     private int fillRtpPacketBuffer(byte[] asaoBuffer) {
 
-        boolean isBufferFilled = false;
         int copyingSize = 0;
         int finalCopySize = 0;
         byte[] codedBuffer = new byte[ sender.sipCodec.getOutgoingEncodedFrameSize() ];
@@ -155,7 +154,6 @@ public class RTPStream implements IMediaStream {
 
             if (encodingOffset == encodingBuffer.length)
             {
-                isBufferFilled = true;
                 int encodedBytes = sender.sipCodec.pcmToCodec( encodingBuffer, codedBuffer );
                 if ( encodedBytes == sender.sipCodec.getOutgoingEncodedFrameSize() ) {
                     BufferUtils.byteBufferIndexedCopy( packetBuffer,

@@ -2,7 +2,6 @@ package org.red5.sip.app;
 
 
 import java.util.Vector;
-import java.util.logging.Logger;
 
 import local.net.KeepAliveSip;
 
@@ -86,10 +85,6 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener
 
    /** Whether the thread is running. */
    boolean is_running;
-
-   /** Event logger. */
-    private static Logger log = Logger.getLogger(SIPRegisterAgent.class.getName());
-
 
    /** Number of registration attempts. */
    int attempts;
@@ -182,7 +177,6 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener
       req.setExpiresHeader(new ExpiresHeader(String.valueOf(expire_time)));
       if (next_nonce!=null)
       {  AuthorizationHeader ah=new AuthorizationHeader("Digest");
-         SipURL target_url=target.getAddress();
          ah.addUsernameParam(username);
          ah.addRealmParam(realm);
          ah.addNonceParam(next_nonce);
@@ -209,7 +203,6 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener
    /** Unregister all contacts with the registrar server */
    public void unregisterall()
    {  attempts=0;
-      NameAddress user=new NameAddress(target);
       Message req=MessageFactory.createRegisterRequest(sip_provider,target,target,null);
       //ContactHeader contact_star=new ContactHeader(); // contact is *
       //req.setContactHeader(contact_star);
@@ -316,7 +309,7 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener
          }
          else if (resp.hasContactHeader())
          // look for the max expires - should be the latest
-         {  Vector contacts=resp.getContacts().getHeaders();
+         {  Vector<Header> contacts=resp.getContacts().getHeaders();
             for (int i=0; i<contacts.size(); i++)
             {  int exp_i=(new ContactHeader((Header)contacts.elementAt(i))).getExpires();
             //   if (exp_i>0 && (expires==0 || exp_i<expires)) expires=exp_i;

@@ -238,7 +238,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 
 
    /** List of exception listeners */
-   HashSet exception_listeners=null;
+   HashSet<SipProviderExceptionListener> exception_listeners=null;
 
    /** UDP transport */
    UdpTransport udp=null;
@@ -323,7 +323,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
       rport=SipStack.use_rport;
       force_rport=SipStack.force_rport;
 
-      exception_listeners=new HashSet();
+      exception_listeners=new HashSet<SipProviderExceptionListener>();
       //listeners=new Hashtable();
       Hashtable<Identifier, String> dupeKeys=new Hashtable<Identifier, String>();
 	   dupeKeys.put(INVITE, "");
@@ -414,7 +414,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
       stopTrasport();
       //listeners=new Hashtable();
    listeners=new SpcHashtable(null);
-   exception_listeners=new HashSet();
+   exception_listeners=new HashSet<SipProviderExceptionListener>();
    }
 
 
@@ -1189,8 +1189,8 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
          printLog("reached the maximum number of connection: removing the older unused connection",LogLevel.HIGH);
          long older_time=System.currentTimeMillis();
          ConnectionIdentifier older_id=null;
-         for (Enumeration e=connections.elements(); e.hasMoreElements(); )
-         {  ConnectedTransport co=(ConnectedTransport)e.nextElement();
+         for (Enumeration<ConnectedTransport> e=connections.elements(); e.hasMoreElements(); )
+         {  ConnectedTransport co=e.nextElement();
             if (co.getLastTimeMillis()<older_time) older_id=new ConnectionIdentifier(co);
          }
          if (older_id!=null) removeConnection(older_id);
@@ -1200,8 +1200,8 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
       conn=(ConnectedTransport)connections.get(conn_id);
       // DEBUG log:
       printLog("active connenctions:",LogLevel.LOW);
-      for (Enumeration e=connections.keys(); e.hasMoreElements(); )
-      {  ConnectionIdentifier id=(ConnectionIdentifier)e.nextElement();
+      for (Enumeration<ConnectionIdentifier> e=connections.keys(); e.hasMoreElements(); )
+      {  ConnectionIdentifier id=e.nextElement();
          printLog("conn-id="+id+": "+((ConnectedTransport)connections.get(id)).toString(),LogLevel.LOW);
       }
    }
@@ -1215,8 +1215,8 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
          connections.remove(conn_id);
          // DEBUG log:
          printLog("active connenctions:",LogLevel.LOW);
-         for (Enumeration e=connections.elements(); e.hasMoreElements(); )
-         {  ConnectedTransport co=(ConnectedTransport)e.nextElement();
+         for (Enumeration<ConnectedTransport> e=connections.elements(); e.hasMoreElements(); )
+         {  ConnectedTransport co=e.nextElement();
             printLog("conn "+co.toString(),LogLevel.LOW);
          }
       }

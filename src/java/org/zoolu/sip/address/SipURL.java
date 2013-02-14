@@ -153,7 +153,7 @@ public class SipURL
    
    /** Gets a String Vector of parameter names.
      * @return null if no parameter is present */
-   public Vector getParameters() 
+   public Vector<String> getParameters() 
    {  SipParser par=new SipParser(url);
       return ((SipParser)par.goTo(';').skipChar()).getParameters();
    }

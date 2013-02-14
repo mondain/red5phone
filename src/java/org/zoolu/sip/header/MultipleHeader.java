@@ -37,34 +37,34 @@ public class MultipleHeader
    /** The header type */
    protected String name;
    /** Vector of header values (as Strings) */
-   protected Vector values;
+   protected Vector<String> values;
    /** whether to be rapresented with a comma-separated(compact) header line or multiple header lines */
    protected boolean compact;
 
    protected MultipleHeader()
    {  name=null;
-      values=new Vector();
+      values=new Vector<String>();
       compact=true;
    }
 
    /** Costructs a MultipleHeader named <i>hname</i> */
    public MultipleHeader(String hname)
    {  name=hname;
-      values=new Vector();
+      values=new Vector<String>();
       compact=true;
    }
 
    /** Costructs a MultipleHeader named <i>hname</i> from a Vector of header values (as Strings). */
-   public MultipleHeader(String hname, Vector hvalues)
+   public MultipleHeader(String hname, Vector<String> hvalues)
    {  name=hname;
       values=hvalues;
       compact=true;
    }
    
    /** Costructs a MultipleHeader from a Vector of Headers. Each Header can be a single header or a multiple-comma-separated header. */
-   public MultipleHeader(Vector headers)
-   {  name=((Header)headers.elementAt(0)).getName();
-      values=new Vector(headers.size());
+   public MultipleHeader(Vector<Header> headers)
+   {  name=headers.elementAt(0).getName();
+      values=new Vector<String>(headers.size());
       for (int i=0; i<headers.size(); i++)
       {  addBottom((Header)headers.elementAt(i));
       }
@@ -74,7 +74,7 @@ public class MultipleHeader
    /** Costructs a MultipleHeader from a comma-separated header */
    public MultipleHeader(Header hd)
    {  name=hd.getName();
-      values=new Vector();
+      values=new Vector<String>();
       SipParser par=new SipParser(hd.getValue());
       int comma=par.indexOfCommaHeaderSeparator();
       while (comma>=0)
@@ -137,30 +137,30 @@ public class MultipleHeader
    }
 
    /** Gets a vector of header values */
-   public Vector getValues()
+   public Vector<String> getValues()
    {  return values;
    }
 
    /** Sets header values */
-   public void setValues(Vector v)
+   public void setValues(Vector<String> v)
    {  values=v; 
    }
    
    /** Gets a vector of headers */
-   public Vector getHeaders()
-   {  Vector v=new Vector(values.size());
+   public Vector<Header> getHeaders()
+   {  Vector<Header> v=new Vector<Header>(values.size());
       for (int i=0; i<values.size(); i++)
-      {  Header h=new Header(name,(String)values.elementAt(i));
+      {  Header h=new Header(name,values.elementAt(i));
          v.addElement(h);
       }
       return v; 
    }   
 
    /** Sets header values */
-   public void setHeaders(Vector hdv)
-   {  values=new Vector(hdv.size());
+   public void setHeaders(Vector<Header> hdv)
+   {  values=new Vector<String>(hdv.size());
       for (int i=0; i<hdv.size(); i++)
-      {  values.addElement(((Header)hdv.elementAt(i)).getValue());
+      {  values.addElement(hdv.elementAt(i).getValue());
       }
    }
    

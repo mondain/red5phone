@@ -29,12 +29,12 @@ import java.util.Vector;
 
 /** HashSet
   */
-public class HashSet
+public class HashSet<T>
 {
-   Vector set;
+   Vector<T> set;
 
    public HashSet()
-   {  set=new Vector();
+   {  set=new Vector<T>();
    }  
 
    public int size()
@@ -45,21 +45,21 @@ public class HashSet
    {  return set.isEmpty();
    }
 
-   public boolean add(Object o)
+   public boolean add(T o)
    {  set.addElement(o);
       return true;
    }
 
-   public boolean remove(Object o)
+   public boolean remove(T o)
    {  return set.removeElement(o);
    }
 
-   public boolean contains(Object o)
+   public boolean contains(T o)
    {  return set.contains(o);
    }
    
-   public Iterator iterator()
-   {  return new Iterator(set);
+   public Iterator<T> iterator()
+   {  return new Iterator<T>(set);
    }   
 }
 

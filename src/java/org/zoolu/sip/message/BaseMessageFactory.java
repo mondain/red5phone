@@ -200,7 +200,7 @@ public abstract class BaseMessageFactory
       String remote_tag=dialog.getRemoteTag();
       //String branch=SipStack.pickBranch();
       Message req=createRequest(method,request_uri,to,from,contact,proto,via_addr,host_port,rport,call_id,cseq,local_tag,remote_tag,null,body);
-      Vector route=dialog.getRoute();
+      Vector<String> route=dialog.getRoute();
       if (route!=null && route.size()>0)
          req.addRoutes(new MultipleHeader(SipHeaders.Route,route));
       req.rfc2543RouteAdapt();
@@ -237,7 +237,7 @@ public abstract class BaseMessageFactory
 	      String remote_tag=dialog.getRemoteTag();
 	      //String branch=SipStack.pickBranch();
 	      Message req=createRequest(method,request_uri,to,from,contact,proto,via_addr,host_port,rport,call_id,cseq,local_tag,remote_tag,null,body);
-	      Vector route=dialog.getRoute();
+	      Vector<String> route=dialog.getRoute();
 	      if (route!=null && route.size()>0)
 	         req.addRoutes(new MultipleHeader(SipHeaders.Route,route));
 	      req.rfc2543RouteAdapt();

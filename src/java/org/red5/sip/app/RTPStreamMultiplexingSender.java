@@ -12,7 +12,6 @@ import org.apache.mina.util.ConcurrentHashSet;
 import org.red5.codecs.SIPCodec;
 import org.red5.codecs.asao.ByteStream;
 import org.red5.codecs.asao.Decoder;
-import org.red5.codecs.asao.DecoderMap;
 import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
 
@@ -66,8 +65,6 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
     boolean doSync = true;
 
     private Decoder decoder;
-
-    private DecoderMap decoderMap;
 
     private byte[] packetBuffer;
 
@@ -218,12 +215,6 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
         decoder = new Decoder();
 
         sendThread.start();
-    }
-
-    private void fillDecodedBuffer(byte[] asaoBuffer, float[] tempBuffer) {
-        ByteStream audioStream = new ByteStream(asaoBuffer, 1, NELLYMOSER_ENCODED_PACKET_SIZE);
-        decoderMap = decoder.decode(decoderMap, audioStream.bytes, 0, tempBuffer, 0);
-        //ResampleUtils.normalize(tempBuffer, tempBuffer.length);
     }
 
     public IMediaStream createStream(int streamId) {

@@ -62,17 +62,13 @@ public class CodecImpl {
     }
 
     private static class NormalizedInt32 {
-
-        public final int value;
         public final int scale;
 
         public NormalizedInt32(final int val) {
             if (val == 0) {
-                value = val;
                 scale = 31;
                 return;
             } else if (val >= (1 << 30)) {
-                value = 0;
                 scale = 0;
                 return;
             }
@@ -93,7 +89,6 @@ public class CodecImpl {
                 } while (v > floor + (1 << 30));
             }
 
-            value = v;
             scale = s;
         }
     }
