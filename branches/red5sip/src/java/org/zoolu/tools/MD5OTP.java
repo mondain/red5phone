@@ -78,8 +78,8 @@ public class MD5OTP
    }
    
    /** Inits the MD5OTP algorithm */
-   private void init(int size, byte[] skey, byte[] iv)
-   {  this.size=size;
+   private void init(int _size, byte[] skey, byte[] iv)
+   {  size=_size;
       if (iv==null) { iv=new byte[size]; for (int i=0; i<size; i++) iv[i]=0; }
       this.skey=skey;
       //skey=hash(cat(key,iv));

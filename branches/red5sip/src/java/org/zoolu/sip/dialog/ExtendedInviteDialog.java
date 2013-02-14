@@ -41,6 +41,7 @@ import org.zoolu.sip.provider.SipProvider;
 import org.zoolu.sip.provider.SipStack;
 import org.zoolu.sip.provider.TransactionIdentifier;
 import org.zoolu.sip.transaction.AckTransactionClient;
+import org.zoolu.sip.transaction.Transaction;
 import org.zoolu.sip.transaction.TransactionClient;
 import org.zoolu.sip.transaction.TransactionServer;
 import org.zoolu.tools.LogLevel;
@@ -62,7 +63,7 @@ public class ExtendedInviteDialog extends org.zoolu.sip.dialog.InviteDialog
    ExtendedInviteDialogListener dialog_listener;
 
    /** Acive transactions. */
-   Hashtable transactions;
+   Hashtable<TransactionIdentifier, Transaction> transactions;
 
 
    /** User name. */
@@ -104,7 +105,7 @@ public class ExtendedInviteDialog extends org.zoolu.sip.dialog.InviteDialog
    /** Inits the ExtendedInviteDialog. */
    private void init(ExtendedInviteDialogListener listener)
    {  this.dialog_listener=listener;
-      this.transactions=new Hashtable();
+      this.transactions=new Hashtable<TransactionIdentifier, Transaction>();
       this.username=null;
       this.realm=null;
       this.passwd=null;

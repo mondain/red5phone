@@ -192,15 +192,6 @@ public class RTPStreamSender implements IMediaSender {
     }
 
 
-    private void doRtpDelay() {
-        try {
-            Thread.sleep( sipCodec.getOutgoingPacketization() - 2 );
-        }
-        catch ( Exception e ) {
-        }
-    }
-
-
     private synchronized void rtpSocketSend(RtpPacket rtpPacket) {
         try {
          	rtpSocket.send( rtpPacket );

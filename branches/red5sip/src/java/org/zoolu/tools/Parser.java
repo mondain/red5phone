@@ -380,27 +380,27 @@ public class Parser
    //********************** Vectors/arrays **********************
 
    /** Gets all string of chars separated by any char belonging to <i>separators</i> */
-   public Vector getWordVector(char[] separators)
-   {  Vector list=new Vector();
+   public Vector<String> getWordVector(char[] separators)
+   {  Vector<String> list=new Vector<String>();
       do { list.addElement(getWord(separators)); } while (hasMore());
       return list;
    }
    /** Gets all string of chars separated by any char belonging to <i>separators</i> */
    public String[] getWordArray(char[] separators)
-   {  Vector list=getWordVector(separators);
+   {  Vector<String> list=getWordVector(separators);
       String[] array=new String[list.size()];
       for (int i=0; i<list.size(); i++) array[i]=(String)list.elementAt(i);
       return array;
    }
    /** Gets all strings */
-   public Vector getStringVector()
-   {  Vector list=new Vector();
+   public Vector<String> getStringVector()
+   {  Vector<String> list=new Vector<String>();
       do { list.addElement(getString()); } while (hasMore());
       return list;
    }
    /** Gets all string */
    public String[] getStringArray()
-   {  Vector list=getStringVector();
+   {  Vector<String> list=getStringVector();
       String[] array=new String[list.size()];
       for (int i=0; i<list.size(); i++) array[i]=(String)list.elementAt(i);
       return array;

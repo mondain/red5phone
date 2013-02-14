@@ -332,7 +332,7 @@ public class NotifierDialog extends Dialog implements TransactionClientListener/
       }
       // else
       if(msg.isRequest() && msg.isSubscribe())
-      {  if (statusIs(this.D_WAITING))
+      {  if (statusIs(D_WAITING))
          {  // the first SUBSCRIBE request
             changeStatus(D_SUBSCRIBED);
             sip_provider.removeSipProviderListener(new MethodIdentifier(SipMethods.SUBSCRIBE));

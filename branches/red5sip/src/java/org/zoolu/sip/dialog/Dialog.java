@@ -211,27 +211,27 @@ public abstract class Dialog extends DialogInfo implements SipProviderListener
          {  route=msg.getRoutes().getValues();
          }
          if (side==UAC && msg.isResponse() && msg.hasRecordRouteHeader())
-         {  Vector rr=msg.getRecordRoutes().getHeaders();
+         {  Vector<Header> rr=msg.getRecordRoutes().getHeaders();
             int size=rr.size();
-            route=new Vector(size);
+            route=new Vector<String>(size);
             for (int i=0; i<size; i++)
-               route.insertElementAt((new RecordRouteHeader((Header)rr.elementAt(size-1-i))).getNameAddress(),i);
+               route.insertElementAt((new RecordRouteHeader((Header)rr.elementAt(size-1-i))).getNameAddress().toString(),i);
          }
       }
       else
       {  if (msg.isRequest() && msg.hasRouteHeader() && route==null)
-         {  Vector reverse_route=msg.getRoutes().getValues();
+         {  Vector<String> reverse_route=msg.getRoutes().getValues();
             int size=reverse_route.size();
-            route=new Vector(size);
+            route=new Vector<String>(size);
             for (int i=0; i<size; i++)
                route.insertElementAt(reverse_route.elementAt(size-1-i),i); 
          }
          if (msg.isRequest() && msg.hasRecordRouteHeader())
-         {  Vector rr=msg.getRecordRoutes().getHeaders();
+         {  Vector<Header> rr=msg.getRecordRoutes().getHeaders();
             int size=rr.size();
-            route=new Vector(size);
+            route=new Vector<String>(size);
             for (int i=0; i<size; i++)
-               route.insertElementAt((new RecordRouteHeader((Header)rr.elementAt(i))).getNameAddress(),i);
+               route.insertElementAt((new RecordRouteHeader((Header)rr.elementAt(i))).getNameAddress().toString(),i);
          }
       }
 

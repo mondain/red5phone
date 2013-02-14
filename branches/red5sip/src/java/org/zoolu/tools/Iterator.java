@@ -29,12 +29,12 @@ import java.util.Vector;
 
 /** Iterator
   */
-public class Iterator
+public class Iterator<T>
 {
-   Vector v;
+   Vector<T> v;
    int i;
 
-   public Iterator(Vector vector)
+   public Iterator(Vector<T> vector)
    {  v=vector;
       i=-1;
    }  
@@ -43,7 +43,7 @@ public class Iterator
    {  return i<(v.size()-1);
    }
 
-   public Object next()
+   public T next()
    {  if (++i<v.size()) return v.elementAt(i);
       else return null;
    }

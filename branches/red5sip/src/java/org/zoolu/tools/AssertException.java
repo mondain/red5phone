@@ -31,7 +31,9 @@ package org.zoolu.tools;
   */
 public class AssertException extends java.lang.RuntimeException
 {
-   /** Costructs a new AssertException. */
+	private static final long serialVersionUID = -2461611232188116686L;
+
+/** Costructs a new AssertException. */
    public AssertException(String msg)
    {  super(msg);
    }

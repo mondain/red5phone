@@ -632,7 +632,7 @@ public class InviteDialog extends Dialog implements TransactionClientListener, I
 		 ack_tc.request();
 
 
-         changeStatus(this.D_CALL);
+         changeStatus(D_CALL);
          listener.onDlgByeFailureResponse(this,code,statusline.getReason(),msg);
       }
    }

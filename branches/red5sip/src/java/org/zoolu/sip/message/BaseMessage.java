@@ -420,8 +420,8 @@ public abstract class BaseMessage
    }
 
    /** Gets a Vector of all Headers of specified name (Returns empty Vector if no Header is found) */
-   public Vector getHeaders(String hname)
-   {  Vector v=new Vector();
+   public Vector<Header> getHeaders(String hname)
+   {  Vector<Header> v=new Vector<Header>();
       SipParser par=new SipParser(message);
       Header h;
       while ((h=par.getHeader(hname))!=null)
@@ -437,9 +437,9 @@ public abstract class BaseMessage
    }
 
    /** Adds a Vector of Headers at the top/bottom */
-   public void addHeaders(Vector headers, boolean top) 
+   public void addHeaders(Vector<Header> headers, boolean top) 
    {  String str="";
-      for (int i=0; i<headers.size(); i++) str+=((Header)headers.elementAt(i)).toString();
+      for (int i=0; i<headers.size(); i++) str+=headers.elementAt(i).toString();
       addHeaders(str,top);
    }
 
@@ -692,7 +692,7 @@ public abstract class BaseMessage
    }
    /** Gets a MultipleHeader of Contacts */
    public MultipleHeader getContacts()
-   {  Vector v=getHeaders(SipHeaders.Contact);
+   {  Vector<Header> v=getHeaders(SipHeaders.Contact);
       if (v.size()>0) return new MultipleHeader(v);
       else return null;
    }   
@@ -735,7 +735,7 @@ public abstract class BaseMessage
    }  
    /** Gets all Vias */
    public MultipleHeader getVias()
-   {  Vector v=getHeaders(SipHeaders.Via);
+   {  Vector<Header> v=getHeaders(SipHeaders.Via);
       if (v.size()>0) return new MultipleHeader(v);
       else return null;
    }
@@ -775,7 +775,7 @@ public abstract class BaseMessage
    } 
    /** Gets the whole route */
    public MultipleHeader getRoutes()
-   {  Vector v=getHeaders(SipHeaders.Route);
+   {  Vector<Header> v=getHeaders(SipHeaders.Route);
       if (v.size()>0) return new MultipleHeader(v);
       else return null;
    }
@@ -820,7 +820,7 @@ public abstract class BaseMessage
    } 
    /** Gets the whole RecordRoute headers */
    public MultipleHeader getRecordRoutes()
-   {  Vector v=getHeaders(SipHeaders.Record_Route);
+   {  Vector<Header> v=getHeaders(SipHeaders.Record_Route);
       if (v.size()>0) return new MultipleHeader(v);
       else return null;
    }
@@ -1251,7 +1251,6 @@ public abstract class BaseMessage
    public void rfc2543RouteAdapt() 
    {  if (hasRouteHeader())
       {  MultipleHeader mrh=getRoutes();
-         RouteHeader rh=new RouteHeader(mrh.getTop());
          if (!(new RouteHeader(mrh.getTop())).getNameAddress().getAddress().hasLr())
          {  // re-format the message according to the RFC2543 Strict Route rule
             SipURL next_hop=(new RouteHeader(mrh.getTop())).getNameAddress().getAddress();
