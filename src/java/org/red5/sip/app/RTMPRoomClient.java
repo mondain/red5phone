@@ -56,7 +56,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
     private String sipNumber = null;
     private ISipNumberListener sipNumberListener = null;
     private long lastSendActivityMS = 0L;
-    private Thread updateThread = new Thread(new Runnable() {
+    private final Runnable updateTask = new Runnable() {
         public void run() {
             while(true) {
                 try {
@@ -68,7 +68,8 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
                 }
             }
         }
-    });
+    };
+    private Thread updateThread = null;
 
     protected enum ServiceMethod {
         connect,
@@ -111,7 +112,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         } catch (NoSuchFieldException e) {
         	log.error("NoSuchFieldException", e);
         } catch (IllegalAccessException e) {
-        	log.error("NoSuchFieldException", e);
+        	log.error("IllegalAccessException", e);
         }
     }
 
@@ -223,6 +224,13 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         retryNumber = 0;
     }
 
+    private void shutdownUpdateThread() {
+        if(updateThread != null && updateThread.isAlive()) {
+            updateThread.interrupt();
+        }
+        updateThread = null;
+    }
+    
     @Override
     public void connectionClosed( RTMPConnection conn, RTMP state ) {
         log.debug( "RTMP Connection closed" );
@@ -236,9 +244,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
             log.debug( "Try reconnect..." );
             this.start();
         } else {
-            if(updateThread.isAlive()) {
-                updateThread.interrupt();
-            }
+        	shutdownUpdateThread();
         }
     }
 
@@ -292,9 +298,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
                 }
                 this.start();
             } else {
-                if(updateThread.isAlive()) {
-                    updateThread.interrupt();
-                }
+            	shutdownUpdateThread();
             }
         }
 
@@ -400,6 +404,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
                 break;
             case setSipTransport:
                 log.info("setSipTransport");
+                updateThread = new Thread(updateTask);
                 updateThread.start();
                 break;
             case updateSipTransport:
