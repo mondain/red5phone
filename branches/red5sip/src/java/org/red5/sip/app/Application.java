@@ -21,7 +21,6 @@ public class Application implements Daemon {
     private Properties props = null;
     private Map<Integer, SIPTransport> transportMap = new HashMap<Integer, SIPTransport>();
     private RTMPControlClient rtmpControlClient;
-    boolean startRoomClient = true;
 
     private SIPTransport createSIPTransport(Properties prop, int room_id) {
         log.info("Creating SIP trasport for room: " + room_id);
@@ -35,10 +34,7 @@ public class Application implements Daemon {
             public void onUaRegistrationSuccess(SIPRegisterAgent ra, NameAddress target, NameAddress contact, String result) {
                 log.info("Registered successfully");
                 this.roomClient.setSipNumberListener(this);
-                if (Application.this.startRoomClient) {
-                	this.roomClient.start();
-                	Application.this.startRoomClient = false;
-                }
+               	this.roomClient.start();
             }
 
             public void onUaRegistrationFailure(SIPRegisterAgent ra, NameAddress target, NameAddress contact, String result) {
