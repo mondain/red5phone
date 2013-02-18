@@ -989,8 +989,6 @@ public class SIPUserAgent extends CallListenerAdapter {
 
 
     private static void printLog( String method, String message ) {
-
         log.debug( "SipUserAgent - " + method + " -> " + message );
-        System.out.println( "SipUserAgent - " + method + " -> " + message );
     }
 }

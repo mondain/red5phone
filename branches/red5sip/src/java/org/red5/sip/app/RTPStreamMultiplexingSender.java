@@ -248,7 +248,7 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
             if(bufferUsage > .2f) {
                 pause -= 1;
             }
-            System.out.println("Sleep pause: " + pause);
+            log.trace("Sleep pause: " + pause);
             Thread.sleep( pause, 800000 );
         }
         catch ( Exception e ) {
@@ -288,7 +288,7 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
                         if(stream.ready() && disableStream != stream.getStreamId()) {
                             len = stream.read(asaoBuffer, 0);
                             bufferUsage = Math.max(bufferUsage, stream.bufferUsage());
-                            System.out.println(String.format("Stream id %d, buffer %f", stream.getStreamId(), stream.bufferUsage()));
+                            log.trace(String.format("Stream id %d, buffer %f", stream.getStreamId(), stream.bufferUsage()));
                         } else {
                             continue;
                         }
@@ -313,7 +313,7 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
                 log.error("Exception", e);
             }
             if(multiplexingCount > 0) {
-                System.out.println("Send: multiplexed: " + multiplexingCount + ", total streams: " + streamSet.size());
+            	log.trace("Send: multiplexed: " + multiplexingCount + ", total streams: " + streamSet.size());
 //                ResampleUtils.normalize(multiplexedBuffer, 1.0f/multiplexingCount);
                 ResampleUtils.normalize(multiplexedBuffer, multiplexedBuffer.length);
                 try {
@@ -326,7 +326,6 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
                         if (encodingOffset == sipCodec.getOutgoingDecodedFrameSize()) {
                             rtpSocketSend(rtpPacket);
                             doRtpDelay(bufferUsage);
-                            //System.out.println("rtpSocketSend, bufferUsage: " + bufferUsage);
                             encodingOffset = 0;
                         }
                     }
@@ -456,7 +455,6 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
             rtpPacket.setPayloadType(sipCodec.getCodecId());
             rtpSocket.send(rtpPacket);
             time += sipCodec.getOutgoingPacketization();
-            //System.out.println(String.format("Send RTP: interval %d, ts %d", System.currentTimeMillis() - lastMS, time));
         } catch (Exception e) {
             log.error("Error sending RTP packet", e);
         }
@@ -464,6 +462,5 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 
     private static void println(String method, String message) {
         log.debug("RTPStreamSender - " + method + " -> " + message);
-        System.out.println("RTPStreamSender - " + method + " -> " + message);
     }
 }

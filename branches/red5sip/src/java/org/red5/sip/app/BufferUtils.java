@@ -89,8 +89,6 @@ public class BufferUtils {
 
 
     private static void println( String method, String message ) {
-
         //log.debug( "BufferUtils - " + method + " -> " + message );
-        //System.out.println( "BufferUtils - " + method + " -> " + message );
     }
 }

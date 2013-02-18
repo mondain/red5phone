@@ -7,10 +7,14 @@
 //package net.java.sip.communicator.impl.media.codec.audio.ilbc;
 package org.red5.codecs.ilbc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Jean Lorchat
  */
 class ilbc_ulp {
+    protected static Logger log = LoggerFactory.getLogger(ilbc_ulp.class);
 
     /* codec settings for encoder instance */
 
@@ -40,7 +44,7 @@ class ilbc_ulp {
 
 	if ( (mode != 20) && (mode != 30) )
 	    {
-		System.out.println("Unknown mode " + init_mode);
+		log.error("Unknown mode " + init_mode);
 		return;
 	    }
 
@@ -93,20 +97,9 @@ class ilbc_ulp {
 		System.arraycopy(ilbc_constants.state_bits_30ms, 0, state_bits, 0, ilbc_constants.state_bits_30ms.length);
 		System.arraycopy(ilbc_constants.extra_cb_index_30ms, 0, extra_cb_index, 0, ilbc_constants.CB_NSTAGES);
 		System.arraycopy(ilbc_constants.extra_cb_gain_30ms, 0, extra_cb_gain, 0, ilbc_constants.CB_NSTAGES);
-		//		System.out.println("nsubmax vaut: " + NSUB_MAX + " vs " + NSUB_30MS + ", alors que la taille de la table est: " + cb_index_30ms.length + " vs " + cb_index.length);
 		System.arraycopy(ilbc_constants.cb_index_30ms, 0, cb_index, 0, ilbc_constants.NSUB_30MS);
 		System.arraycopy(ilbc_constants.cb_gain_30ms, 0, cb_gain, 0, ilbc_constants.NSUB_30MS);
 	    }
-
-	// 	for (int i = 0; i < NSUB_MAX; i++) {
-	// 	    for (int j = 0; j < CB_NSTAGES; j++) {
-	// 		for (int k = 0; k < ULP_CLASSES+2; k++) {
-	// 		    System.out.print(" " + cb_gain[i][j][k]);
-	// 		}
-	// 		System.out.print(" | ");
-	// 	    }
-	// 	    System.out.println("");
-	// 	}
     }
 }
 

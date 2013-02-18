@@ -57,11 +57,6 @@ public class NameAddress
    public NameAddress(String naddr)
    {  SipParser par=new SipParser(naddr);
       NameAddress na=par.getNameAddress();
-      //DEBUG
-      //if (na==null)
-      //{  System.out.println("DEBUG: NameAddress: par:\r\n"+par.getWholeString());
-      //   System.exit(0);
-      //}
       name=na.name;
       url=na.url;
    }

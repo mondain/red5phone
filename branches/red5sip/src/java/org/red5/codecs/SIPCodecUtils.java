@@ -161,8 +161,6 @@ public class SIPCodecUtils {
 
 
     private static void printLog( String method, String message ) {
-        
         log.debug( "SIPCodecUtils - " + method + " -> " + message );
-        System.out.println( "SIPCodecUtils - " + method + " -> " + message );
     }
 }

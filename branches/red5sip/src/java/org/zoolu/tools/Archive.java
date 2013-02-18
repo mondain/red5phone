@@ -33,6 +33,9 @@ import java.net.URL;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.swing.ImageIcon;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 //import java.net.URI;
 
 
@@ -40,6 +43,7 @@ import javax.swing.ImageIcon;
 */
 public class Archive
 {
+	protected static Logger log = LoggerFactory.getLogger(Archive.class);
    /** The base path */
    public static String BASE_PATH=(new File("")).getAbsolutePath();
    //**** PersonalJava ****
@@ -55,7 +59,8 @@ public class Archive
       {  return new URL(url);
       }
       catch (java.net.MalformedURLException e)
-      {  System.err.println("ERROR: malformed url "+url);
+      {
+    	  log.error("ERROR: malformed url "+url);
          return null;
       } 
    }
@@ -70,7 +75,8 @@ public class Archive
       {  return new URL("file:"+BASE_PATH+"/"+file_name);
       }
       catch (java.net.MalformedURLException e)
-      {  System.err.println("ERROR: malformed url "+url);
+      {
+    	  log.error("ERROR: malformed url "+url);
          return null;
       } 
    }
@@ -105,7 +111,8 @@ public class Archive
          for (int i=0; i<4 && image.getWidth(null)<0; i++) try { Thread.sleep(80); } catch (Exception e) {}
       }
       catch (java.io.IOException e)
-      {  System.err.println("ERROR: can't read the file "+url.toString());
+      {
+    	  log.error("ERROR: can't read the file "+url.toString());
       } 
       return image;
    }
@@ -128,7 +135,8 @@ public class Archive
          icon=new ImageIcon(url);
       }
       catch (java.io.IOException e)
-      {  System.err.println("ERROR: can't read the file "+url.toString());
+      {
+    	  log.error("ERROR: can't read the file "+url.toString());
       } 
       return icon;
    }
@@ -143,7 +151,8 @@ public class Archive
       {  in=(url).openStream();
       }
       catch (java.io.IOException e)
-      {  System.err.println("ERROR: can't read the file "+url.toString());
+      {
+    	  log.error("ERROR: can't read the file "+url.toString());
       } 
       return in;
    }
@@ -158,7 +167,8 @@ public class Archive
       {  in=AudioSystem.getAudioInputStream(url);
       }
       catch (java.io.IOException e)
-      {  System.err.println("ERROR: can't read the file "+url.toString());
+      {
+    	  log.error("ERROR: can't read the file "+url.toString());
       } 
       return in;
    }

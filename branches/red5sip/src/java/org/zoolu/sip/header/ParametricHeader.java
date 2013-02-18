@@ -98,10 +98,8 @@ public abstract class ParametricHeader extends Header
    public void removeParameters() 
    {  if (!hasParameters()) return;
       String header=getValue();
-      //System.out.println(header);
       int i=header.indexOf(';');
       header=header.substring(0,i);      
-      //System.out.println(header);
       setValue(header);
    }
 

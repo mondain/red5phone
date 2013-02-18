@@ -179,7 +179,7 @@ public class SessionDescriptor
 
    /** Gets the origin 'o' field */
    public OriginField getOrigin()
-   {  //System.out.println("DEBUG: inside SessionDescriptor.getOwner(): sdp=\n"+toString());
+   {
       return o;
    }
  

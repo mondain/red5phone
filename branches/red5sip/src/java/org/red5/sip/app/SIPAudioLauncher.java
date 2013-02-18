@@ -102,8 +102,6 @@ public class SIPAudioLauncher implements MediaLauncher {
 
 
     private static void printLog( String method, String message ) {
-    	
         log.debug( "SipAudioLauncher - " + method + " -> " + message );
-        System.out.println( "SipAudioLauncher - " + method + " -> " + message );
     }
 }

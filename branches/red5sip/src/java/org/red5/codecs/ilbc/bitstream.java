@@ -94,10 +94,7 @@ public class bitstream {
    ){
        int posLeft;
 
-       //       System.out.println("packing " + bitno + " bits (" + index + "), total packed : " + (bitcount+bitno) + " bits to date");
        bitcount += bitno;
-
-			  //       System.out.println("packing tag " + index + " of length " + bitno +  "bits from byte " + buffer_pos + "/" + buffer.length + " at " + pos + "th bit");
 
        /* Clear the bits before starting in a new byte */
 

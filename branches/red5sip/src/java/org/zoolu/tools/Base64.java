@@ -23,6 +23,9 @@
 
 package org.zoolu.tools;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 
 /** Class Base64 can be used for base64-encoding a byte array
@@ -32,6 +35,7 @@ package org.zoolu.tools;
   */
 public class Base64
 { 
+	protected static Logger log = LoggerFactory.getLogger(Base64.class);
    private static final String base64codes ="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";   
    private static int[] aux = new int[4];
                     
@@ -59,7 +63,6 @@ public class Base64
          aux[3] = (bin[2] & 63);
          
          // uso gli interi memorizzati in aux[] come indice della stringa base64codes 
-         //System.out.println("aux[0]="+aux[0]+" aux[1]="+aux[1]);
          stringacod = stringacod + base64codes.charAt(aux[0])+ base64codes.charAt(aux[1])+
                       base64codes.charAt(aux[2])+base64codes.charAt(aux[3]);
       } 
@@ -170,13 +173,13 @@ public class Base64
       String messaggio = args[0];
       byte[] bmess = messaggio.getBytes();
       String mess64 = encode(bmess);
-      System.out.println("messaggio codificato: "+mess64);
+      log.debug("messaggio codificato: "+mess64);
       byte[] decodificato = decode(mess64); 
       String strdecodificato = "";
       try { 
       strdecodificato = new String (decodificato,"ISO-8859-1"); 
       }
       catch (Exception e) { e.printStackTrace();}
-      System.out.println("messaggio decodificato e: "+strdecodificato);      
+      log.debug("messaggio decodificato e: "+strdecodificato);      
    }
 }

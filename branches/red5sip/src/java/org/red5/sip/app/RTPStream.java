@@ -3,12 +3,12 @@ package org.red5.sip.app;
 import local.net.RtpPacket;
 
 import org.red5.codecs.asao.ByteStream;
-import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RTPStream implements IMediaStream {
 
-    protected static Logger log = Red5LoggerFactory.getLogger(RTPStream.class, "sip");
+    protected static Logger log = LoggerFactory.getLogger(RTPStream.class);
 
     private int streamId;
     private RTPStreamSender sender;

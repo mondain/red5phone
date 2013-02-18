@@ -26,6 +26,9 @@ package org.zoolu.tools;
 
 import java.util.Vector;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /** Class Parser allows the parsing of String objects.
  *  <BR> An object Parser is costructed from a String object and provides various methods for parsing the String in a stream oriented manner.
@@ -41,6 +44,7 @@ import java.util.Vector;
  */
 public class Parser
 {
+	protected static Logger log = LoggerFactory.getLogger(Parser.class);
    
    /** The string that is being parsed. */
    protected String str;
@@ -451,8 +455,9 @@ public class Parser
          }
       }
       catch (RuntimeException e)
-      {  System.out.println("len= "+str.length());
-         System.out.println("index= "+index);
+      {
+    	  log.error("len= "+str.length());
+    	  log.error("index= "+index);
          throw e;
       }
       return this;

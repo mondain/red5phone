@@ -41,6 +41,8 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Hashtable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zoolu.net.IpAddress;
 import org.zoolu.net.SocketAddress;
 import org.zoolu.net.TcpServer;
@@ -108,7 +110,7 @@ import org.zoolu.tools.SimpleDigest;
   */
 public class SipProvider implements Configurable, TransportListener, TcpServerListener
 {
-
+	protected static Logger log = LoggerFactory.getLogger(SipProvider.class);
    // **************************** Constants ****************************
 
    /** UDP protocol type */
@@ -441,16 +443,18 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
       if (attribute.equals("log_all_packets")) { log_all_packets=(par.getString().toLowerCase().startsWith("y")); return; }
 
       // old parameters
-      if (attribute.equals("host_addr")) System.err.println("WARNING: parameter 'host_addr' is no more supported; use 'via_addr' instead.");
-      if (attribute.equals("all_interfaces")) System.err.println("WARNING: parameter 'all_interfaces' is no more supported; use 'host_iaddr' for setting a specific interface or let it undefined.");
-      if (attribute.equals("use_outbound")) System.err.println("WARNING: parameter 'use_outbound' is no more supported; use 'outbound_proxy' for setting an outbound proxy or let it undefined.");
+      if (attribute.equals("host_addr")) log.warn("WARNING: parameter 'host_addr' is no more supported; use 'via_addr' instead.");
+      if (attribute.equals("all_interfaces")) log.warn("WARNING: parameter 'all_interfaces' is no more supported; use 'host_iaddr' for setting a specific interface or let it undefined.");
+      if (attribute.equals("use_outbound")) log.warn("WARNING: parameter 'use_outbound' is no more supported; use 'outbound_proxy' for setting an outbound proxy or let it undefined.");
       if (attribute.equals("outbound_addr"))
-      {  System.err.println("WARNING: parameter 'outbound_addr' has been deprecated; use 'outbound_proxy=<host_addr>[:<host_port>]' instead.");
+      {
+    	  log.warn("WARNING: parameter 'outbound_addr' has been deprecated; use 'outbound_proxy=<host_addr>[:<host_port>]' instead.");
          outbound_addr=par.getString();
          return;
       }
       if (attribute.equals("outbound_port"))
-      {  System.err.println("WARNING: parameter 'outbound_port' has been deprecated; use 'outbound_proxy=<host_addr>[:<host_port>]' instead.");
+      {
+    	  log.warn("WARNING: parameter 'outbound_port' has been deprecated; use 'outbound_proxy=<host_addr>[:<host_port>]' instead.");
          outbound_port=par.getInt();
          return;
       }
@@ -1152,8 +1156,8 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
       {  printWarning("Error handling a new incoming message",LogLevel.HIGH);
          printException(e,LogLevel.MEDIUM);
          if (exception_listeners==null || exception_listeners.size()==0)
-         {  System.err.println("Error handling a new incoming message");
-            e.printStackTrace();
+         {
+        	 log.error("Error handling a new incoming message", e);
          }
          else
          {  for (Iterator i=exception_listeners.iterator(); i.hasNext(); )
