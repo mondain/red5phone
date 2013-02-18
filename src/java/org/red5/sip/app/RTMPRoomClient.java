@@ -403,7 +403,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
                 updateThread.start();
                 break;
             case updateSipTransport:
-                log.info("updateSipTransport");
+                log.debug("updateSipTransport");
                 break;
             case getSipNumber:
                 log.info("getSipNumber");
