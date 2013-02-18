@@ -303,7 +303,11 @@ public class SipParser extends Parser
          index=str.indexOf("GMT",index)+3;
          return d;
       }
-      catch (Exception e) { e.printStackTrace(); index=str.length(); return null; }
+      catch (Exception e) {
+          log.error("Exception", e);
+    	  index=str.length();
+    	  return null;
+      }
    }   
    
 

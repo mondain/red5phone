@@ -198,7 +198,7 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 
             rtpSocket = new RtpSocket(src_socket, InetAddress.getByName(dest_addr), dest_port);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception", e);
         }
     }
 
@@ -425,7 +425,7 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Exception", e);
         }
 
         return finalCopySize;

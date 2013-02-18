@@ -11,6 +11,7 @@ import java.util.Set;
 import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.openmeetings.persistence.beans.room.Client;
+import org.red5.codecs.g729.Util;
 import org.red5.io.utils.ObjectMap;
 import org.red5.server.api.IScope;
 import org.red5.server.api.event.IEvent;
@@ -109,9 +110,9 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
                 }
             });
         } catch (NoSuchFieldException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        	log.error("NoSuchFieldException", e);
         } catch (IllegalAccessException e) {
-            e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+        	log.error("NoSuchFieldException", e);
         }
     }
 

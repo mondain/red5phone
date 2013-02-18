@@ -10,7 +10,6 @@ public class RTPStream implements IMediaStream {
 
     protected static Logger log = LoggerFactory.getLogger(RTPStream.class);
 
-    private int streamId;
     private RTPStreamSender sender;
     private long syncSource;
     private long timestamp;
@@ -31,7 +30,6 @@ public class RTPStream implements IMediaStream {
     boolean asao_buffer_processed = false;
 
     public RTPStream(int streamId, long syncSource, RTPStreamSender sender) {
-        this.streamId = streamId;
         this.syncSource = syncSource;
         this.sender = sender;
         this.packetBuffer = new byte[ sender.sipCodec.getOutgoingEncodedFrameSize() + RTPStreamSender.RTP_HEADER_SIZE ];
@@ -162,7 +160,7 @@ public class RTPStream implements IMediaStream {
             }
         }
         catch ( Exception e ) {
-            e.printStackTrace();
+        	log.error("Exception", e);
         }
 
         return finalCopySize;

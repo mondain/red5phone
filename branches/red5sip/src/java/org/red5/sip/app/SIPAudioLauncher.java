@@ -48,7 +48,7 @@ public class SIPAudioLauncher implements MediaLauncher {
         }
         catch ( Exception e ) {
             printLog( "SIPAudioLauncher", "Exception " + e );
-            e.printStackTrace();
+            log.error("Exception", e);
         }
     }
 

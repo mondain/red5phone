@@ -5,7 +5,7 @@
             <pattern>%d{dd MMM HH:mm:ss} - [%-5p] %c{1}: %m%n</pattern>
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
-            <maxIndex>2</maxIndex>
+            <maxIndex>10</maxIndex>
             <FileNamePattern>${logs}/red5log.log.%i</FileNamePattern>
         </rollingPolicy>
         <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">

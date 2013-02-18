@@ -3,8 +3,12 @@ package org.red5.codecs.g729;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class Util {
+	protected static Logger log = LoggerFactory.getLogger(Util.class);
 
 	/*-------------------------------------------------------------------*
 	 * Function  set zero()                                              *
@@ -130,8 +134,7 @@ public class Util {
 			try {
 				fp.write(shortToBytes(sp16[i]));
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				log.error("IOException", e);
 			}
 		}
 

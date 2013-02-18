@@ -314,7 +314,7 @@ public class SdpUtils {
         catch ( Exception exception ) {
             
             printLog( "createInitialSdp", "Failure creating initial SDP: " );
-            exception.printStackTrace();
+            log.error("Exception", exception);
         }
         
         printLog( "createInitialSdp", "End..." );
@@ -465,7 +465,7 @@ public class SdpUtils {
         catch ( Exception exception ) {
             
             printLog( "makeMediaPayloadsNegotiation", "Failure creating initial SDP: " );
-            exception.printStackTrace();
+            log.error("Exception", exception);
         }
         
         printLog( "makeMediaPayloadsNegotiation", "End..." );
@@ -561,7 +561,7 @@ public class SdpUtils {
         catch ( Exception exception ) {
             
             printLog( "completeSdpNegotiation", "Failure creating initial SDP: " );
-            exception.printStackTrace();
+            log.error("Exception", exception);
         }
         
         printLog( "completeSdpNegotiation", "End..." );
@@ -662,7 +662,7 @@ public class SdpUtils {
         catch ( Exception exception ) {
             
             printLog( "makeAttributeNegotiation", "Failure creating initial SDP: " );
-            exception.printStackTrace();
+            log.error("Exception", exception);
         }
         
         printLog( "makeAttributeNegotiation", "End..." );

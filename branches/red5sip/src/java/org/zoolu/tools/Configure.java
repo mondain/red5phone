@@ -82,7 +82,10 @@ public class Configure
                 
          while (true)
          {  String line=null;
-            try { line=in.readLine(); } catch (Exception e) { e.printStackTrace(); System.exit(0); }
+            try { line=in.readLine(); } catch (Exception e) {
+                log.error("Exception", e);
+            	System.exit(0);
+            }
             if (line==null) break;
          
             if (!line.startsWith("#"))
