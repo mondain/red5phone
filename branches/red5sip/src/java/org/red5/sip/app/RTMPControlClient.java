@@ -114,7 +114,7 @@ public abstract class RTMPControlClient extends RTMPClient implements ClientExce
     }
 
     public void resultReceived(IPendingServiceCall call) {
-        log.info( "service call result: " + call );
+        log.debug( "service call result: " + call );
         ServiceMethod method;
         try {
             method = ServiceMethod.valueOf(call.getServiceMethodName());
@@ -129,13 +129,13 @@ public abstract class RTMPControlClient extends RTMPClient implements ClientExce
                 updateThread.start();
                 break;
             case getActiveRoomIds:
-                log.info("getActiveRoomIds");
+                log.debug("getActiveRoomIds");
                 if(call.getResult() instanceof Collection) {
                     Collection<Integer> newActiveRooms = ((Collection<Integer>)call.getResult());
                     for(Integer id: newActiveRooms) {
                         if(!this.activeRooms.contains(id)) {
                             this.activeRooms.add(id);
-                            log.info("Start room client, id: " + id);
+                            log.debug("Start room client, id: " + id);
                             startRoomClient(id);
                         }
                     }
