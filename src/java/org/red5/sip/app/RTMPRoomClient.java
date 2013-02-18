@@ -216,7 +216,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 
     @Override
     public void connectionOpened(RTMPConnection conn, RTMP state) {
-        log.debug("RTMP Connection opened" + state);
+        log.debug("RTMP Connection opened");
         super.connectionOpened( conn, state );
         this.conn = conn;
         retryNumber = 0;
@@ -231,7 +231,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
     
     @Override
     public void connectionClosed(RTMPConnection conn, RTMP state) {
-        log.debug("RTMP Connection closed" + state);
+        log.debug("RTMP Connection closed");
         super.connectionClosed( conn, state );
         if(reconnect && ++retryNumber < MAX_RETRY_NUMBER) {
             try {
