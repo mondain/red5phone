@@ -462,7 +462,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         }
 
         if(silence) {
-            log.debug("Silence...");
+            log.trace("Silence...");
             return;
         }
 
