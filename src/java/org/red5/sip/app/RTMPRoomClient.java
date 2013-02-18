@@ -357,7 +357,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
     /******************************************************************************************************************/
 
     public void resultReceived(IPendingServiceCall call) {
-        log.info( "service call result: " + call );
+        log.trace( "service call result: " + call );
         ServiceMethod method;
         try {
             method = ServiceMethod.valueOf(call.getServiceMethodName());

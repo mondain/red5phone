@@ -53,7 +53,6 @@ public class Bits {
 	                                    bits[1] = 80 */
 	)
 	{
-		int prmp = 0;
 		int bitsp = 0;
 	   short i;
 	   bits[bitsp++] = LD8KConstants.SYNC_WORD;     /* bit[0], at receiver this bits indicates BFI */
