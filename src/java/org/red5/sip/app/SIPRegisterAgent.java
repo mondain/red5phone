@@ -5,6 +5,8 @@ import java.util.Vector;
 
 import local.net.KeepAliveSip;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zoolu.net.SocketAddress;
 import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.address.SipURL;
@@ -32,6 +34,7 @@ import org.zoolu.sip.transaction.TransactionClientListener;
   */
 public class SIPRegisterAgent implements Runnable, TransactionClientListener
 {
+    protected static Logger log = LoggerFactory.getLogger(SIPRegisterAgent.class);
    /** The CallerID and CSeq that should be used during REGISTER method */
    	private CallIdHeader	registerCallID;
 	private int				registerCSeq;
@@ -423,13 +426,13 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener
    // ****************************** Logs *****************************
 
 
-   void printLog(String str) {
-   	System.out.println("RegisterAgent: "+str);
-   }
+	void printLog(String str) {
+		log.debug("RegisterAgent: "+str);
+	}
 
 
-   void printException(Exception e)   {
-		System.out.println("RegisterAgent Exception: "+e);
-   }
+	void printException(Exception e)   {
+		log.error("RegisterAgent Exception: ", e);
+	}
 
 }

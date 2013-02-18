@@ -3,11 +3,11 @@ package org.red5.sip.app;
 import static org.red5.sip.app.RTPStreamMultiplexingSender.NELLYMOSER_ENCODED_PACKET_SIZE;
 
 import org.red5.codecs.asao.DecoderMap;
-import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RTPStreamForMultiplex implements IMediaStream {
-    protected static Logger log = Red5LoggerFactory.getLogger(RTPStreamForMultiplex.class, "sip");
+    protected static Logger log = LoggerFactory.getLogger(RTPStreamForMultiplex.class);
 
     private int streamId;
     private boolean ready = false;
@@ -35,7 +35,7 @@ public class RTPStreamForMultiplex implements IMediaStream {
     }
 
     public void send(long timestamp, byte[] asaoBuffer, int offset, int num) {
-        System.out.println("Stream " + streamId + " send");
+    	log.trace("Stream " + streamId + " send");
         for(int i=0;i<num;i+=NELLYMOSER_ENCODED_PACKET_SIZE) {
             synchronized (this) {
                 buffer.push(asaoBuffer, offset+i, NELLYMOSER_ENCODED_PACKET_SIZE);

@@ -242,8 +242,6 @@ public class SipParser extends Parser
       SipURL url=null;
       int begin=getPos();
       int begin_url=indexOf("<sip:");
-      //System.out.println("DEBUG: inside parseNameAddress(): str="+this.getRemainingString());
-      //System.out.println("DEBUG: inside parseNameAddress(): index="+begin_url);
       if (begin_url<0) 
       {  url=getSipURL();
          //if (url==null) return null;

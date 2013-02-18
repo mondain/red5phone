@@ -1,7 +1,11 @@
 package org.red5.codecs.g729;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 //package org.mobicents.media.server.impl.dsp.audio.g729;
 
 public class LspGetq {
+    protected static Logger log = LoggerFactory.getLogger(LspGetq.class);
 	
 	/*----------------------------------------------------------------------------
 	 * lsp_get_quant - reconstruct quantized LSP parameter and check the stabilty
@@ -202,7 +206,7 @@ public class LspGetq {
 
 	   if( buf[0] < LD8KConstants.L_LIMIT ) {
 	      buf[0] = LD8KConstants.L_LIMIT;
-	      System.out.println("warning LSP Low \n");
+	      log.warn("warning LSP Low \n");
 	   }
 	   for(j=0; j<LD8KConstants.M-1; j++) {
 	      diff = buf[j+1] - buf[j];
@@ -212,7 +216,7 @@ public class LspGetq {
 	   }
 	   if( buf[LD8KConstants.M-1] > LD8KConstants.M_LIMIT ) {
 	      buf[LD8KConstants.M-1] = LD8KConstants.M_LIMIT;
-	      System.out.println("warning LSP High \n");
+	      log.warn("warning LSP High \n");
 	   }
 	   return;
 	}

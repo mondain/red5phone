@@ -10,14 +10,14 @@ import local.net.RtpSocket;
 import org.red5.codecs.SIPCodec;
 import org.red5.codecs.asao.Decoder;
 import org.red5.codecs.asao.DecoderMap;
-import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zoolu.tools.Random;
 
 
 public class RTPStreamSender implements IMediaSender {
 
-    protected static Logger log = Red5LoggerFactory.getLogger( RTPStreamSender.class, "sip" );
+    protected static Logger log = LoggerFactory.getLogger(RTPStreamSender.class);
 
     public static boolean useASAO = true;
 
@@ -195,7 +195,7 @@ public class RTPStreamSender implements IMediaSender {
     private synchronized void rtpSocketSend(RtpPacket rtpPacket) {
         try {
          	rtpSocket.send( rtpPacket );
-            System.out.println(rtpPacket.getSscr() + " : " + rtpPacket.getTimestamp());
+         	println("rtpSocketSend", rtpPacket.getSscr() + " : " + rtpPacket.getTimestamp());
         }
         catch ( Exception e ) {
         }
@@ -203,7 +203,6 @@ public class RTPStreamSender implements IMediaSender {
 
     private static void println( String method, String message ) {
         log.debug( "RTPStreamSender - " + method + " -> " + message );
-        System.out.println( "RTPStreamSender - " + method + " -> " + message );
     }
 
 

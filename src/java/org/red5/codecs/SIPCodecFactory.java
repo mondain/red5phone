@@ -209,8 +209,6 @@ public class SIPCodecFactory {
 
 
     private static void printLog( String method, String message ) {
-        
         log.debug( "SIPCodecFactory - " + method + " -> " + message );
-        System.out.println( "SIPCodecFactory - " + method + " -> " + message );
     }
 }

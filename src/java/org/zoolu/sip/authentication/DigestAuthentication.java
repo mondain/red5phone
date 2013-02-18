@@ -1,6 +1,8 @@
 package org.zoolu.sip.authentication;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zoolu.sip.header.AuthenticationHeader;
 import org.zoolu.sip.header.AuthorizationHeader;
 import org.zoolu.sip.header.ProxyAuthorizationHeader;
@@ -18,6 +20,7 @@ import org.zoolu.tools.MD5;
   */
 public class DigestAuthentication
 {
+	protected static Logger log = LoggerFactory.getLogger(DigestAuthentication.class);
    protected String method;
    protected String username;
    protected String passwd;
@@ -283,10 +286,10 @@ public class DigestAuthentication
 
       String response1=a.getResponse();
       String response2="6629fae49393a05397450978507c4ef1";
-      System.out.println(response1);
-      System.out.println(response2);
+      log.debug(response1);
+      log.debug(response2);
 
-      System.out.println(" ");
+      log.debug(" ");
 
 
       String ah_str="Digest username=\"Mufasa\", realm=\"testrealm@host.com\", nonce=\"dcd98b7102dd2f0e8b11d0f600bfb0c093\", uri=\"/dir/index.html\", qop=auth, nc=00000001, cnonce=\"0a4f113b\", response=\"6629fae49393a05397450978507c4ef1\", opaque=\"5ccc069c403ebaf9f0171e9517f40e41\"\n";
@@ -295,10 +298,10 @@ public class DigestAuthentication
       a=new DigestAuthentication("GET",ah,null,"Circle Of Life");
       response1=a.getResponse();
       response2="6629fae49393a05397450978507c4ef1";
-      System.out.println(response1);
-      System.out.println(response2);
+      log.debug(response1);
+      log.debug(response2);
 
-      System.out.println(a.checkResponse());
+      log.debug("" + a.checkResponse());
 
    }
 }

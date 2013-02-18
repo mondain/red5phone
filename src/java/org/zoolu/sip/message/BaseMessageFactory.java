@@ -97,7 +97,6 @@ public abstract class BaseMessageFactory
       if (contact!=null)
       {  MultipleHeader contacts=new MultipleHeader(SipHeaders.Contact);
          contacts.addBottom(new ContactHeader(contact));
-         //System.out.println("DEBUG: Contact: "+contact.toString());
          req.setContacts(contacts);
       }
       req.setExpiresHeader(new ExpiresHeader(String.valueOf(SipStack.default_expires)));
@@ -105,7 +104,6 @@ public abstract class BaseMessageFactory
       if (SipStack.ua_info!=null) req.setUserAgentHeader(new UserAgentHeader(SipStack.ua_info));
       //if (body!=null) req.setBody(body); else req.setBody("");
       req.setBody(body);
-      //System.out.println("DEBUG: MessageFactory: request:\n"+req);
       return req;
    }
 
@@ -401,7 +399,6 @@ public abstract class BaseMessageFactory
       //if (body!=null) resp.setBody(body); else resp.setBody("");
       if (content_type==null) resp.setBody(body);
       else resp.setBody(content_type,body);
-      //System.out.println("DEBUG: MessageFactory: response:\n"+resp.toString());
       return resp;
    }
 

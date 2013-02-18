@@ -6,15 +6,14 @@ import local.net.RtpPacket;
 import local.net.RtpSocket;
 
 import org.red5.codecs.SIPCodec;
-import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class RTPStreamReceiver extends Thread {
 
-    protected static Logger log = Red5LoggerFactory.getLogger( RTPStreamReceiver.class, "sip" );
+    protected static Logger log = LoggerFactory.getLogger(RTPStreamReceiver.class);
     public static int RTP_HEADER_SIZE = 12;
-   	private long start = System.currentTimeMillis();
     public static final int SO_TIMEOUT = 200;	// Maximum blocking time, spent waiting for reading new bytes [milliseconds]
     private SIPCodec sipCodec = null; // Sip codec to be used on audio session
     private IMediaReceiver rtmpUser = null;
@@ -44,8 +43,6 @@ public class RTPStreamReceiver extends Thread {
             socketIsLocal = true;
 
             init( sipCodec, rtmpUser, socket );
-
-            start = System.currentTimeMillis();
         }
         catch ( Exception e ) {
             e.printStackTrace();
@@ -120,7 +117,6 @@ public class RTPStreamReceiver extends Thread {
             rtp_socket.getDatagramSocket().setSoTimeout( SO_TIMEOUT );
 
             float[] decodingBuffer = new float[ sipCodec.getIncomingDecodedFrameSize() ];
-            int packetCount = 0;
 
             println( "run",
                     "internalBuffer.length = " + internalBuffer.length
@@ -137,7 +133,6 @@ public class RTPStreamReceiver extends Thread {
 
                         byte[] packetBuffer = rtpPacket.getPacket();
                         int offset = rtpPacket.getHeaderLength();
-                        int length = rtpPacket.getPayloadLength();
                         int payloadType = rtpPacket.getPayloadType();
 
                         if(payloadType < 20)
@@ -177,9 +172,7 @@ public class RTPStreamReceiver extends Thread {
 
     /** Debug output */
     private static void println( String method, String message ) {
-
         //log.debug( "RtpStreamReceiver - " + method + " -> " + message );
-        //System.out.println( "RtpStreamReceiver - " + method + " -> " + message );
     }
 }
 

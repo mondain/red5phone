@@ -26,6 +26,9 @@ package org.zoolu.sip.provider;
 
 import java.util.Hashtable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /* 
  * special Hashtable that allows dupelicates of specified keys
  * 
@@ -33,6 +36,7 @@ import java.util.Hashtable;
 
 public class SpcHashtable extends Hashtable<Object,Object>
 {
+    protected static Logger log = LoggerFactory.getLogger(SpcHashtable.class);
 	static final long serialVersionUID = 2423442L;
 	
 	Hashtable<? extends Object,? extends Object> dupeKeysList=null;
@@ -198,50 +202,50 @@ public class SpcHashtable extends Hashtable<Object,Object>
 
 		myHash.put(regKey, new StringBuffer("stuff"));
 
-		System.out.println(myHash.toString());
+		log.debug(myHash.toString());
 		
-		System.out.println("hashsize="+myHash.size());
+		log.debug("hashsize="+myHash.size());
 	
-		System.out.println("hasdupekey="+myHash.containsKey(dupeKey));
-		System.out.println("hasregkey="+myHash.containsKey(regKey));
-		System.out.println("");
+		log.debug("hasdupekey="+myHash.containsKey(dupeKey));
+		log.debug("hasregkey="+myHash.containsKey(regKey));
+		log.debug("");
 		
 		StringBuffer gtps=(StringBuffer) myHash.get(dupeKey);
-		System.out.println("gtps="+gtps);
+		log.debug("gtps="+gtps);
 		
-		System.out.println("");
-		System.out.println("getPair3="+myHash.get(dupeKey,ps[3]));
+		log.debug("");
+		log.debug("getPair3="+myHash.get(dupeKey,ps[3]));
 	
-		System.out.println("removePair3="+myHash.removePair(dupeKey,ps[3]));
-		System.out.println("getPair3="+myHash.get(dupeKey,ps[3]));
-		System.out.println("");
+		log.debug("removePair3="+myHash.removePair(dupeKey,ps[3]));
+		log.debug("getPair3="+myHash.get(dupeKey,ps[3]));
+		log.debug("");
 
 		myHash.remove(dupeKey);
-		System.out.println("removedAPair");
+		log.debug("removedAPair");
 		
-		System.out.println(myHash.toString());
+		log.debug(myHash.toString());
 
 		
 		
 		for (int o=0;o<ps.length;o++)
 		{
-			System.out.println("---------------");
+			log.debug("---------------");
 			StringBuffer tps=(StringBuffer) myHash.get(dupeKey);
-			System.out.println("ps="+tps);
+			log.debug("ps="+tps);
 			
 	
-			System.out.println("removePair"+o+"="+myHash.removePair(dupeKey,ps[o]));
+			log.debug("removePair"+o+"="+myHash.removePair(dupeKey,ps[o]));
 				
-			System.out.println("hasdupekey="+myHash.containsKey(dupeKey));
+			log.debug("hasdupekey="+myHash.containsKey(dupeKey));
 			
 		}
 		
-		System.out.println("");
-		System.out.println(myHash.toString());
-		System.out.println("hashsize="+myHash.size());
+		log.debug("");
+		log.debug(myHash.toString());
+		log.debug("hashsize="+myHash.size());
 	
-		System.out.println("getRegKey="+myHash.get(regKey).toString());
-		System.out.println("hasregkey="+myHash.containsKey(regKey));
+		log.debug("getRegKey="+myHash.get(regKey).toString());
+		log.debug("hasregkey="+myHash.containsKey(regKey));
 		
 	}	
 	

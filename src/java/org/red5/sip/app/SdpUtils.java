@@ -767,8 +767,6 @@ public class SdpUtils {
 
 
     private static void printLog( String method, String message ) {
-        
         log.debug( "SdpUtils - " + method + " -> " + message );
-        System.out.println( "SdpUtils - " + method + " -> " + message );
     }
 }

@@ -144,7 +144,7 @@ class TcpTransport implements ConnectedTransport, TcpConnectionListener
       SipParser par=new SipParser(text);
       Message msg=par.getSipMessage();
       while (msg!=null)
-      {  //System.out.println("DEBUG: message len: "+msg.getLength());
+      {
          msg.setRemoteAddress(tcp_conn.getRemoteAddress().toString());
          msg.setRemotePort(tcp_conn.getRemotePort());
          msg.setTransport(PROTO_TCP);
@@ -152,7 +152,6 @@ class TcpTransport implements ConnectedTransport, TcpConnectionListener
          if (listener!=null) listener.onReceivedMessage(this,msg);
 
          text=par.getRemainingString();
-         //System.out.println("DEBUG: text left: "+text.length());
          par=new SipParser(text);
          msg=par.getSipMessage();
       }     

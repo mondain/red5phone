@@ -7,10 +7,14 @@
 //package net.java.sip.communicator.impl.media.codec.audio.ilbc;
 package org.red5.codecs.ilbc;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Jean Lorchat
  */
 public class ilbc_decoder {
+    protected static Logger log = LoggerFactory.getLogger(ilbc_decoder.class);
 
     int consPLICount;
     int prevPLI;
@@ -47,13 +51,6 @@ public class ilbc_decoder {
 	//	float *po, *pi, *pa, *pm;
 	int po, pi, pa, pm;
 
-// 	System.out.println("out size : " + Out.length);
-// 	System.out.println("out idx : " + Out_idx);
-// 	System.out.println("a size : " + a.length);
-// 	System.out.println("a idx : " + a_idx);
-// 	System.out.println("len : " + len);
-// 	System.out.println("mem size : " + mem.length);
-
 	po = Out_idx;
 
 	/* Filter first part using memory from past */
@@ -68,18 +65,13 @@ public class ilbc_decoder {
 
 	    for (j=1; j<=i; j++) {
 		//		*po-=(*pa++)*(*pi--);
-// 		System.out.println("1 Soustraction (" + i + "," + j + ") a " + Out[po] + " de " + a[pa] + " * " + Out[pi]);
-// 		System.out.println("index " + (po - Out_idx) + " <> " + (pi - Out_idx));
 		Out[po] -= a[pa] * Out[pi];
-// 		System.out.println("Pour un resultat de " + Out[po]);
 		pa++;
 		pi--;
 	    }
            for (j=i+1; j < ilbc_constants.LPC_FILTERORDER+1; j++) {
 	       //               *po-=(*pa++)*(*pm--);
-// 	       System.out.println("2 Soustraction a " + Out[po] + " de " + a[pa] + " * " + mem[pm]);
 	       Out[po] -= a[pa] * mem[pm];
-// 	       System.out.println("Pour un resultat de " + Out[po]);
 	       pa++;
 	       pm--;
            }
@@ -96,9 +88,7 @@ public class ilbc_decoder {
 	   pa = a_idx + 1;
            for (j=1; j < ilbc_constants.LPC_FILTERORDER+1; j++) {
 	       //               *po-=(*pa++)*(*pi--);
-// 	       System.out.println("3 Soustraction a " + Out[po] + " de " + a[pa] + " * " + Out[pi]);
 	       Out[po] -= a[pa] * Out[pi];
-// 	       System.out.println("Pour un resultat de " + Out[po]);
 	       pa++;
 	       pi--;
            }
@@ -435,13 +425,6 @@ public class ilbc_decoder {
     {
 	int i,j;
 
-// 	System.out.println("longueur 1 : " + seq1.length);
-// 	System.out.println("distance 1 : " + seq1_idx);
-// 	System.out.println("longueur 2 : " + seq2.length);
-// 	System.out.println("distance 2 : " + seq2_idx);
-
-// 	System.out.println("dimensions : " + dim1 + " et " + dim2);
-
 // BUG in ILBC ???
 
 	for (i=0; i<=dim1-dim2; i++) {
@@ -595,7 +578,6 @@ public class ilbc_decoder {
 
 	/* compute upsampled correlation (corr33) and find
 	   location of max */
-// 	System.out.println("appel 1");
 	mycorr1(corrVec, 0, idata, searchSegStartPos,
 		corrdim+ilbc_constants.ENH_BLOCKL-1,
 		idata,centerStartPos,ilbc_constants.ENH_BLOCKL);
@@ -649,14 +631,6 @@ public class ilbc_decoder {
 
 	/* compute the segment (this is actually a convolution) */
 
-// 	System.out.println("appel 2");
-// 	System.out.println("longueur 1 : " + vect.length);
-// 	System.out.println("distance 1 : " + 0);
-// 	System.out.println("longueur 2 : " + ilbc_constants.polyphaserTbl.length);
-// 	System.out.println("distance 2 : " + (2*ilbc_constants.ENH_FL0+1)*fraction);
-// 	System.out.println("dimension 1 : " + ilbc_constants.ENH_VECTL);
-// 	System.out.println("dimension 2 : " + (2 * ilbc_constants.ENH_FL0+1));
-// 	System.out.println("correlations de dimension " + seg.length);
 	mycorr1(seg, seg_idx, vect, 0, ilbc_constants.ENH_VECTL,
 		ilbc_constants.polyphaserTbl,
 		(2*ilbc_constants.ENH_FL0+1)*fraction,
@@ -1368,14 +1342,13 @@ public class ilbc_decoder {
        /* check if mode is valid */
 
        if ( (mode < 0) || (mode > 1)) {
-           System.out.println("\nERROR - Wrong mode - 0, 1 allowed\n");
+           log.error("\nERROR - Wrong mode - 0, 1 allowed\n");
        }
 
        /* do actual decoding of block */
        for (k = 0; k < encoded_data.length; k++) {
 	   en_data.buffer[2*k+1] = (char) (encoded_data[k] & 0xff);
 	   en_data.buffer[2*k] = (char) ((encoded_data[k] >> 8) & 0xff);
-// 	   System.out.println("on decode " + (en_data.buffer[2*k]+0) + " et " + (en_data.buffer[2*k+1]+0));
        }
 
        iLBC_decode(decblock, en_data, mode);
@@ -1383,7 +1356,6 @@ public class ilbc_decoder {
        /* convert to short */
        for (k = 0; k < this.ULP_inst.blockl; k++) {
            dtmp=decblock[k];
-// 	   System.out.println("on a eu : " + dtmp);
 
            if (dtmp < ilbc_constants.MIN_SAMPLE)
                dtmp = ilbc_constants.MIN_SAMPLE;
@@ -1693,7 +1665,6 @@ public class ilbc_decoder {
 // 			    this.ULP_inst.lsf_bits[k][ulp], &pos);
 		    lsf_i[k] = bytes.packcombine(lsf_i[k], lastpart,
 						 this.ULP_inst.lsf_bits[k][ulp]);
-		    //		    System.out.println("lsf_i["+k+"] = " + lsf_i[k]);
 // 		    packcombine(&lsf_i[k], lastpart,
 // 				this.ULP_inst.lsf_bits[k][ulp]);
 		}
@@ -1705,7 +1676,6 @@ public class ilbc_decoder {
 // 			this.ULP_inst.start_bits[ulp], &pos);
 		start = bytes.packcombine(start, lastpart,
 				    this.ULP_inst.start_bits[ulp]);
-		//		System.out.println("start = " + start);
 // 		packcombine(&start, lastpart,
 // 			    this.ULP_inst.start_bits[ulp]);
 
@@ -1714,7 +1684,6 @@ public class ilbc_decoder {
 // 			this.ULP_inst.startfirst_bits[ulp], &pos);
 		state_first = bytes.packcombine(state_first, lastpart,
 						this.ULP_inst.startfirst_bits[ulp]);
-		//		System.out.println("state_first = " + state_first);
 // 		packcombine(&state_first, lastpart,
 // 			    this.ULP_inst.startfirst_bits[ulp]);
 
@@ -1723,7 +1692,6 @@ public class ilbc_decoder {
 // 			this.ULP_inst.scale_bits[ulp], &pos);
 		idxForMax = bytes.packcombine(idxForMax, lastpart,
 					      this.ULP_inst.scale_bits[ulp]);
-		//		System.out.println("idxForMax = " + idxForMax);
 // 		packcombine(&idxForMax, lastpart,
 // 			    this.ULP_inst.scale_bits[ulp]);
 
@@ -1733,7 +1701,6 @@ public class ilbc_decoder {
 // 			    this.ULP_inst.state_bits[ulp], &pos);
 		    idxVec[k] = bytes.packcombine(idxVec[k], lastpart,
 						  this.ULP_inst.state_bits[ulp]);
-		    //		    System.out.println("idxVec["+k+"] = " + idxVec[k]);
 // 		    packcombine(idxVec+k, lastpart,
 // 				this.ULP_inst.state_bits[ulp]);
 		}
@@ -1747,7 +1714,6 @@ public class ilbc_decoder {
 // 			    &pos);
 		    extra_cb_index[k] = bytes.packcombine(extra_cb_index[k], lastpart,
 							  this.ULP_inst.extra_cb_index[k][ulp]);
-		    //		    System.out.println("extra_cb_index["+k+"] = " + extra_cb_index[k]);
 // 		    packcombine(extra_cb_index+k, lastpart,
 // 				this.ULP_inst.extra_cb_index[k][ulp]);
 		}
@@ -1758,7 +1724,6 @@ public class ilbc_decoder {
 // 			    &pos);
 		    extra_gain_index[k] = bytes.packcombine(extra_gain_index[k], lastpart,
 							    this.ULP_inst.extra_cb_gain[k][ulp]);
-		    //		    System.out.println("extra_gain_index["+k+"] = " + extra_gain_index[k]);
 // 		    packcombine(extra_gain_index+k, lastpart,
 // 				this.ULP_inst.extra_cb_gain[k][ulp]);
 		}
@@ -1774,7 +1739,6 @@ public class ilbc_decoder {
 			cb_index[i * ilbc_constants.CB_NSTAGES + k] =
 			    bytes.packcombine(cb_index[i*ilbc_constants.CB_NSTAGES+k], lastpart,
 					      this.ULP_inst.cb_index[i][k][ulp]);
-			//			System.out.println("cb_index["+(i*ilbc_constants.CB_NSTAGES+k)+"] = " + cb_index[(i*ilbc_constants.CB_NSTAGES+k)]);
 // 			packcombine(cb_index+i*CB_NSTAGES+k, lastpart,
 // 				    this.ULP_inst.cb_index[i][k][ulp]);
 		    }
@@ -1786,14 +1750,12 @@ public class ilbc_decoder {
 			gain_index[i * ilbc_constants.CB_NSTAGES+k] =
 			    bytes.packcombine(gain_index[i*ilbc_constants.CB_NSTAGES+k], lastpart,
 					      this.ULP_inst.cb_gain[i][k][ulp]);
-			//			System.out.println("gain_index["+(i*ilbc_constants.CB_NSTAGES+k)+"] = " + gain_index[(i*ilbc_constants.CB_NSTAGES+k)]);
 		    }
 		}
 	    }
 	    /* Extract last bit. If it is 1 this indicates an
 	       empty/lost frame */
 	    last_bit = bytes.unpack(1);
-	    //	    System.out.println("last_bit = "  + last_bit);
 
 	    /* Check for bit errors or empty/lost frames */
 	    if (start < 1)
@@ -1811,31 +1773,17 @@ public class ilbc_decoder {
 		/* adjust index */
 		index_conv_dec(cb_index);
 
-// 		for (int li = 0; li < cb_index.length; li++)
-// 		    System.out.println("cb_index["+li+"] = " + cb_index[li]);
-
 		/* decode the lsf */
 
 		SimplelsfDEQ(lsfdeq, lsf_i, this.ULP_inst.lpc_n);
-// 		for (int li = 0; li < lsfdeq.length; li++)
-// 		    System.out.println("lsfdeq["+li+"] = " + lsfdeq[li]);
 		check=ilbc_common.LSF_check(lsfdeq, ilbc_constants.LPC_FILTERORDER,
 				this.ULP_inst.lpc_n);
-// 		System.out.println("check returns " + check);
 		DecoderInterpolateLSF(syntdenum, weightdenum,
 				      lsfdeq, ilbc_constants.LPC_FILTERORDER);
-// 		for (int li = 0; li < syntdenum.length; li++)
-// 		    System.out.println("syntdenum[" + li + "] = " + syntdenum[li]);
-// 		for (int li = 0; li < weightdenum.length; li++)
-// 		    System.out.println("weightdenum[" + li + "] = " + weightdenum[li]);
-
 		Decode(decresidual, start, idxForMax,
 		       idxVec, syntdenum, cb_index, gain_index,
 		       extra_cb_index, extra_gain_index,
 		       state_first);
-
-// 		for (int li = 0; li < decresidual.length; li++)
-// 		    System.out.println("decresidual[" + li + "] = " + decresidual[li]);
 
 		/* preparing the plc for a future loss! */
 
@@ -1845,8 +1793,6 @@ public class ilbc_decoder {
 			 last_lag);
 
 		System.arraycopy(PLCresidual, 0, decresidual, 0, this.ULP_inst.blockl);
-// 		for (int li = 0; li < decresidual.length; li++)
-// 		    System.out.println("decresidual[" + li + "] = " + decresidual[li]);
 // 		memcpy(decresidual, PLCresidual,
 // 		       this.ULP_inst.blockl*sizeof(float));
 	    }
@@ -1891,37 +1837,23 @@ public class ilbc_decoder {
 
 	    this.last_lag = enhancerInterface(data, decresidual);
 
-// 	    System.out.println("last_lag : " + this.last_lag);
-
-// 	   for (int li = 0; li < data.length; li++)
-// 	     System.out.println("data["+li+"] = " + data[li]);
-
-	    //	    for (li = 0; li <
-
 	    /* synthesis filtering */
 
 	    if (this.ULP_inst.mode == 20) {
 		/* Enhancer has 40 samples delay */
 		i = 0;
-// 		System.out.println("run 1");
 		syntFilter(data,i * ilbc_constants.SUBL,
 			   this.old_syntdenum,
 			   (i+this.ULP_inst.nsub-1)*(ilbc_constants.LPC_FILTERORDER+1),
 			   ilbc_constants.SUBL, this.syntMem);
-// 		System.out.println("runs 2");
 		for (i=1; i < this.ULP_inst.nsub; i++) {
-// 		    System.out.println("pass " + i);
 		    syntFilter(data, i * ilbc_constants.SUBL,
 			       syntdenum, (i-1)*(ilbc_constants.LPC_FILTERORDER+1),
 			       ilbc_constants.SUBL, this.syntMem);
-// 		    System.out.println("pass " + i + " ends");
 		}
-// 	   for (int li = 0; li < data.length; li++)
-// 	     System.out.println("psdata["+li+"] = " + data[li]);
 
 	    } else if (this.ULP_inst.mode == 30) {
 		/* Enhancer has 80 samples delay */
-// 		System.out.println("runs 3");
 		for (i = 0; i < 2; i++) {
 		    syntFilter(data, i * ilbc_constants.SUBL,
 			       this.old_syntdenum,
@@ -1929,7 +1861,6 @@ public class ilbc_decoder {
 			       ilbc_constants.SUBL, this.syntMem);
 		}
 		for (i=2; i < this.ULP_inst.nsub; i++) {
-// 		    System.out.println("runs 4");
 		    syntFilter(data,  i * ilbc_constants.SUBL,
 			       syntdenum, (i-2)*(ilbc_constants.LPC_FILTERORDER+1),
 			       ilbc_constants.SUBL, this.syntMem);
@@ -1965,7 +1896,6 @@ public class ilbc_decoder {
 	    System.arraycopy(decresidual, 0, data, 0, this.ULP_inst.blockl);
 // 	    memcpy(data, decresidual,
 // 		   this.ULP_inst.blockl*sizeof(float));
-// 	    System.out.println("runs 5");
 	    for (i=0; i < this.ULP_inst.nsub; i++) {
 		syntFilter(data, i * ilbc_constants.SUBL,
 			   syntdenum, i * (ilbc_constants.LPC_FILTERORDER + 1),

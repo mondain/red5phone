@@ -24,6 +24,8 @@
 package org.zoolu.sip.provider;
 
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zoolu.tools.Configure;
 import org.zoolu.tools.Parser;
 import org.zoolu.tools.RotatingLog;
@@ -37,6 +39,7 @@ import org.zoolu.tools.Timer;
   */
 public class SipStack extends Configure
 {
+	protected static Logger log = LoggerFactory.getLogger(SipStack.class);
    // ********************** private attributes **********************
 
    /** Whether SipStack configuration has been already loaded */
@@ -249,6 +252,7 @@ public class SipStack extends Configure
 
    /** Logs a string message. */
    private static void printLog(String str)
-   {  System.out.println("SipStack: "+str);
+   {
+	   log.debug("SipStack: "+str);
    }
 }

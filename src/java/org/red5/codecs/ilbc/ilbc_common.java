@@ -24,7 +24,6 @@ class ilbc_common {
                               table */
     {
        int k,n,m, Nit=2, change=0,pos;
-       float tmp;
        float eps=(float)0.039; /* 50 Hz */
        float eps2=(float)0.0195;
        float maxlsf=(float)3.14; /* 4000 Hz */
@@ -40,7 +39,6 @@ class ilbc_common {
                    if ((lsf[pos+1]-lsf[pos])<eps) {
 
                        if (lsf[pos+1]<lsf[pos]) {
-                           tmp=lsf[pos+1];
                            lsf[pos+1]= lsf[pos]+eps2;
                            lsf[pos]= lsf[pos+1]-eps2;
                        } else {
@@ -93,9 +91,7 @@ class ilbc_common {
        /* decoding of the maximum value */
 
        maxVal = ilbc_constants.state_frgqTbl[idxForMax];
-       //System.out.println("idxForMax : " + idxForMax + "maxVal : " + maxVal);
        maxVal = (float)Math.pow(10,maxVal) / 4.5f;
-       //System.out.println("maxVal : " + maxVal);
 
        /* initialization of buffers and coefficients */
 
@@ -108,7 +104,6 @@ class ilbc_common {
 
        for (k=0; k < ilbc_constants.LPC_FILTERORDER; k++) {
            numerator[k]=syntDenum[syntDenum_idx + ilbc_constants.LPC_FILTERORDER - k];
-	   //System.out.println("numerator-" + k + " = " + numerator[k] + " (( " + syntDenum[syntDenum_idx + ilbc_constants.LPC_FILTERORDER - k]);
        }
 
        numerator[ilbc_constants.LPC_FILTERORDER]=syntDenum[syntDenum_idx];
@@ -119,14 +114,10 @@ class ilbc_common {
 
        /* decoding of the sample values */
 
-       //       for (int li = 0; li < idxVec.length; li++)
-	 //System.out.println("idxVec["+li+"] = " + idxVec[li]);
-
        for (k=0; k<len; k++) {
            tmpi = len-1-k;
            /* maxVal = 1/scal */
            tmpbuf[tmp+k] = maxVal*ilbc_constants.state_sq3Tbl[idxVec[tmpi]];
-	   //System.out.println("index " + k + ", valeur " + tmpbuf[tmp+k]);
        }
 
        /* circular convolution with all-pass filter */
@@ -139,8 +130,6 @@ class ilbc_common {
 				  foutbuf, fout);
        for (k=0;k<len;k++) {
            out[out_idx+k] = foutbuf[fout+len-1-k]+foutbuf[fout+2*len-1-k];
-	   //System.out.println("MEM -- index " + out_idx + " + " + k + " initialise a " + out[out_idx+k]);
-	   //System.out.println("       calcul : " + foutbuf[fout+len-1-k] + " + " + foutbuf[fout+2*len-1-k]);
        }
    }
 
@@ -248,8 +237,6 @@ class ilbc_common {
 	float [] b = new float[ilbc_constants.LPC_HALFORDER + 1];
 	float [] b1 = new float[ilbc_constants.LPC_HALFORDER];
 	float [] b2 = new float[ilbc_constants.LPC_HALFORDER];
-
-	//System.out.println("debut de lsf2a");
 
 	for (i=0; i < ilbc_constants.LPC_FILTERORDER; i++) {
 	    freq[i] = freq[i] * ilbc_constants.PI2;
@@ -371,8 +358,6 @@ class ilbc_common {
        invcoef = (float)1.0f - coef;
        for (i = 0; i < length; i++) {
            out[i] = coef * in1[i] + invcoef * in2[i + in2_idx];
-	   //	   System.out.println("out["+i+"] devient " + out[i] + ", par " +
-	   //			      coef + " * " + in1[i] + " + " + invcoef + " * " + in2[i + in2_idx]);
        }
    }
 

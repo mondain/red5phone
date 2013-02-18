@@ -1,15 +1,14 @@
 package org.red5.sip.app;
 
-import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zoolu.net.SocketAddress;
 import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.provider.SipProvider;
 import org.zoolu.sip.provider.SipStack;
 
 public abstract class SIPTransport  implements SIPUserAgentListener, SIPRegisterAgentListener, ISipNumberListener {
-
-    protected static Logger log = Red5LoggerFactory.getLogger(SIPTransport.class, "sip");
+    protected static Logger log = LoggerFactory.getLogger( SIPTransport.class );
 
     public boolean sipReady = false;
 
@@ -29,8 +28,6 @@ public abstract class SIPTransport  implements SIPUserAgentListener, SIPRegister
 
     private String password;
 
-    private String realm;
-
     private int sipPort;
 
     private int rtpPort;
@@ -42,7 +39,6 @@ public abstract class SIPTransport  implements SIPUserAgentListener, SIPRegister
 
     private void p( String s ) {
         log.debug( s );
-		System.out.println("[SIPUser] " + s);
     }
 
     public SIPTransport(RTMPRoomClient roomClient, int sipPort, int rtpPort) {
@@ -59,7 +55,6 @@ public abstract class SIPTransport  implements SIPUserAgentListener, SIPRegister
         this.password = password;
         this.proxy = proxy;
 		this.opt_outbound_proxy = obproxy;
-		this.realm = realm;
 
         String fromURL = "\"" + phone + "\" <sip:" + phone + "@" + proxy + ">";
 

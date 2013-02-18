@@ -30,12 +30,15 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /** Configure helps the loading and saving of configuration data.
   */
 public class Configure
 {
-
+	protected static Logger log = LoggerFactory.getLogger(Configure.class);
    /** String 'NONE' used as undefined value (i.e. null). */
    public static String NONE="NONE";
 
@@ -68,12 +71,11 @@ public class Configure
        
    /** Loads Configure attributes from the specified <i>file</i> */
    protected void loadFile(String file)
-   {  //System.out.println("DEBUG: loading Configuration");
+   {
       if (file==null)
-      {  //System.out.println("DEBUG: no Configuration file");
+      {
          return;
       }
-      //else
       BufferedReader in=null;
       try
       {  in=new BufferedReader(new FileReader(file));
@@ -90,11 +92,11 @@ public class Configure
          in.close();
       }
       catch (Exception e)
-      {  System.err.println("WARNING: error reading file \""+file+"\"");
+      {
+    	  log.error("WARNING: error reading file \""+file+"\"");
          //System.exit(0);
          return;
       }
-      //System.out.println("DEBUG: loading Configuration: done.");
    }
 
 
@@ -108,7 +110,8 @@ public class Configure
          out.close();
       }
       catch (IOException e)
-      {  System.err.println("ERROR writing on file \""+file+"\"");
+      {
+    	  log.error("ERROR writing on file \""+file+"\"");
       }         
    }
    

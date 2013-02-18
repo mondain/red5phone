@@ -56,7 +56,6 @@ class SdpParser extends Parser
       if (value==null) return null;
       index=par.getPos();
       // for DEBUG
-      //System.out.println("DEBUG: "+type+"="+value);
       return new SdpField(type,value);
    }*/
    
@@ -79,7 +78,6 @@ class SdpParser extends Parser
       setPos(end);
       goToNextLine();
       // for DEBUG
-      //System.out.println("DEBUG: "+type+"="+value);
       return new SdpField(type,value);
    }
    

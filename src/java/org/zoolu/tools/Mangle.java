@@ -23,6 +23,9 @@
 
 package org.zoolu.tools;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 
 
@@ -30,6 +33,7 @@ package org.zoolu.tools;
   */
 public class Mangle
 {
+	protected static Logger log = LoggerFactory.getLogger(Mangle.class);
 
    /** Compares two arrays of bytes */
    public static boolean compare(byte[] a, byte[] b)
@@ -184,7 +188,8 @@ public class Mangle
    
 
    private static void print(String str)
-   {  System.out.println(str);
+   {
+	   log.debug(str);
    }
    
 

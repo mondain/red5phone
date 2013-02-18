@@ -53,7 +53,7 @@ public class ilbc_encoder {
        int syntOut;
        float [] syntOutBuf = new float[ilbc_constants.LPC_FILTERORDER +
 					 ilbc_constants.STATE_SHORT_LEN_30MS];
-       float toQ, xq;
+       float toQ;
        int n;
        int [] index = new int[1];
 
@@ -116,7 +116,7 @@ public class ilbc_encoder {
 
            toQ = in[in_idx+n] - syntOutBuf[syntOut+n];
 
-           xq = sort_sq(index, 0, toQ, ilbc_constants.state_sq3Tbl, 8);
+           sort_sq(index, 0, toQ, ilbc_constants.state_sq3Tbl, 8);
            out[n]=index[0];
            syntOutBuf[syntOut + n] = ilbc_constants.state_sq3Tbl[out[n]];
 
@@ -145,7 +145,7 @@ public class ilbc_encoder {
        int state_first)     /* (i) position of start state in the
                                   80 vec */
     {
-	float dtmp, maxVal;
+	float maxVal;
 	float [] tmpbuf = new float[ilbc_constants.LPC_FILTERORDER +
 				      2 * ilbc_constants.STATE_SHORT_LEN_30MS];
 	//	float *tmp,
@@ -211,7 +211,7 @@ public class ilbc_encoder {
        // log10 is since 1.5
        //maxVal = (float)Math.log10(maxVal);
        maxVal = (float)(Math.log(maxVal)/Math.log(10));
-       dtmp = sort_sq(idxForMax, 0, maxVal, ilbc_constants.state_frgqTbl, 64);
+       sort_sq(idxForMax, 0, maxVal, ilbc_constants.state_frgqTbl, 64);
 
        /* decoding of the maximum amplitude representation value,
           and corresponding scaling of start state */
@@ -322,10 +322,8 @@ public class ilbc_encoder {
                    if (step_idx == (ilbc_constants.LSF_NUMBER_OF_STEPS - 1)){
 
                        if ((float)Math.abs(hlp5) >= Math.abs(olds[old])) {
-			   //System.out.println("acces index " + freq_idx + lsp_index);
                            freq[freq_idx+lsp_index] = omega - step;
                        } else {
-			   //System.out.println("acces index " + freq_idx + lsp_index);
                            freq[freq_idx+lsp_index] = omega;
                        }
 
@@ -364,7 +362,6 @@ public class ilbc_encoder {
        }
 
        for (i = 0; i < ilbc_constants.LPC_FILTERORDER; i++) {
-	   //System.out.println("acces index " + freq_idx + i);
            freq[freq_idx+i] = freq[freq_idx+i] * ilbc_constants.TWO_PI;
        }
    }
@@ -384,11 +381,6 @@ public class ilbc_encoder {
        float [] r = new float[ilbc_constants.LPC_FILTERORDER + 1];
 
        is=ilbc_constants.LPC_LOOKBACK+ilbc_constants.BLOCKL_MAX-this.ULP_inst.blockl;
-       //       System.out.println("copie 1");
-//        System.out.println("\nInformations de copie : \nbuffer source : " + data.length + " octets\n"+
-// 			  "buffer cible : " + this.lpc_buffer.length + "octets\n" +
-// 			  "  offset : " + is + "octets\n" +
-// 			  "longueur de la copie : " + this.ULP_inst.blockl);
        System.arraycopy(data, 0, this.lpc_buffer, is, this.ULP_inst.blockl);
 //        memcpy(iLBCenc_inst->lpc_buffer+is,data,iLBCenc_inst->blockl*sizeof(float));
 
@@ -416,7 +408,6 @@ public class ilbc_encoder {
            a2lsf(lsf, k * ilbc_constants.LPC_FILTERORDER, lp2);
        }
        is=ilbc_constants.LPC_LOOKBACK+ilbc_constants.BLOCKL_MAX-this.ULP_inst.blockl;
-//        System.out.println("copie 2");
        System.arraycopy(this.lpc_buffer, ilbc_constants.LPC_LOOKBACK + ilbc_constants.BLOCKL_MAX - is,
 			this.lpc_buffer, 0, is);
 //        memmove(iLBCenc_inst->lpc_buffer,
@@ -508,14 +499,10 @@ public class ilbc_encoder {
        else {
            pos = 0;
            for (i = 0; i < this.ULP_inst.nsub; i++) {
-	       //System.out.println("ici ?");
                LSFinterpolate2a_enc(lp, lsfdeqold, lsfdeq, 0,
 				    ilbc_constants.lsf_weightTbl_20ms[i], length);
-	       //System.out.println("ici !");
 	       System.arraycopy(lp, 0, syntdenum, pos, lp_length);
 	       for (int li = 0; li < lp_length; li++)
-		   //System.out.println("interpolate syntdenum [" + (li+pos) +"] is worth " + syntdenum[li+pos]);
-	       //               memcpy(syntdenum+pos,lp,lp_length*sizeof(float));
                LSFinterpolate2a_enc(lp, lsfold, lsf, 0,
 				    ilbc_constants.lsf_weightTbl_20ms[i], length);
                ilbc_common.bwexpand(weightdenum, pos, lp,
@@ -585,26 +572,14 @@ public class ilbc_encoder {
    {
        float [] lsf = new float[ilbc_constants.LPC_FILTERORDER * ilbc_constants.LPC_N_MAX];
        float [] lsfdeq= new float[ilbc_constants.LPC_FILTERORDER * ilbc_constants.LPC_N_MAX];
-       int change = 0;
 
        SimpleAnalysis(lsf, data);
-       //       for (int li = 0; li < ilbc_constants.LPC_FILTERORDER * ilbc_constants.LPC_N_MAX; li++)
-       //	   System.out.println("postSA n-" + li + " is worth " + lsf[li]);
-       //       for (int li = 0; li < ilbc_constants.BLOCKL_MAX; li++)
-       //	   System.out.println("data postSA n-" + li + " is worth " + data[li]);
               SimplelsfQ(lsfdeq, lsf_index, lsf, this.ULP_inst.lpc_n);
-	      //       for (int li = 0; li < ilbc_constants.LPC_FILTERORDER * ilbc_constants.LPC_N_MAX; li++)
-	      //	   System.out.println("postSlsfQ n-" + li + " is worth " + lsfdeq[li]);
-	      //       for (int li = 0; li < lsf_index.length; li++)
-	      //	   System.out.println("index postSlsfQ n-" + li + " is worth " + lsf_index[li]);
 
-       change = ilbc_common.LSF_check(lsfdeq, ilbc_constants.LPC_FILTERORDER, this.ULP_inst.lpc_n);
-       //System.out.println("check gives " + change);
+       ilbc_common.LSF_check(lsfdeq, ilbc_constants.LPC_FILTERORDER, this.ULP_inst.lpc_n);
        SimpleInterpolateLSF(syntdenum, weightdenum,
 			    lsf, lsfdeq, this.lsfold,
 			    this.lsfdeqold, ilbc_constants.LPC_FILTERORDER);
-       //       for (int li = 0; li < syntdenum.length; li++)
-       //	   System.out.println("syntdenum[" + li +"] is worth " + syntdenum[li]);
    }
 
     public void iCBSearch(
@@ -667,23 +642,6 @@ public class ilbc_encoder {
        System.arraycopy(intarget, intarget_idx, buf, ilbc_constants.LPC_FILTERORDER+lMem, lTarget);
 //        memcpy(buf+LPC_FILTERORDER+lMem,intarget,lTarget*sizeof(float));
 
-       //System.out.println("beginning of mem");
-//        for (int li = 0; li < lMem; li++)
-// 	   System.out.println("mem[" + li + "] = " + mem[li+mem_idx]);
-//       System.out.println("end of mem");
-
-
-//        System.out.println("plages : [0-" + ilbc_constants.LPC_FILTERORDER +
-// 			  "], puis [" + ilbc_constants.LPC_FILTERORDER + "-" + (ilbc_constants.LPC_FILTERORDER + lMem) +
-// 			  "], puis [" + (ilbc_constants.LPC_FILTERORDER + lMem) +
-// 			  "-" + (ilbc_constants.LPC_FILTERORDER + lMem + lTarget) + "]");
-
-//       System.out.println("beginning of buffer");
-
-//        for (int li = 0; li < buf.length; li++)
-// 	   System.out.println("buffer[" + li + "] = " + buf[li]);
-
-//       System.out.println("end of buffer");
        /* weighting */
 
        ilbc_common.AllPoleFilter(buf, ilbc_constants.LPC_FILTERORDER, weightDenum, weightDenum_idx,
@@ -846,14 +804,11 @@ public class ilbc_encoder {
 
            /* set search range for following codebook sections */
 
-	   //	   System.out.println("best index : " + best_index);
-
            base_index = best_index;
 
            /* unrestricted search */
 
            if (ilbc_constants.CB_RESRANGE == -1) {
-	       //	       System.out.println("on met a 0");
                sInd = 0;
                eInd = range - 1;
                sIndAug = 20;
@@ -868,7 +823,6 @@ public class ilbc_encoder {
                sIndAug=0;
                eIndAug=0;
                sInd=base_index-ilbc_constants.CB_RESRANGE/2;
-	       //	       System.out.println("on met a " + base_index + " - " + ilbc_constants.CB_RESRANGE/2 + " = " + sInd);
                eInd=sInd+ilbc_constants.CB_RESRANGE;
 
                if (lTarget==ilbc_constants.SUBL) {
@@ -877,14 +831,12 @@ public class ilbc_encoder {
 
                        sIndAug = 40 + sInd;
                        eIndAug = 39;
-		       //		       System.out.println("On met encore a 0");
                        sInd=0;
 
                    } else if ( base_index < (base_size-20) ) {
 
                        if (eInd > range) {
                            sInd -= (eInd-range);
-			   //			   System.out.println("on retire " + eInd + " - " + range + " pour arriver a " + sInd);
                            eInd = range;
                        }
                    } else { /* base_index >= (base_size-20) */
@@ -892,7 +844,6 @@ public class ilbc_encoder {
                        if (sInd < (base_size-20)) {
                            sIndAug = 20;
                            sInd = 0;
-			   //			   System.out.println("on remet encore a 0");
                            eInd = 0;
                            eIndAug = 19 + ilbc_constants.CB_RESRANGE;
 
@@ -904,7 +855,6 @@ public class ilbc_encoder {
                            sIndAug = 20 + sInd - (base_size-20);
                            eIndAug = 39;
                            sInd = 0;
-			   //			   System.out.println("on remetz4 a zero");
                            eInd = ilbc_constants.CB_RESRANGE - (eIndAug-sIndAug+1);
                        }
                    }
@@ -915,12 +865,10 @@ public class ilbc_encoder {
                        eInd -= sInd;
 
                        sInd = 0;
-		       //		       System.out.println("on remet x5 a zero");
                    }
 
                    if(eInd > range) {
                        sInd -= (eInd - range);
-		       //		       System.out.println("on retire " + eInd + " - " + range + " pour arriver a " + sInd);
                        eInd = range;
                    }
                }
@@ -930,7 +878,6 @@ public class ilbc_encoder {
 
            /* index search range */
            counter = sInd;
-	   //	   System.out.println("on ajoute " + base_size + " pour arriver a " + sInd);
            sInd += base_size;
            eInd += base_size;
 
@@ -971,10 +918,6 @@ public class ilbc_encoder {
                crossDot=0.0f;
                pp=lMem - (counter++) - lTarget;
 //                pp=cbvectors + lMem - (counter++) - lTarget;
-
-//	       System.out.println("lMem : " + lMem);
-//	       System.out.println("counter : " + counter);
-//	       System.out.println("target : " + lTarget);
 
                for (j=0;j<lTarget;j++) {
 
@@ -1167,15 +1110,9 @@ public class ilbc_encoder {
        po = 0;
 
        for (i=0; i<len; i++) {
-	   //	   System.out.println(Out[po] + " + " + ilbc_constants.hpi_zero_coefsTbl[0] + " * " + In[pi] + "((" + ilbc_constants.hpi_zero_coefsTbl[0] * In[pi]);
            Out[po] = ilbc_constants.hpi_zero_coefsTbl[0] * (In[pi]);
-	   //	   System.out.println("then *po=" + Out[po]);
-	   //	   System.out.println(Out[po] + " + " + ilbc_constants.hpi_zero_coefsTbl[1] +" * "+  mem[0] + "((" + ilbc_constants.hpi_zero_coefsTbl[1] * mem[0]);
            Out[po] += ilbc_constants.hpi_zero_coefsTbl[1] * mem[0];
-	   //	   System.out.println("then *po=" + Out[po]);
-	   //	   System.out.println(Out[po] + " + " + ilbc_constants.hpi_zero_coefsTbl[2] + " * " +  mem[1] + "((" + ilbc_constants.hpi_zero_coefsTbl[2] * mem[1]);
            Out[po] += ilbc_constants.hpi_zero_coefsTbl[2] * mem[1];
-	   //	   System.out.println("then *po=" + Out[po]);
 
            mem[1] = mem[0];
            mem[0] = In[pi];
@@ -1188,13 +1125,8 @@ public class ilbc_encoder {
        //       po = &Out[0];
        po = 0;
        for (i=0; i<len; i++) {
-	   //	   	   System.out.println("(part 2-"+i+") *po=" + Out[po]);
-	   //	   	   System.out.println(Out[po] + " - " + ilbc_constants.hpi_pole_coefsTbl[1] + " * " + mem[2] + " ((" + ilbc_constants.hpi_pole_coefsTbl[1] * mem[2]);
            Out[po] -= ilbc_constants.hpi_pole_coefsTbl[1] * mem[2];
-	   //	   	   System.out.println("then *po=" + Out[po]);
-	   //	   	   System.out.println(Out[po] + " - " + ilbc_constants.hpi_pole_coefsTbl[2] + " * " + mem[3] + " ((" + ilbc_constants.hpi_pole_coefsTbl[2] * mem[3]);
            Out[po] -= ilbc_constants.hpi_pole_coefsTbl[2] * mem[3];
-	   //	   System.out.println("2then *po=" + Out[po]);
 
            mem[3] = mem[2];
            mem[2] = Out[po];
@@ -1622,9 +1554,6 @@ public class ilbc_encoder {
 	/* Compute the energy for the first (low-5)
 	   noninterpolated samples */
 
-	//	for (pp = 0; pp < buffer.length; pp++)
-	//	    System.out.println("buffer[" + (pp - buffer_idx) + "] = " + buffer[pp]);
-
 	nrjRecursive = (float) 0.0f;
 	//       pp = buffer - low + 1;
 	pp = 1 - low + buffer_idx;
@@ -1633,8 +1562,6 @@ public class ilbc_encoder {
 	    pp++;
 	}
 	ppe = buffer_idx - low;
-
-	//	System.out.println("energie recursive " + nrjRecursive);
 
 	for (icount=low; icount<=high; icount++) {
 
@@ -1701,11 +1628,7 @@ public class ilbc_encoder {
 	    /* check if measure is better */
 	    ftmp = crossDot*invenergy[tmpIndex];
 
-	    //	    System.out.println("on compare " + measure + " et " + max_measure[0]);
-	    //	    System.out.println("ainsi que " + Math.abs(ftmp) + " et " + ilbc_constants.CB_MAXGAIN);
-
 	    if ((measure>max_measure[0]) && ((float)Math.abs(ftmp) < ilbc_constants.CB_MAXGAIN)) {
-		//		System.out.println("new best index at " + tmpIndex + ", where icount = " + icount);
 		best_index[0] = tmpIndex;
 		max_measure[0] = measure;
 		gain[0] = ftmp;
@@ -1834,9 +1757,6 @@ public class ilbc_encoder {
 	for (k=0; k<this.ULP_inst.blockl; k++)
 	    block[k] = (float) data[k];
 
-	//	for (int li = 0; li < block.length; li++)
-	//	    System.out.println("block " + li + " : " + block[li]);
-
 	/* do the actual encoding */
 
 	iLBC_encode(en_data, block);
@@ -1854,9 +1774,8 @@ public class ilbc_encoder {
     {
 	int start;
 	int [] idxForMax = new int[1];
-	int n, k, meml_gotten, Nfor, Nback, i, pos;
+	int n, k, meml_gotten, Nfor, Nback, i;
 	//       unsigned char *pbytes;
-	int pbytes;
 	int diff, start_pos, state_first;
 	float en1, en2;
 	int index, ulp;
@@ -1887,20 +1806,7 @@ public class ilbc_encoder {
 
 	/* high pass filtering of input signal if such is not done
 	   prior to calling this function */
-
-	//	System.out.println("Data prior to hpinput call");
-	//	for (int li = 0; li < data.length; li++)
-	//	    System.out.println("index : " + li + " and value " + data[li]);
-	//	System.out.println("Mem prior to hpinput call");
-	//	for (int li = 0; li < this.hpimem.length; li++)
-	//	    System.out.println("index : " + li + " and value " + this.hpimem[li]);
 	hpInput(block, this.ULP_inst.blockl, data, this.hpimem);
-	//	System.out.println("Data after hpinput call");
-	//	for (int li = 0; li < data.length; li++)
-	//	    System.out.println("index : " + li + " and value " + data[li]);
-	//	System.out.println("Mem after hpinput call");
-	//	for (int li = 0; li < this.hpimem.length; li++)
-	//	    System.out.println("index : " + li + " and value " + this.hpimem[li]);
 
 
 	/* otherwise simply copy */
@@ -1911,18 +1817,12 @@ public class ilbc_encoder {
 
 	LPCencode(syntdenum, weightdenum, lsf_i, data);
 
-	//	for (int li = 0; li < ilbc_constants.NSUB_MAX*(ilbc_constants.LPC_FILTERORDER+1); li++)
-	//	    System.out.println("postLPC n-" + li + " is worth " + syntdenum[li] + ", " + weightdenum[li]);
-
 	/* inverse filter to get residual */
 
 	for (n = 0; n < this.ULP_inst.nsub; n++) {
 	    anaFilter(data, n*ilbc_constants.SUBL, syntdenum, n*(ilbc_constants.LPC_FILTERORDER+1),
 		      ilbc_constants.SUBL, residual, n*ilbc_constants.SUBL, this.anaMem);
 	}
-
-	//	for (int li = 0; li < ilbc_constants.BLOCKL_MAX; li++)
-	//	    System.out.println("block residual n-" + li + " is worth " + residual[li]);
 
 	/* find state location */
 
@@ -2205,18 +2105,12 @@ public class ilbc_encoder {
 
 	/* pack bytes */
 
-	//       pbytes=bytes;
-	pos=0;
-
 	/* loop over the 3 ULP classes */
 
 	for (ulp=0; ulp<3; ulp++) {
 
-	    int [] psarray = new int[1];
 	    /* LSF */
-	    //	    System.out.println("ULP Class " + ulp);
 	    for (k=0; k<ilbc_constants.LSF_NSPLIT*this.ULP_inst.lpc_n; k++) {
-		//System.out.println("LSF " + k);
 		pack = bytes.packsplit(lsf_i[k],
 				       this.ULP_inst.lsf_bits[k][ulp],
 				       this.ULP_inst.lsf_bits[k][ulp]+
@@ -2229,8 +2123,6 @@ public class ilbc_encoder {
 
 	    /* Start block info */
 
-	    //	    System.out.println("start bits");
-
 	    pack = bytes.packsplit(start,
 				   this.ULP_inst.start_bits[ulp],
 				   this.ULP_inst.start_bits[ulp]+
@@ -2239,8 +2131,6 @@ public class ilbc_encoder {
 	    firstpart = pack.get_firstpart();
 	    start = pack.get_rest();
 	    bytes.dopack(firstpart, this.ULP_inst.start_bits[ulp]);
-
-	    //	    System.out.println("startfirst bits");
 
 	    pack = bytes.packsplit(state_first,
 				   this.ULP_inst.startfirst_bits[ulp],
@@ -2251,7 +2141,6 @@ public class ilbc_encoder {
 	    state_first = pack.get_rest();
 	    bytes.dopack(firstpart, this.ULP_inst.startfirst_bits[ulp]);
 
-	    //	    System.out.println("scale bits");
 	    pack = bytes.packsplit(idxForMax[0],
 				   this.ULP_inst.scale_bits[ulp],
 				   this.ULP_inst.scale_bits[ulp]+
@@ -2261,9 +2150,7 @@ public class ilbc_encoder {
 	    idxForMax[0] = pack.get_rest();
 	    bytes.dopack(firstpart, this.ULP_inst.scale_bits[ulp]);
 
-	    //	    System.out.println("state bits");
 	    for (k=0; k<this.ULP_inst.state_short_len; k++) {
-		//		System.out.println("state short len #" + k);
 		pack = bytes.packsplit(idxVec[k],
 				       this.ULP_inst.state_bits[ulp],
 				       this.ULP_inst.state_bits[ulp]+
@@ -2276,7 +2163,6 @@ public class ilbc_encoder {
 
 	    /* 23/22 (20ms/30ms) sample block */
 
-	    //	    System.out.println("extra_cb_index");
 	    for (k=0;k<ilbc_constants.CB_NSTAGES;k++) {
 		pack = bytes.packsplit(extra_cb_index[k],
 				       this.ULP_inst.extra_cb_index[k][ulp],
@@ -2288,7 +2174,6 @@ public class ilbc_encoder {
 		bytes.dopack(firstpart, this.ULP_inst.extra_cb_index[k][ulp]);
 	    }
 
-	    //	    System.out.println("extra_cb_gain");
 	    for (k=0;k<ilbc_constants.CB_NSTAGES;k++) {
 		pack = bytes.packsplit(extra_gain_index[k],
 				       this.ULP_inst.extra_cb_gain[k][ulp],
@@ -2303,8 +2188,6 @@ public class ilbc_encoder {
 
 	    /* The two/four (20ms/30ms) 40 sample sub-blocks */
 
-	    //	    System.out.println("cb_index");
-
 	    for (i=0; i<this.ULP_inst.nasub; i++) {
 		for (k=0; k<ilbc_constants.CB_NSTAGES; k++) {
 		    pack = bytes.packsplit(cb_index[i*ilbc_constants.CB_NSTAGES+k],
@@ -2318,7 +2201,6 @@ public class ilbc_encoder {
 		}
 	    }
 
-	    //	    System.out.println("cb_gain");
 	    for (i=0; i<this.ULP_inst.nasub; i++) {
 		for (k=0; k<ilbc_constants.CB_NSTAGES; k++) {
 		    pack = bytes.packsplit(gain_index[i*ilbc_constants.CB_NSTAGES+k],
@@ -2335,7 +2217,6 @@ public class ilbc_encoder {
 
 	/* set the last bit to zero (otherwise the decoder
 	   will treat it as a lost frame) */
-	//	System.out.println("final bit");
 	bytes.dopack(0, 1);
     }
 

@@ -1,7 +1,6 @@
 package org.red5.sip.app;
 
 import org.apache.mina.core.buffer.IoBuffer;
-import org.red5.logging.Red5LoggerFactory;
 import org.red5.server.api.event.IEvent;
 import org.red5.server.api.event.IEventDispatcher;
 import org.red5.server.net.rtmp.event.AudioData;
@@ -11,10 +10,10 @@ import org.red5.server.net.rtmp.event.VideoData;
 import org.red5.server.stream.AbstractClientStream;
 import org.red5.server.stream.IStreamData;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PlayNetStream extends AbstractClientStream implements IEventDispatcher {
-
-    private static Logger logger = Red5LoggerFactory.getLogger(PlayNetStream.class, "sip");
+    private static Logger logger = LoggerFactory.getLogger(PlayNetStream.class);
 
     private int audioTs = 0;
 
@@ -78,7 +77,7 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
                     mediaStream.send(audioTs, data, 1, data.length - 1);
                 }
             } catch (Exception e) {
-                System.out.println("PlayNetStream dispatchEvent exception " + e);
+            	logger.error("PlayNetStream dispatchEvent exception ", e);
             }
         }
     }
