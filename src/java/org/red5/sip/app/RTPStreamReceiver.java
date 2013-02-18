@@ -1,5 +1,6 @@
 package org.red5.sip.app;
 
+import java.io.IOException;
 import java.net.DatagramSocket;
 
 import local.net.RtpPacket;
@@ -105,23 +106,71 @@ public class RTPStreamReceiver extends Thread {
             return;
         }
 
-        byte[] codedBuffer 		= new byte[ sipCodec.getIncomingEncodedFrameSize() ];
+//        byte[] codedBuffer 		= new byte[ sipCodec.getIncomingEncodedFrameSize() ];
         byte[] internalBuffer 	= new byte[sipCodec.getIncomingEncodedFrameSize() + RTP_HEADER_SIZE ];
 
         RtpPacket rtpPacket = new RtpPacket( internalBuffer, 0 );
 
         running = true;
 
+        final int BUFFER_LENGTH = 100;
+        final BytesBuffer buffer = new BytesBuffer( sipCodec.getIncomingEncodedFrameSize(), BUFFER_LENGTH );
+
+        Thread sendThread = new Thread(new Runnable() {
+            public void run() {
+                boolean ready = false;
+                int avail = 0;
+                while(running) {
+                    byte[] codedBuffer = new byte[ sipCodec.getIncomingEncodedFrameSize() ];
+                    synchronized (buffer) {
+                        avail = buffer.available();
+                        if(!ready) {
+                            if(avail > 30) {
+                                ready = true;
+                            }
+                        } else {
+                            if(avail == 0 ) {
+                                ready = false;
+                            }
+                        }
+                        if(ready) {
+                            buffer.take(codedBuffer, 0);
+                        }
+                    }
+                    if(ready) {
+                        timeStamp += sipCodec.getIncomingPacketization();
+                        try {
+                            rtmpUser.pushAudio(codedBuffer, timeStamp, 130);
+                            try {
+
+                                long pause = sipCodec.getOutgoingPacketization();
+                                if(avail > BUFFER_LENGTH / 2) {
+                                    pause -= 5;
+                                }
+                                if(avail > BUFFER_LENGTH / 5) {
+                                    pause -= 1;
+                                }
+                                log.trace("Sleep pause: " + pause);
+                                //System.out.println("pushAudio, ts: " + timeStamp + ", pause: " + pause);
+                                Thread.sleep( pause, 800000 );
+                                //Thread.sleep(sipCodec.getIncomingPacketization() - 1);
+                            } catch (InterruptedException e) {
+
+                            }
+                        } catch (IOException e) {
+                            log.error("rtmpUser.pushAudio", e);
+                        }
+                    }
+                    Thread.yield();
+                }
+            }
+        });
+
+        sendThread.start();
+
         try {
 
             rtp_socket.getDatagramSocket().setSoTimeout( SO_TIMEOUT );
-
-            float[] decodingBuffer = new float[ sipCodec.getIncomingDecodedFrameSize() ];
-
-            println( "run",
-                    "internalBuffer.length = " + internalBuffer.length
-                    + ", codedBuffer.length = " + codedBuffer.length
-                    + ", decodingBuffer.length = " + decodingBuffer.length + "." );
 
             while ( running ) {
 
@@ -137,10 +186,13 @@ public class RTPStreamReceiver extends Thread {
 
                         if(payloadType < 20)
                         {
-							System.arraycopy(packetBuffer, offset, codedBuffer, 0, sipCodec.getIncomingEncodedFrameSize());
-                            //timeStamp = (System.currentTimeMillis() - start);
-                            timeStamp += sipCodec.getIncomingPacketization();
-							rtmpUser.pushAudio(codedBuffer, timeStamp, 130);
+							//System.arraycopy(packetBuffer, offset, codedBuffer, 0, sipCodec.getIncomingEncodedFrameSize());
+                            synchronized (buffer) {
+                                System.out.println(String.format("RTP: ssrc[%d], cscr count %d", rtpPacket.getSscr(), rtpPacket.getCscrCount()));
+                                buffer.push(packetBuffer, offset, sipCodec.getIncomingEncodedFrameSize());
+                            }
+//                            timeStamp += sipCodec.getIncomingPacketization();
+//							rtmpUser.pushAudio(codedBuffer, timeStamp, 130);
                         }
                     }
                 }
