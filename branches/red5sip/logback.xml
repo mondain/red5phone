@@ -25,7 +25,7 @@
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="org.red.sip.app" level="TRACE">
+    <logger name="org.red5.sip.app" level="TRACE">
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>
     </logger>
