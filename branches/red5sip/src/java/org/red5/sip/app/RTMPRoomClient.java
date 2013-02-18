@@ -35,7 +35,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler, ClientExceptionHandler, IPendingServiceCallback, IMediaReceiver {
-
     private static final Logger log = LoggerFactory.getLogger(RTMPRoomClient.class);
     private static final int MAX_RETRY_NUMBER = 100;
     private static final int UPDATE_MS = 10000;
@@ -184,7 +183,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
                 stream.start();
             }
         }
-
     }
 
     protected void setSipTransport() {
@@ -217,8 +215,8 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
     }
 
     @Override
-    public void connectionOpened( RTMPConnection conn, RTMP state ) {
-        log.debug("RTMP Connection opened");
+    public void connectionOpened(RTMPConnection conn, RTMP state) {
+        log.debug("RTMP Connection opened" + state);
         super.connectionOpened( conn, state );
         this.conn = conn;
         retryNumber = 0;
@@ -232,8 +230,8 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
     }
     
     @Override
-    public void connectionClosed( RTMPConnection conn, RTMP state ) {
-        log.debug( "RTMP Connection closed" );
+    public void connectionClosed(RTMPConnection conn, RTMP state) {
+        log.debug("RTMP Connection closed" + state);
         super.connectionClosed( conn, state );
         if(reconnect && ++retryNumber < MAX_RETRY_NUMBER) {
             try {
@@ -247,7 +245,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         	shutdownUpdateThread();
         }
     }
-
 
     @Override
 	protected void onInvoke(RTMPConnection conn, Channel channel,
