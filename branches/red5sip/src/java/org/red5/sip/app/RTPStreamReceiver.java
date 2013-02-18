@@ -23,6 +23,7 @@ public class RTPStreamReceiver extends Thread {
     private boolean running = false;
     private long timeStamp = 0;
     private int frameCounter = 0;
+    private final Object sync = new Object();
 
 
     /**
@@ -122,7 +123,7 @@ public class RTPStreamReceiver extends Thread {
                 int avail = 0;
                 while(running) {
                     byte[] codedBuffer = new byte[ sipCodec.getIncomingEncodedFrameSize() ];
-                    synchronized (buffer) {
+                    synchronized (sync) {
                         avail = buffer.available();
                         if(!ready) {
                             if(avail > 30) {
@@ -151,9 +152,7 @@ public class RTPStreamReceiver extends Thread {
                                     pause -= 1;
                                 }
                                 log.trace("Sleep pause: " + pause);
-                                //System.out.println("pushAudio, ts: " + timeStamp + ", pause: " + pause);
                                 Thread.sleep( pause, 800000 );
-                                //Thread.sleep(sipCodec.getIncomingPacketization() - 1);
                             } catch (InterruptedException e) {
 
                             }
@@ -186,13 +185,9 @@ public class RTPStreamReceiver extends Thread {
 
                         if(payloadType < 20)
                         {
-							//System.arraycopy(packetBuffer, offset, codedBuffer, 0, sipCodec.getIncomingEncodedFrameSize());
-                            synchronized (buffer) {
-                                System.out.println(String.format("RTP: ssrc[%d], cscr count %d", rtpPacket.getSscr(), rtpPacket.getCscrCount()));
+                            synchronized (sync) {
                                 buffer.push(packetBuffer, offset, sipCodec.getIncomingEncodedFrameSize());
                             }
-//                            timeStamp += sipCodec.getIncomingPacketization();
-//							rtmpUser.pushAudio(codedBuffer, timeStamp, 130);
                         }
                     }
                 }
