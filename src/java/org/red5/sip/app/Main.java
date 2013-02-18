@@ -12,7 +12,7 @@ public class Main {
 		try {
 			main.start();
 		} catch (Exception e) {
-			e.printStackTrace();
+			log.error("Exception", e);
 		}
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
 			public void run() {

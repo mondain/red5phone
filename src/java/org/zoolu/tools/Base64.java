@@ -179,7 +179,9 @@ public class Base64
       try { 
       strdecodificato = new String (decodificato,"ISO-8859-1"); 
       }
-      catch (Exception e) { e.printStackTrace();}
+      catch (Exception e) {
+          log.error("Exception", e);
+      }
       log.debug("messaggio decodificato e: "+strdecodificato);      
    }
 }

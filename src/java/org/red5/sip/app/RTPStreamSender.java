@@ -149,7 +149,7 @@ public class RTPStreamSender implements IMediaSender {
             rtpSocket = new RtpSocket( src_socket, InetAddress.getByName( dest_addr ), dest_port );
         }
         catch ( Exception e ) {
-            e.printStackTrace();
+            log.error("Exception", e);
         }
     }
 

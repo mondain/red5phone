@@ -45,7 +45,7 @@ public class RTPStreamReceiver extends Thread {
             init( sipCodec, rtmpUser, socket );
         }
         catch ( Exception e ) {
-            e.printStackTrace();
+            log.error("Exception", e);
         }
     }
 
@@ -151,7 +151,7 @@ public class RTPStreamReceiver extends Thread {
         catch ( Exception e ) {
 
             running = false;
-            e.printStackTrace();
+            log.error("Exception", e);
         }
 
         // Close RtpSocket and local DatagramSocket.
