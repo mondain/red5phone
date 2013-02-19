@@ -7,262 +7,244 @@ import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.provider.SipProvider;
 import org.zoolu.sip.provider.SipStack;
 
-public abstract class SIPTransport  implements SIPUserAgentListener, SIPRegisterAgentListener, ISipNumberListener {
-    protected static Logger log = LoggerFactory.getLogger( SIPTransport.class );
+public abstract class SIPTransport implements SIPUserAgentListener,
+		SIPRegisterAgentListener, ISipNumberListener {
+	protected static Logger log = LoggerFactory.getLogger(SIPTransport.class);
 
-    public boolean sipReady = false;
+	protected RTMPRoomClient roomClient;
+	private SipProvider sip_provider;
+	private SIPUserAgentProfile user_profile;
+	private String opt_outbound_proxy = null;
+	private SIPUserAgent ua;
+	private SIPRegisterAgent ra;
 
-    public RTMPRoomClient roomClient;
+	private String username;
+	private String password;
+	private int sipPort;
+	private int rtpPort;
+	private String proxy;
+	private String number;
 
-    private SipProvider sip_provider;
+	private void p(String s) {
+		log.debug(s);
+	}
 
-    private SIPUserAgentProfile user_profile;
+	public SIPTransport(RTMPRoomClient roomClient, int sipPort, int rtpPort) {
+		this.roomClient = roomClient;
+		this.sipPort = sipPort;
+		this.rtpPort = rtpPort;
+	}
 
-    private String opt_outbound_proxy = null;
+	public void login(String obproxy, String phone, String username,
+			String password, String realm, String proxy) {
+		p("login");
 
-    private SIPUserAgent ua;
-
-    private SIPRegisterAgent ra;
-
-    private String username;
-
-    private String password;
-
-    private int sipPort;
-
-    private int rtpPort;
-
-    private String proxy;
-
-    private String number;
-
-
-    private void p( String s ) {
-        log.debug( s );
-    }
-
-    public SIPTransport(RTMPRoomClient roomClient, int sipPort, int rtpPort) {
-        this.roomClient = roomClient;
-        this.sipPort = sipPort;
-        this.rtpPort = rtpPort;
-    }
-
-    public void login( String obproxy, String phone, String username, String password, String realm, String proxy ) {
-
-        p( "login" );
-
-        this.username = username;
-        this.password = password;
-        this.proxy = proxy;
+		this.username = username;
+		this.password = password;
+		this.proxy = proxy;
 		this.opt_outbound_proxy = obproxy;
 
-        String fromURL = "\"" + phone + "\" <sip:" + phone + "@" + proxy + ">";
+		String fromURL = "\"" + phone + "\" <sip:" + phone + "@" + proxy + ">";
 
-        try {
-            SipStack.init();
-            SipStack.debug_level = 0;
-            SipStack.log_path = "log";
+		try {
+			SipStack.init();
+			SipStack.debug_level = 0;
+			SipStack.log_path = "log";
 
-            sip_provider = new SipProvider( null, sipPort );
-            sip_provider.setOutboundProxy(new SocketAddress(opt_outbound_proxy));
+			sip_provider = new SipProvider(null, sipPort);
+			sip_provider
+					.setOutboundProxy(new SocketAddress(opt_outbound_proxy));
 
-            user_profile = new SIPUserAgentProfile();
-            user_profile.audioPort = rtpPort;
-            user_profile.username = username;
-            user_profile.passwd = password;
-            user_profile.realm = realm;
-            user_profile.fromUrl = fromURL;
-			user_profile.contactUrl = "sip:" + phone + "@" + sip_provider.getViaAddress();
+			user_profile = new SIPUserAgentProfile();
+			user_profile.audioPort = rtpPort;
+			user_profile.username = username;
+			user_profile.passwd = password;
+			user_profile.realm = realm;
+			user_profile.fromUrl = fromURL;
+			user_profile.contactUrl = "sip:" + phone + "@"
+					+ sip_provider.getViaAddress();
 
-            if ( sip_provider.getPort() != SipStack.default_port ) {
-                user_profile.contactUrl += ":" + sip_provider.getPort();
-            }
+			if (sip_provider.getPort() != SipStack.default_port) {
+				user_profile.contactUrl += ":" + sip_provider.getPort();
+			}
 
-            user_profile.keepaliveTime=8000;
-			user_profile.acceptTime=0;
-			user_profile.hangupTime=20;
+			user_profile.keepaliveTime = 8000;
+			user_profile.acceptTime = 0;
+			user_profile.hangupTime = 20;
 
-            ua = new SIPUserAgent( sip_provider, user_profile, this, roomClient );
+			ua = new SIPUserAgent(sip_provider, user_profile, this, roomClient);
 
-            sipReady = false;
-            ua.listen();
+			ua.listen();
 
-        }
-        catch ( Exception e ) {
-            p( "login: Exception:>\n" + e );
-        }
-    }
+		} catch (Exception e) {
+			p("login: Exception:>\n" + e);
+		}
+	}
 
-    public void call( String destination ) {
+	public void call(String destination) {
+		p("Calling " + destination);
 
-        p( "Calling " + destination );
+		try {
+			roomClient.init();
 
-        try {
-            roomClient.init();
+			ua.setMedia(roomClient);
+			ua.hangup();
 
-            sipReady = false;
-            ua.setMedia( roomClient );
-            ua.hangup();
+			if (destination.indexOf("@") == -1) {
+				destination = destination + "@" + proxy;
+			}
 
-            if ( destination.indexOf( "@" ) == -1 ) {
-                destination = destination + "@" + proxy;
-            }
+			if (destination.indexOf("sip:") > -1) {
+				destination = destination.substring(4);
+			}
 
-            if ( destination.indexOf( "sip:" ) > -1 ) {
-                destination = destination.substring( 4 );
-            }
+			ua.call(destination);
+		} catch (Exception e) {
+			p("call: Exception:>\n" + e);
+		}
+	}
 
-            ua.call( destination );
+	public void register() {
+		p("register");
+		roomClient.stop();
 
-        }
-        catch ( Exception e ) {
-            p( "call: Exception:>\n" + e );
-        }
+		try {
 
-    }
+			if (sip_provider != null) {
+				ra = new SIPRegisterAgent(sip_provider, user_profile.fromUrl,
+						user_profile.contactUrl, username, user_profile.realm,
+						password, this);
+				loopRegister(user_profile.expires, user_profile.expires / 2,
+						user_profile.keepaliveTime);
+			}
 
-    public void register() {
+		} catch (Exception e) {
+			p("register: Exception:>\n" + e);
+		}
+	}
 
-        p( "register" );
-
-        try {
-
-            if ( sip_provider != null ) {
-                ra = new SIPRegisterAgent( sip_provider, user_profile.fromUrl, user_profile.contactUrl, username,
-                    user_profile.realm, password, this );
-                loopRegister( user_profile.expires, user_profile.expires / 2, user_profile.keepaliveTime );
-            }
-
-        }
-        catch ( Exception e ) {
-            p( "register: Exception:>\n" + e );
-        }
-    }
-
-    public void close() {
+	public void close() {
 		p("close");
 
-        try {
-            hangup();
-        } catch(Exception e) {
-            p("close: Exception:>\n" + e);
-        }
+		try {
+			hangup();
+		} catch (Exception e) {
+			p("close: Exception:>\n" + e);
+		}
 
-        try {
-            p("provider.halt");
-            sip_provider.halt();
-        } catch(Exception e) {
-            p("close: Exception:>\n" + e);
-        }
+		try {
+			p("provider.halt");
+			sip_provider.halt();
+		} catch (Exception e) {
+			p("close: Exception:>\n" + e);
+		}
 
-        try {
+		try {
 			unregister();
-		} catch(Exception e) {
+		} catch (Exception e) {
 			p("close: Exception:>\n" + e);
 		}
 	}
 
-    public void hangup() {
+	public void hangup() {
+		p("hangup");
 
-        p( "hangup" );
+		if (ua != null) {
+			if (!ua.call_state.equals(SIPUserAgent.UA_IDLE)) {
+				ua.hangup();
+				ua.listen();
+			}
+		}
 
-        if ( ua != null ) {
+		closeStreams();
+		roomClient.stop();
+	}
 
-            if ( !ua.call_state.equals(SIPUserAgent.UA_IDLE) ) {
-                ua.hangup();
-                ua.listen();
-            }
-        }
+	private void closeStreams() {
+		p("closeStreams");
+	}
 
-        closeStreams();
-        roomClient.stop();
-    }
+	public void unregister() {
+		p("unregister");
 
-    private void closeStreams() {
+		if (ra != null) {
+			if (ra.isRegistering()) {
+				ra.halt();
+			}
+			ra.unregister();
+			ra = null;
+		}
 
-        p( "closeStreams" );
+		if (ua != null) {
+			ua.hangup();
+		}
+		ua = null;
+	}
 
-    }
+	private void loopRegister(int expire_time, int renew_time, long keepalive_time) {
+		if (ra.isRegistering()) {
+			ra.halt();
+		}
+		ra.loopRegister(expire_time, renew_time, keepalive_time);
+	}
 
-    public void unregister() {
+	public void onUaCallIncoming(SIPUserAgent ua, NameAddress callee, NameAddress caller) {
+		// To change body of implemented methods use File | Settings | File
+		// Templates.
+	}
 
-        p( "unregister" );
+	public void onUaCallCancelled(SIPUserAgent ua) {
+		// To change body of implemented methods use File | Settings | File
+		// Templates.
+	}
 
-        if ( ra != null ) {
-            if ( ra.isRegistering() ) {
-                ra.halt();
-            }
-            ra.unregister();
-            ra = null;
-        }
+	public void onUaCallRinging(SIPUserAgent ua) {
+		// To change body of implemented methods use File | Settings | File
+		// Templates.
+	}
 
-        if ( ua != null ) {
-            ua.hangup();
-        }
-        ua = null;
-    }
+	public void onUaCallAccepted(SIPUserAgent ua) {
+		// To change body of implemented methods use File | Settings | File
+		// Templates.
+	}
 
-    private void loopRegister( int expire_time, int renew_time, long keepalive_time ) {
+	public void onUaCallTrasferred(SIPUserAgent ua) {
+		// To change body of implemented methods use File | Settings | File
+		// Templates.
+	}
 
-        if ( ra.isRegistering() ) {
-            ra.halt();
-        }
-        ra.loopRegister( expire_time, renew_time, keepalive_time );
-    }
+	public void onUaCallFailed(SIPUserAgent ua) {
+		log.info("Call failed");
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			log.info("Reconnection pause was interrupted");
+		}
+		roomClient.start();
+	}
 
-    public void onUaCallIncoming(SIPUserAgent ua, NameAddress callee, NameAddress caller) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
+	public void onUaCallClosing(SIPUserAgent ua) {
+		log.info("Call closing");
+	}
 
-    public void onUaCallCancelled(SIPUserAgent ua) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
+	public void onUaCallClosed(SIPUserAgent ua) {
+		log.info("Call closed");
+		try {
+			Thread.sleep(5000);
+		} catch (InterruptedException e) {
+			log.info("Reconnection pause was interrupted");
+		}
+		log.info("Try reconnect: Call " + number);
+		register();
+	}
 
-    public void onUaCallRinging(SIPUserAgent ua) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
+	public void onUaCallConnected(SIPUserAgent ua) {
+		log.info("Call connected");
+	}
 
-    public void onUaCallAccepted(SIPUserAgent ua) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void onUaCallTrasferred(SIPUserAgent ua) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void onUaCallFailed(SIPUserAgent ua) {
-        log.info("Call failed");
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            log.info( "Reconnection pause was interrupted" ) ;
-        }
-        roomClient.start();
-    }
-
-    public void onUaCallClosing(SIPUserAgent ua) {
-        log.info("Call closing");
-    }
-
-    public void onUaCallClosed(SIPUserAgent ua) {
-        //To change body of implemented methods use File | Settings | File Templates.
-        log.info("Call closed");
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            log.info( "Reconnection pause was interrupted" ) ;
-        }
-        log.info("Try reconnect: Call " + number);
-        register();
-    }
-
-    public void onUaCallConnected(SIPUserAgent ua) {
-        log.info( "Call connected" );
-    }
-
-    public void onSipNumber(String number) {
-        log.info("Room number: " + number);
-        this.number = number;
-        this.call(number);
-    }
+	public void onSipNumber(String number) {
+		log.info("Room number: " + number);
+		this.number = number;
+		this.call(number);
+	}
 }

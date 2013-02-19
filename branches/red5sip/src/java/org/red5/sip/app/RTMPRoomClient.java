@@ -162,7 +162,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
     }
 
     private class CreatePlayStreamCallBack implements IPendingServiceCallback {
-
         private long broadCastId;
 
         public CreatePlayStreamCallBack(long broadCastId) {
@@ -445,7 +444,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 
 
     public void pushAudio(byte[] audio, long ts, int codec ) throws IOException {
-
         if(micMuted) {
             return;
         }
@@ -492,7 +490,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         if ( kt < 10 ) {
             log.debug( "+++ " + audioData );
         }
-
 
         RTMPMessage rtmpMsg = new RTMPMessage();
         rtmpMsg.setBody( audioData );
