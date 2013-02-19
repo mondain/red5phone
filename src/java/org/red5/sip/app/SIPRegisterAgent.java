@@ -149,6 +149,9 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 
 	/** Registers with the registrar server. */
 	public void register() {
+		if (listener != null && listener instanceof SIPTransport) {
+			((SIPTransport)listener).roomClient.stop();
+		}
 		register(expire_time);
 	}
 
@@ -233,8 +236,9 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 		this.expire_time = expire_time;
 		this.renew_time = renew_time;
 		loop = true;
-		if (!is_running)
+		if (!is_running) {
 			(new Thread(this, this.getClass().getName())).start();
+		}
 	}
 
 	/**
@@ -255,8 +259,9 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 			SipURL target_url = target.getAddress();
 			String target_host = target_url.getHost();
 			int targe_port = target_url.getPort();
-			if (targe_port < 0)
+			if (targe_port < 0) {
 				targe_port = SipStack.default_port;
+			}
 			keep_alive = new KeepAliveSip(sip_provider, new SocketAddress(
 					target_host, targe_port), null, keepalive_time);
 		}
@@ -264,10 +269,12 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 
 	/** Halts the periodic registration. */
 	public void halt() {
-		if (is_running)
+		if (is_running) {
 			loop = false;
-		if (keep_alive != null)
+		}
+		if (keep_alive != null) {
 			keep_alive.halt();
+		}
 	}
 
 	// ***************************** run() *****************************
@@ -304,8 +311,8 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 	/** Callback function called when client sends back a failure response. */
 
 	/** Callback function called when client sends back a provisional response. */
-	public void onTransProvisionalResponse(TransactionClient transaction,
-			Message resp) { // do nothing..
+	public void onTransProvisionalResponse(TransactionClient transaction, Message resp) {
+		// do nothing..
 	}
 
 	/** Callback function called when client sends back a success response. */
@@ -322,35 +329,18 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 			// update the renew_time
 			// changed by Lior
 			int expires = 0;
-			// int newRenew=0;
 			if (resp.hasExpiresHeader()) {
 				expires = resp.getExpiresHeader().getDeltaSeconds();
-				// {
-				// newRenew=resp.getExpiresHeader().getDeltaSeconds();
-			} else if (resp.hasContactHeader())
-			// look for the max expires - should be the latest
-			{
+			} else if (resp.hasContactHeader()) {
+				// look for the max expires - should be the latest
 				Vector<Header> contacts = resp.getContacts().getHeaders();
 				for (int i = 0; i < contacts.size(); i++) {
-					int exp_i = (new ContactHeader(
-							(Header) contacts.elementAt(i))).getExpires();
-					// if (exp_i>0 && (expires==0 || exp_i<expires))
-					// expires=exp_i;
-					// {
-					// newRenew=(new
-					// ContactHeader((Header)contacts.elementAt(i))).getExpires();
-					if (exp_i / 2 > expires)
+					int exp_i = new ContactHeader(contacts.get(i)).getExpires();
+					if (exp_i / 2 > expires) {
 						expires = exp_i / 2;
+					}
 				}
 			}
-			// if (expires>0 && expires<renew_time) renew_time=expires;
-
-			// printLog("Registration success: ");
-			// if (listener!=null)
-			// listener.onUaRegistrationSuccess(this,target,contact,result);
-			// }
-			// }
-			// if (newRenew>0 && newRenew<renew_time)
 			if (expires > 0 && expires < renew_time) {
 				renew_time = expires;
 				if (renew_time < minRenewTime) {
@@ -371,9 +361,9 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 
 			printLog("Registration success: ");
 			regInprocess = false;
-			if (listener != null)
+			if (listener != null) {
 				listener.onUaRegistrationSuccess(this, target, contact, result);
-
+			}
 		}
 	}
 
@@ -433,18 +423,16 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 				TransactionClient t = new TransactionClient(sip_provider, req,
 						this);
 				t.request();
-
 			} else {
 				String result = code + " " + status.getReason();
 				lastRegFailed = true;
 				regInprocess = false;
-				if (listener == null)
+				if (listener == null) {
 					printLog("Registration failure: " + result);
-				else
+				} else {
 					printLog("Registration failure: " + result);
-				if (listener != null)
-					listener.onUaRegistrationFailure(this, target, contact,
-							result);
+					listener.onUaRegistrationFailure(this, target, contact, result);
+				}
 			}
 		}
 	}
@@ -456,12 +444,10 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 				printLog("Registration failure: No response from server.");
 			} else {
 				printLog("Registration failure: No response from server.");
+				listener.onUaRegistrationFailure(this, target, contact, "Timeout");
 			}
 			lastRegFailed = true;
 			regInprocess = false;
-			if (listener != null) {
-				listener.onUaRegistrationFailure(this, target, contact, "Timeout");
-			}
 		}
 	}
 
