@@ -79,7 +79,10 @@ public class SIPUserAgent extends CallListenerAdapter {
     private IMediaReceiver mediaReceiver;
 
     /** Sip codec to be used on audio session */
-    private SIPCodec sipCodec = null;
+    private SIPCodec sipAudioCodec = null;
+
+    /** Sip codec to be used on video session */
+    private SIPCodec sipVideoCodec = null;
 
 
     // *********************** Startup Configuration ***********************
@@ -469,13 +472,13 @@ public class SIPUserAgent extends CallListenerAdapter {
 
             if ( audioApp == null ) {
 
-                if ( sipCodec != null ) {
+                if ( sipAudioCodec != null ) {
 
-                    audioApp = new SIPAudioLauncher( sipCodec, localAudioPort,
+                    audioApp = new SIPAudioLauncher( sipAudioCodec, localAudioPort,
                             remoteMediaAddress, remoteAudioPort, mediaReceiver);
                 }
                 else {
-                    printLog( "launchMediaApplication", "SipCodec not initialized." );
+                    printLog( "launchMediaApplication", "Audio SipCodec not initialized." );
                 }
             }
 
@@ -485,15 +488,17 @@ public class SIPUserAgent extends CallListenerAdapter {
             }
         }
         if ( userProfile.video && localVideoPort != 0 && remoteVideoPort != 0 ) {
-
-            if ( videoApp == null ) {
-
-                printLog( "launchMediaApplication",
-                        "No external video application nor JMF has been provided: Video not started." );
-                return;
+        	if (videoApp == null) {
+        		if (sipVideoCodec != null) {
+        			videoApp = new SIPVideoLauncher(localVideoPort, remoteMediaAddress, remoteAudioPort, mediaReceiver, sipVideoCodec);
+        		} else {
+        			printLog( "launchMediaApplication", "Video SipCodec not initialized." );
+        		}
+        	}
+        	
+            if (videoApp != null) {
+            	videoApp.startMedia();
             }
-
-            videoApp.startMedia();
         }
     }
 
@@ -550,9 +555,10 @@ public class SIPUserAgent extends CallListenerAdapter {
             // attributes can be then matched.
             SessionDescriptor newSdp = SdpUtils.makeMediaPayloadsNegotiation(localSdp, remoteSdp);
 
-            // After we can create the correct audio codec considering
-            // audio negotiation made above.
-            sipCodec = SdpUtils.getNegotiatedAudioCodec( newSdp );
+            // After we can create the correct audio and video codecs considering
+            // audio and video negotiations made above.
+            sipAudioCodec = SdpUtils.getNegotiatedAudioCodec( newSdp );
+            sipVideoCodec = SdpUtils.getNegotiatedVideoCodec( newSdp );
 
             // Now we complete the SDP negotiation informing the selected
             // codec, so it can be internally updated during the process.
@@ -565,7 +571,7 @@ public class SIPUserAgent extends CallListenerAdapter {
             // Finally, we use the "newSdp" and "remoteSdp" to initialize
             // the lasting codec informations.
             SIPCodecUtils.initSipAudioCodec(
-                    sipCodec,
+                    sipAudioCodec,
                     userProfile.audioDefaultPacketization,
                     userProfile.audioDefaultPacketization, newSdp, remoteSdp );
         }
@@ -647,7 +653,8 @@ public class SIPUserAgent extends CallListenerAdapter {
 
         // After we can create the correct audio codec considering
         // audio negotiation made above.
-        sipCodec = SdpUtils.getNegotiatedAudioCodec( newSdp );
+        sipAudioCodec = SdpUtils.getNegotiatedAudioCodec( newSdp );
+        sipVideoCodec = SdpUtils.getNegotiatedVideoCodec( newSdp );
 
         // Now we complete the SDP negotiation informing the selected
         // codec, so it can be internally updated during the process.
@@ -660,7 +667,7 @@ public class SIPUserAgent extends CallListenerAdapter {
         // Finally, we use the "newSdp" and "remoteSdp" to initialize
         // the lasting codec informations.
         SIPCodecUtils.initSipAudioCodec(
-                sipCodec,
+                sipAudioCodec,
                 userProfile.audioDefaultPacketization,
                 userProfile.audioDefaultPacketization, newSdp, remoteSdp );
 
