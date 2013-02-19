@@ -16,21 +16,23 @@ public class Application implements Daemon {
     private static final Logger log = LoggerFactory.getLogger(Application.class);
     private static final int SIP_START_PORT = 5070;
     private static final int SOUND_START_PORT = 3010;
+    private static final int VIDEO_START_PORT = 7010;
     private static int sipPort = SIP_START_PORT;
     private static int soundPort = SOUND_START_PORT;
+    private static int videoPort = VIDEO_START_PORT;
     private Properties props = null;
     private Map<Integer, SIPTransport> transportMap = new HashMap<Integer, SIPTransport>();
     private RTMPControlClient rtmpControlClient;
 
-    private SIPTransport createSIPTransport(Properties prop, int room_id) {
+    public SIPTransport createSIPTransport(Properties prop, int room_id) {
         log.info("Creating SIP trasport for room: " + room_id);
         RTPStreamSender.useASAO = prop.getProperty("red5.codec", "asao").equals("asao");
         RTMPRoomClient roomClient = new RTMPRoomClient(
 			prop.getProperty("red5.host")
 			, prop.getProperty("om.context", "openmeetings")
 			, room_id);
-        
-        SIPTransport sipTransport = new SIPTransport(roomClient, sipPort++, soundPort++) {
+		
+        SIPTransport sipTransport = new SIPTransport(roomClient, sipPort++, soundPort++, videoPort++) {
             public void onUaRegistrationSuccess(SIPRegisterAgent ra, NameAddress target, NameAddress contact, String result) {
                 log.info("Registered successfully");
                 this.roomClient.setSipNumberListener(this);

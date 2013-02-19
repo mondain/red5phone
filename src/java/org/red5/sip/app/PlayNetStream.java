@@ -17,6 +17,8 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 
     private int audioTs = 0;
 
+    private int videoTs = 0;
+
     private IMediaSender mediaSender;
 
     private IMediaStream mediaStream;
@@ -63,8 +65,8 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
         }
 
         if (rtmpEvent instanceof VideoData) {
-            // videoTs += rtmpEvent.getTimestamp();
-            // tag.setTimestamp(videoTs);
+             videoTs += rtmpEvent.getTimestamp();
+             //tag.setTimestamp(videoTs);
 
         } else if (rtmpEvent instanceof AudioData) {
             audioTs = rtmpEvent.getTimestamp();
