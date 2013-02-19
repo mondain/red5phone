@@ -260,7 +260,6 @@
     <mkdir dir="${artifact.temp.output.red5sip}"/>
     <jar destfile="${temp.jar.path.red5sip.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
       <zipfileset dir="${red5sip.output.dir}"/>
-      <zipfileset file="${basedir}/logback.xml"/>
     </jar>
     <copy file="${temp.jar.path.red5sip.jar}" tofile="${artifact.temp.output.red5sip}/red5sip.jar"/>
   </target>

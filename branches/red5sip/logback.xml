@@ -17,6 +17,7 @@
             <pattern>%d{dd MMM HH:mm:ss} - [%-5p] %c{1}: %m%n</pattern>
         </encoder>
     </appender>
+    
     <root level="INFO">
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>
@@ -25,7 +26,7 @@
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>
     </logger>
-    <logger name="org.red5.sip.app" level="DEBUG">
+    <logger name="org.red5.sip.app" level="WARN">
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>
     </logger>
