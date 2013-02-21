@@ -21,8 +21,7 @@ public abstract class SIPTransport implements SIPUserAgentListener,
 	private String username;
 	private String password;
 	private int sipPort;
-	private int rtpAudioPort;
-	private int rtpVideoPort;
+	private int rtpPort;
 	private String proxy;
 	private String number;
 
@@ -30,11 +29,10 @@ public abstract class SIPTransport implements SIPUserAgentListener,
 		log.debug(s);
 	}
 
-	public SIPTransport(RTMPRoomClient roomClient, int sipPort, int rtpAudioPort, int rtpVideoPort) {
+	public SIPTransport(RTMPRoomClient roomClient, int sipPort, int rtpPort) {
 		this.roomClient = roomClient;
 		this.sipPort = sipPort;
-		this.rtpAudioPort = rtpAudioPort;
-		this.rtpVideoPort = rtpVideoPort;
+		this.rtpPort = rtpPort;
 	}
 
 	public void login(String obproxy, String phone, String username,
@@ -58,8 +56,7 @@ public abstract class SIPTransport implements SIPUserAgentListener,
 					.setOutboundProxy(new SocketAddress(opt_outbound_proxy));
 
 			user_profile = new SIPUserAgentProfile();
-			user_profile.audioPort = rtpAudioPort;
-			user_profile.videoPort = rtpVideoPort;
+			user_profile.audioPort = rtpPort;
 			user_profile.username = username;
 			user_profile.passwd = password;
 			user_profile.realm = realm;
