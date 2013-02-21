@@ -2,7 +2,7 @@ package org.red5.codecs;
 
 
 /**
- * Interface for media codecs
+ * Interface for audio codecs
  * */
 public interface SIPCodec {
 

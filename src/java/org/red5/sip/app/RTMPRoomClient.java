@@ -2,7 +2,6 @@ package org.red5.sip.app;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,7 +27,6 @@ import org.red5.server.net.rtmp.RTMPConnection;
 import org.red5.server.net.rtmp.codec.RTMP;
 import org.red5.server.net.rtmp.event.AudioData;
 import org.red5.server.net.rtmp.event.Notify;
-import org.red5.server.net.rtmp.event.VideoData;
 import org.red5.server.net.rtmp.message.Header;
 import org.red5.server.net.rtmp.status.StatusCodes;
 import org.red5.server.service.Call;
@@ -47,8 +45,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
     private long broadCastId = -1;
     private RTMPConnection conn;
     private IMediaSender sender;
-    private IoBuffer audioBuffer;
-    private IoBuffer videoBuffer;
+    private IoBuffer buffer;
     private int kt = 0;
     private Integer publishStreamId = null;
     private boolean reconnect = true;
@@ -330,10 +327,8 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
                     this.conn.close();
                 } else if("updateMuteStatus".equals(msgValue.get(0))) {
                     Client client = (Client)msgValue.get(1);
-                    if (this.publicSID.equals(client.getPublicSID())) {
-	                    log.info("Mic switched: " + client.getMicMuted());
-	                    this.micMuted = client.getMicMuted();
-                    }
+                    log.info("Mic switched: " + client.getMicMuted());
+                    this.micMuted = client.getMicMuted();
                 }
             } catch (Exception ignored) {}
         }
@@ -474,21 +469,21 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         if( publishStreamId == null) {
             return;
         }
-        if ( audioBuffer == null ) {
-            audioBuffer = IoBuffer.allocate( 1024 );
-            audioBuffer.setAutoExpand( true );
+        if ( buffer == null ) {
+            buffer = IoBuffer.allocate( 1024 );
+            buffer.setAutoExpand( true );
         }
 
-        audioBuffer.clear();
+        buffer.clear();
 
-        audioBuffer.put( (byte) codec ); // first byte 2 mono 5500; 6 mono 11025; 22
+        buffer.put( (byte) codec ); // first byte 2 mono 5500; 6 mono 11025; 22
         // mono 11025 adpcm 82 nellymoser 8000 178
         // speex 8000
-        audioBuffer.put( audio );
+        buffer.put( audio );
 
-        audioBuffer.flip();
+        buffer.flip();
 
-        AudioData audioData = new AudioData( audioBuffer );
+        AudioData audioData = new AudioData( buffer );
         audioData.setTimestamp( (int) ts );
 
         kt++;
@@ -500,28 +495,4 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
         rtmpMsg.setBody( audioData );
         publishStreamData( publishStreamId, rtmpMsg );
     }
-
-	@Override
-	public void pushVideo(byte[] video, long ts, int codec) throws IOException {
-		if( publishStreamId == null) {
-            return;
-        }
-		if (videoBuffer == null || (videoBuffer.capacity() < video.length && !videoBuffer.isAutoExpand())) {
-			videoBuffer = IoBuffer.allocate(video.length);
-			videoBuffer.setAutoExpand(true);
-		}
-		
-		videoBuffer.clear();
-		//videoBuffer.put((byte) codec);
-		videoBuffer.put(video);
-		videoBuffer.flip();
-		
-		VideoData videoData = new VideoData(videoBuffer);
-		videoData.setTimestamp((int) ts);
-		
-		RTMPMessage message = new RTMPMessage();
-		message.setBody(videoData);
-		
-		publishStreamData(publishStreamId, message);
-	}
 }

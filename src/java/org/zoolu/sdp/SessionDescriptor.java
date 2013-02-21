@@ -157,20 +157,15 @@ public class SessionDescriptor
       } 
       // parse session attributes
       av=new Vector<AttributeField>();   
-      while (par.hasMore()) {  
-    	  if (par.startsWith("a=")) {
-	    	  AttributeField attribute=par.parseAttributeField();
-	          av.addElement(attribute);
-    	  } else par.goToNextLine();
-      }
-      par.setPos(0);
+      while (par.hasMore() && par.startsWith("a="))
+      {  AttributeField attribute=par.parseAttributeField();
+         av.addElement(attribute);
+      }    
       // parse media descriptors
       media=new Vector<MediaDescriptor>();
-      while (par.hasMore()) {
-    	  if (par.startsWith("m=")) {
-		      MediaDescriptor md = par.parseMediaDescriptor();
-		      if (md != null) addMediaDescriptor(md);
-    	  } else par.goToNextLine();
+      MediaDescriptor md;
+      while ((md=par.parseMediaDescriptor())!=null)
+      {  addMediaDescriptor(md);
       }
    } 
    

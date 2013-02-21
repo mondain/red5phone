@@ -26,9 +26,7 @@ public class SIPCodecFactory {
     // ----------------
     // Available video codecs
     
-    private static final int videoCodecH264 = 35;
-    
-    private int[] availableVideoCodecsId = {videoCodecH264};
+    private int[] availableVideoCodecsId = {};
     
     
     private static SIPCodecFactory singletonSIPCodecFactory = new SIPCodecFactory();
@@ -45,7 +43,7 @@ public class SIPCodecFactory {
      * Create a new instance of SIPCodec by codec id.
      * @return The codec associated with "codecId".
      * */
-    public SIPCodec getSIPMediaCodec( int codecId ) {
+    public SIPCodec getSIPAudioCodec( int codecId ) {
         
         SIPCodec sipCodec;
         
@@ -66,9 +64,6 @@ public class SIPCodecFactory {
             case audioCodeciLBC:
                 sipCodec = new SIPCodeciLBC();
                 break;
-            case videoCodecH264:
-            	sipCodec = new SIPCodecH264();
-            	break;
             default:
                 sipCodec = null;
         }
@@ -95,7 +90,7 @@ public class SIPCodecFactory {
         
         for ( int i = 0; i < availableAudioCodecsId.length; i++ ) {
             int codecId = availableAudioCodecsId[ i ];
-            SIPCodec codec = getSIPMediaCodec( codecId );
+            SIPCodec codec = getSIPAudioCodec( codecId );
             availableCodecs[i] = codec;            
         }
         
@@ -115,7 +110,7 @@ public class SIPCodecFactory {
         
         for ( int i = 0; i < availableVideoCodecsId.length; i++ ) {
             int codecId = availableVideoCodecsId[ i ];
-            SIPCodec codec = getSIPMediaCodec( codecId );
+            SIPCodec codec = getSIPAudioCodec( codecId );
             availableCodecs[i] = codec;            
         }
         
@@ -148,7 +143,7 @@ public class SIPCodecFactory {
             printLog( "getAvailableAudioCodecsWithPrecedence", 
                     "codecId = [" + codecId + "]." );
             
-            SIPCodec sipCodec = getSIPMediaCodec( 
+            SIPCodec sipCodec = getSIPAudioCodec( 
                     Integer.valueOf( codecId ).intValue() );
             
             if ( sipCodec != null ) {

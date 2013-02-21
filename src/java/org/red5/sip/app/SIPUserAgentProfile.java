@@ -128,7 +128,7 @@ public class SIPUserAgentProfile {
     public boolean audio = true;
 
     /** Whether using video */
-    public boolean video = true;
+    public boolean video = false;
 
     /** Whether playing in receive only mode */
     public boolean recvOnly = false;
