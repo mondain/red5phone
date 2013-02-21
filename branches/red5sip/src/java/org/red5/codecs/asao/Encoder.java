@@ -1,6 +1,5 @@
 package org.red5.codecs.asao;
 
-
 /*
  * Copyright (c) 2007 a840bda5870ba11f19698ff6eb9581dfb0f95fa5,
  *                    539459aeb7d425140b62a3ec7dbf6dc8e408a306, and
@@ -33,43 +32,31 @@ package org.red5.codecs.asao;
 //------------------------------------------------------------------------
 public final class Encoder {
 
-    public Encoder() {
+	public Encoder() {
 
-    }
+	}
 
+	public EncoderMap encode(EncoderMap e1, float[] af, int j, byte[] abyte0, int k) {
 
-    public EncoderMap encode( EncoderMap e1, float[] af, int j, byte[] abyte0, int k ) {
+		if (e1 == null) {
+			e1 = new NellyEncoderMap(this);
+		}
 
-        if ( e1 == null ) {
-            e1 = new NellyEncoderMap( this );
-        }
+		NellyEncoderMap nellyEncoderMap = (NellyEncoderMap) e1;
+		Codec.process(nellyEncoderMap.a, af, j, abyte0, k, nellyEncoderMap.c, nellyEncoderMap.d, nellyEncoderMap.e,
+				nellyEncoderMap.f, nellyEncoderMap.g, nellyEncoderMap.h);
 
-        NellyEncoderMap nellyEncoderMap = (NellyEncoderMap) e1;
-        Codec.process(
-            nellyEncoderMap.a,
-            af,
-            j,
-            abyte0,
-            k,
-            nellyEncoderMap.c,
-            nellyEncoderMap.d,
-            nellyEncoderMap.e,
-            nellyEncoderMap.f,
-            nellyEncoderMap.g,
-            nellyEncoderMap.h );
+		return e1;
+	}
 
-        return e1;
-    }
+	public EncoderMap encode(EncoderMap e1, byte[] abyte0, int j, boolean flag, byte[] abyte1, int k) {
 
+		if (e1 == null) {
+			e1 = new NellyEncoderMap(this);
+		}
 
-    public EncoderMap encode( EncoderMap e1, byte[] abyte0, int j, boolean flag, byte[] abyte1, int k ) {
+		Utility.byte2float(abyte0, j, 512, ((NellyEncoderMap) e1).b, 0, flag);
 
-        if ( e1 == null ) {
-            e1 = new NellyEncoderMap( this );
-        }
-
-        Utility.byte2float( abyte0, j, 512, ( (NellyEncoderMap) e1 ).b, 0, flag );
-
-        return encode( e1, ( (NellyEncoderMap) e1 ).b, 0, abyte1, k );
-    }
+		return encode(e1, ((NellyEncoderMap) e1).b, 0, abyte1, k);
+	}
 }

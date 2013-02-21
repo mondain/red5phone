@@ -5,90 +5,73 @@ import org.slf4j.LoggerFactory;
 
 public class BufferUtils {
 
-    protected static Logger log = LoggerFactory.getLogger( RTPStreamSender.class );
+	protected static Logger log = LoggerFactory.getLogger(RTPStreamSender.class);
 
+	/**
+	 * Copy "copySize" floats from "origBuffer", starting on "startOrigBuffer", to "destBuffer", starting on
+	 * "startDestBuffer".
+	 */
+	public static int floatBufferIndexedCopy(float[] destBuffer, int startDestBuffer, float[] origBuffer,
+			int startOrigBuffer, int copySize) {
 
-    /**
-     * Copy "copySize" floats from "origBuffer", starting on "startOrigBuffer",
-     * to "destBuffer", starting on "startDestBuffer".
-     */
-    public static int floatBufferIndexedCopy(
-        float[] destBuffer,
-        int startDestBuffer,
-        float[] origBuffer,
-        int startOrigBuffer,
-        int copySize ) {
+		int destBufferIndex = startDestBuffer;
+		int origBufferIndex = startOrigBuffer;
+		int counter = 0;
 
-        int destBufferIndex = startDestBuffer;
-        int origBufferIndex = startOrigBuffer;
-        int counter = 0;
+		println("floatBufferIndexedCopy", "destBuffer.length = " + destBuffer.length + ", startDestBuffer = "
+				+ startDestBuffer + ", origBuffer.length = " + origBuffer.length + ", startOrigBuffer = "
+				+ startOrigBuffer + ", copySize = " + copySize + ".");
 
-        println( "floatBufferIndexedCopy",
-                "destBuffer.length = " + destBuffer.length +
-                ", startDestBuffer = " + startDestBuffer +
-                ", origBuffer.length = " + origBuffer.length +
-                ", startOrigBuffer = " + startOrigBuffer +
-                ", copySize = " + copySize + "." );
+		if (destBuffer.length < (startDestBuffer + copySize)) {
+			println("floatBufferIndexedCopy", "Size copy problem.");
+			return -1;
+		}
 
-        if ( destBuffer.length < ( startDestBuffer + copySize ) ) {
-            println( "floatBufferIndexedCopy", "Size copy problem." );
-            return -1;
-        }
+		for (counter = 0; counter < copySize; counter++) {
+			destBuffer[destBufferIndex] = origBuffer[origBufferIndex];
 
-        for ( counter = 0; counter < copySize; counter++ ) {
-            destBuffer[ destBufferIndex ] = origBuffer[ origBufferIndex ];
+			destBufferIndex++;
+			origBufferIndex++;
+		}
 
-            destBufferIndex++;
-            origBufferIndex++;
-        }
+		println("floatBufferIndexedCopy", counter + " bytes copied.");
 
-        println( "floatBufferIndexedCopy", counter + " bytes copied." );
+		return counter;
+	}
 
-        return counter;
-    }
+	/**
+	 * Copy "copySize" bytes from "origBuffer", starting on "startOrigBuffer", to "destBuffer", starting on
+	 * "startDestBuffer".
+	 */
+	public static int byteBufferIndexedCopy(byte[] destBuffer, int startDestBuffer, byte[] origBuffer,
+			int startOrigBuffer, int copySize) {
 
+		int destBufferIndex = startDestBuffer;
+		int origBufferIndex = startOrigBuffer;
+		int counter = 0;
 
-    /**
-     * Copy "copySize" bytes from "origBuffer", starting on "startOrigBuffer",
-     * to "destBuffer", starting on "startDestBuffer".
-     */
-    public static int byteBufferIndexedCopy(
-        byte[] destBuffer,
-        int startDestBuffer,
-        byte[] origBuffer,
-        int startOrigBuffer,
-        int copySize ) {
+		println("byteBufferIndexedCopy", "destBuffer.length = " + destBuffer.length + ", startDestBuffer = "
+				+ startDestBuffer + ", origBuffer.length = " + origBuffer.length + ", startOrigBuffer = "
+				+ startOrigBuffer + ", copySize = " + copySize + ".");
 
-        int destBufferIndex = startDestBuffer;
-        int origBufferIndex = startOrigBuffer;
-        int counter = 0;
+		if (destBuffer.length < (startDestBuffer + copySize)) {
+			println("byteBufferIndexedCopy", "size copy problem.");
+			return -1;
+		}
 
-        println( "byteBufferIndexedCopy",
-                "destBuffer.length = " + destBuffer.length +
-                ", startDestBuffer = " + startDestBuffer +
-                ", origBuffer.length = " + origBuffer.length +
-                ", startOrigBuffer = " + startOrigBuffer +
-                ", copySize = " + copySize + "." );
+		for (counter = 0; counter < copySize; counter++) {
+			destBuffer[destBufferIndex] = origBuffer[origBufferIndex];
 
-        if ( destBuffer.length < ( startDestBuffer + copySize ) ) {
-            println( "byteBufferIndexedCopy", "size copy problem." );
-            return -1;
-        }
+			destBufferIndex++;
+			origBufferIndex++;
+		}
 
-        for ( counter = 0; counter < copySize; counter++ ) {
-            destBuffer[ destBufferIndex ] = origBuffer[ origBufferIndex ];
+		println("byteBufferIndexedCopy", counter + " bytes copied.");
 
-            destBufferIndex++;
-            origBufferIndex++;
-        }
+		return counter;
+	}
 
-        println( "byteBufferIndexedCopy", counter + " bytes copied." );
-
-        return counter;
-    }
-
-
-    private static void println( String method, String message ) {
-        //log.debug( "BufferUtils - " + method + " -> " + message );
-    }
+	private static void println(String method, String message) {
+		// log.debug( "BufferUtils - " + method + " -> " + message );
+	}
 }

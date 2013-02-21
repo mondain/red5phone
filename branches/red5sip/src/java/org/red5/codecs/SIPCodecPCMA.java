@@ -4,188 +4,166 @@ import java.util.Arrays;
 
 import local.media.G711;
 
-
 public class SIPCodecPCMA implements SIPCodec {
 
-    // Codec information
-    private static final String codecName = "PCMA";
-    
-    private static final int codecId = 8;
+	// Codec information
+	private static final String codecName = "PCMA";
 
-    private static int defaultEncodedFrameSize = 160;
+	private static final int codecId = 8;
 
-    private static int defaultDecodedFrameSize = 160;
-    
-    private static int defaultSampleRate = 8000;
+	private static int defaultEncodedFrameSize = 160;
 
-    private int outgoingPacketization = 0;
+	private static int defaultDecodedFrameSize = 160;
 
-    private int incomingPacketization = 0;
+	private static int defaultSampleRate = 8000;
 
+	private int outgoingPacketization = 0;
 
-    public SIPCodecPCMA() {
+	private int incomingPacketization = 0;
 
-    }
+	public SIPCodecPCMA() {
 
+	}
 
-    @Override
-    public void encodeInit( int defaultEncodePacketization ) {
-        
-        if ( this.outgoingPacketization == 0 ) {
-            
-            this.outgoingPacketization = defaultEncodePacketization;
-        }
-    }
+	@Override
+	public void encodeInit(int defaultEncodePacketization) {
 
+		if (this.outgoingPacketization == 0) {
 
-    @Override
-    public void decodeInit( int defaultDecodePacketization ) {
-        
-        if ( this.incomingPacketization == 0 ) {
-            
-            this.incomingPacketization = defaultDecodePacketization;
-        }
-    }
+			this.outgoingPacketization = defaultEncodePacketization;
+		}
+	}
 
+	@Override
+	public void decodeInit(int defaultDecodePacketization) {
 
-    @Override
-    public String codecNegotiateAttribute( String attributeName, String localAttributeValue, String remoteAttributeValue ) {
+		if (this.incomingPacketization == 0) {
 
-        // Not applicable for this codec type
-        return null;
-    }
+			this.incomingPacketization = defaultDecodePacketization;
+		}
+	}
 
+	@Override
+	public String codecNegotiateAttribute(String attributeName, String localAttributeValue, String remoteAttributeValue) {
 
-    @Override
-    public int getCodecBlankPacket( byte[] buffer, int offset ) {
+		// Not applicable for this codec type
+		return null;
+	}
 
-        Arrays.fill( buffer, offset, offset + getOutgoingEncodedFrameSize(), (byte)G711.linear2alaw(0));
-        
-        return getOutgoingEncodedFrameSize();
-    }
+	@Override
+	public int getCodecBlankPacket(byte[] buffer, int offset) {
 
+		Arrays.fill(buffer, offset, offset + getOutgoingEncodedFrameSize(), (byte) G711.linear2alaw(0));
 
-    @Override
-    public int codecToPcm( byte[] bufferIn, float[] bufferOut ) {
+		return getOutgoingEncodedFrameSize();
+	}
 
-        if ( bufferIn.length > 0 ) {
-            for ( int i = 0; i < bufferIn.length; i++ ) {
-                bufferOut[ i ] = (float) G711.alaw2linear( (int) bufferIn[ i ] );
-            }
-            
-            return bufferOut.length;
-        }
-        else {
-            return 0;
-        } 
-    }
+	@Override
+	public int codecToPcm(byte[] bufferIn, float[] bufferOut) {
 
+		if (bufferIn.length > 0) {
+			for (int i = 0; i < bufferIn.length; i++) {
+				bufferOut[i] = (float) G711.alaw2linear((int) bufferIn[i]);
+			}
 
-    @Override
-    public int pcmToCodec( float[] bufferIn, byte[] bufferOut ) {
+			return bufferOut.length;
+		} else {
+			return 0;
+		}
+	}
 
-        if ( bufferIn.length > 0 ) {
-            for ( int i = 0; i < bufferIn.length; i++ ) {
-                bufferOut[ i ] = (byte) G711.linear2alaw( (int) bufferIn[ i ] );
-            }
-            
-            return bufferOut.length;
-        }
-        else {
-            return 0;
-        }  
-    }
+	@Override
+	public int pcmToCodec(float[] bufferIn, byte[] bufferOut) {
 
+		if (bufferIn.length > 0) {
+			for (int i = 0; i < bufferIn.length; i++) {
+				bufferOut[i] = (byte) G711.linear2alaw((int) bufferIn[i]);
+			}
 
-    @Override
-    public int getIncomingEncodedFrameSize() {
+			return bufferOut.length;
+		} else {
+			return 0;
+		}
+	}
 
-        return ( defaultEncodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * incomingPacketization;
-    }
+	@Override
+	public int getIncomingEncodedFrameSize() {
 
+		return (defaultEncodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION) * incomingPacketization;
+	}
 
-    @Override
-    public int getIncomingDecodedFrameSize() {
+	@Override
+	public int getIncomingDecodedFrameSize() {
 
-        return ( defaultDecodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * incomingPacketization;
-    }
+		return (defaultDecodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION) * incomingPacketization;
+	}
 
+	@Override
+	public int getOutgoingEncodedFrameSize() {
 
-    @Override
-    public int getOutgoingEncodedFrameSize() {
+		return (defaultEncodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION) * outgoingPacketization;
+	}
 
-        return ( defaultEncodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * outgoingPacketization;
-    }
+	@Override
+	public int getOutgoingDecodedFrameSize() {
 
+		return (defaultDecodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION) * outgoingPacketization;
+	}
 
-    @Override
-    public int getOutgoingDecodedFrameSize() {
+	@Override
+	public int getIncomingPacketization() {
 
-        return ( defaultDecodedFrameSize / SIPCodec.DEFAULT_PACKETIZATION ) * outgoingPacketization;
-    }
+		return incomingPacketization;
+	}
 
+	@Override
+	public int getOutgoingPacketization() {
 
-    @Override
-    public int getIncomingPacketization() {
+		return outgoingPacketization;
+	}
 
-        return incomingPacketization;
-    }
+	@Override
+	public void setLocalPtime(int localPtime) {
 
+		// Test for prior update during attributes negotiation.
+		if (this.incomingPacketization == 0) {
 
-    @Override
-    public int getOutgoingPacketization() {
+			incomingPacketization = localPtime;
+		}
+	}
 
-        return outgoingPacketization;
-    }
+	@Override
+	public void setRemotePtime(int remotePtime) {
 
+		// Test for prior update during attributes negotiation.
+		if (this.outgoingPacketization == 0) {
 
-    @Override
-    public void setLocalPtime( int localPtime ) {
-        
-        // Test for prior update during attributes negotiation.
-        if ( this.incomingPacketization == 0 ) {
-            
-            incomingPacketization = localPtime;
-        }
-    }
+			outgoingPacketization = remotePtime;
+		}
+	}
 
+	@Override
+	public int getSampleRate() {
 
-    @Override
-    public void setRemotePtime( int remotePtime ) {
-        
-        // Test for prior update during attributes negotiation.
-        if ( this.outgoingPacketization == 0 ) {
-            
-            outgoingPacketization = remotePtime;
-        }
-    }
+		return defaultSampleRate;
+	}
 
+	@Override
+	public String getCodecName() {
 
-    @Override
-    public int getSampleRate() {
+		return codecName;
+	}
 
-        return defaultSampleRate;
-    }
+	@Override
+	public int getCodecId() {
 
+		return codecId;
+	}
 
-    @Override
-    public String getCodecName() {
+	@Override
+	public String[] getCodecMediaAttributes() {
 
-        return codecName;
-    }
-
-
-    @Override
-    public int getCodecId() {
-
-        return codecId;
-    }
-
-
-    @Override
-    public String[] getCodecMediaAttributes() {
-
-        // TODO Auto-generated method stub
-        return null;
-    }
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

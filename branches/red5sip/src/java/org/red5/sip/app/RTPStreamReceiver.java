@@ -10,216 +10,201 @@ import org.red5.codecs.SIPCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class RTPStreamReceiver extends Thread {
 
-    protected static Logger log = LoggerFactory.getLogger(RTPStreamReceiver.class);
-    public static int RTP_HEADER_SIZE = 12;
-    public static final int SO_TIMEOUT = 200;	// Maximum blocking time, spent waiting for reading new bytes [milliseconds]
-    private SIPCodec sipCodec = null; // Sip codec to be used on audio session
-    private IMediaReceiver rtmpUser = null;
-    private RtpSocket rtp_socket = null;
-    private boolean socketIsLocal = false;		// Whether the socket has been created here
-    private boolean running = false;
-    private long timeStamp = 0;
-    private int frameCounter = 0;
-    private final Object sync = new Object();
+	protected static Logger log = LoggerFactory.getLogger(RTPStreamReceiver.class);
+	public static int RTP_HEADER_SIZE = 12;
+	public static final int SO_TIMEOUT = 200; // Maximum blocking time, spent
+												// waiting for reading new bytes
+												// [milliseconds]
+	private SIPCodec sipCodec = null; // Sip codec to be used on audio session
+	private IMediaReceiver rtmpUser = null;
+	private RtpSocket rtp_socket = null;
+	private boolean socketIsLocal = false; // Whether the socket has been
+											// created here
+	private boolean running = false;
+	private long timeStamp = 0;
+	private int frameCounter = 0;
+	private final Object sync = new Object();
 
+	/**
+	 * Constructs a RtpStreamReceiver.
+	 * 
+	 * @param sipCodec
+	 *            codec to be used on audio session
+	 * @param rtmpUser
+	 *            the stream sink
+	 * @param local_port
+	 *            the local receiver port
+	 */
 
-    /**
-     * Constructs a RtpStreamReceiver.
-     *
-     * @param sipCodec
-     *            codec to be used on audio session
-     * @param rtmpUser
-     *            the stream sink
-     * @param local_port
-     *            the local receiver port
-     */
+	public RTPStreamReceiver(SIPCodec sipCodec, IMediaReceiver rtmpUser, int local_port) {
+		try {
+			DatagramSocket socket = new DatagramSocket(local_port);
 
-    public RTPStreamReceiver(SIPCodec sipCodec, IMediaReceiver rtmpUser, int local_port)
-    {
-        try {
-            DatagramSocket socket = new DatagramSocket( local_port );
+			socketIsLocal = true;
 
-            socketIsLocal = true;
+			init(sipCodec, rtmpUser, socket);
+		} catch (Exception e) {
+			log.error("Exception", e);
+		}
+	}
 
-            init( sipCodec, rtmpUser, socket );
-        }
-        catch ( Exception e ) {
-            log.error("Exception", e);
-        }
-    }
+	/**
+	 * Constructs a RtpStreamReceiver.
+	 * 
+	 * @param sipCodec
+	 *            codec to be used on audio session
+	 * @param rtmpUser
+	 *            the stream sink
+	 * @param socket
+	 *            the local receiver DatagramSocket
+	 */
 
+	public RTPStreamReceiver(SIPCodec sipCodec, IMediaReceiver rtmpUser, DatagramSocket socket) {
+		init(sipCodec, rtmpUser, socket);
+	}
 
-    /**
-     * Constructs a RtpStreamReceiver.
-     *
-     * @param sipCodec
-     *            codec to be used on audio session
-     * @param rtmpUser
-     *            the stream sink
-     * @param socket
-     *            the local receiver DatagramSocket
-     */
+	/** Inits the RtpStreamReceiver */
 
-    public RTPStreamReceiver(SIPCodec sipCodec, IMediaReceiver rtmpUser, DatagramSocket socket)
-    {
-        init( sipCodec, rtmpUser, socket );
-    }
+	private void init(SIPCodec sipCodec, IMediaReceiver rtmpUser, DatagramSocket socket) {
+		this.sipCodec = sipCodec;
+		this.rtmpUser = rtmpUser;
 
+		if (socket != null) {
+			rtp_socket = new RtpSocket(socket);
+		}
+	}
 
-    /** Inits the RtpStreamReceiver */
+	/** Whether is running */
 
-    private void init( SIPCodec sipCodec, IMediaReceiver rtmpUser, DatagramSocket socket )
-    {
-        this.sipCodec = sipCodec;
-        this.rtmpUser = rtmpUser;
+	public boolean isRunning() {
+		return running;
+	}
 
-        if ( socket != null ) {
-            rtp_socket = new RtpSocket( socket );
-        }
-    }
+	/** Stops running */
 
+	public void halt() {
+		running = false;
+	}
 
-    /** Whether is running */
+	/** Runs it in a new Thread. */
 
-    public boolean isRunning()
-    {
-        return running;
-    }
+	public void run() {
+		if (rtp_socket == null) {
+			println("run", "RTP socket is null.");
+			return;
+		}
 
+		// byte[] codedBuffer = new byte[ sipCodec.getIncomingEncodedFrameSize()
+		// ];
+		byte[] internalBuffer = new byte[sipCodec.getIncomingEncodedFrameSize() + RTP_HEADER_SIZE];
 
-    /** Stops running */
+		RtpPacket rtpPacket = new RtpPacket(internalBuffer, 0);
 
-    public void halt()
-    {
-        running = false;
-    }
+		running = true;
 
-    /** Runs it in a new Thread. */
+		final int BUFFER_LENGTH = 100;
+		final BytesBuffer buffer = new BytesBuffer(sipCodec.getIncomingEncodedFrameSize(), BUFFER_LENGTH);
 
-    public void run()
-    {
-        if ( rtp_socket == null )
-        {
-            println( "run", "RTP socket is null." );
-            return;
-        }
+		Thread sendThread = new Thread(new Runnable() {
+			public void run() {
+				boolean ready = false;
+				int avail = 0;
+				while (running) {
+					byte[] codedBuffer = new byte[sipCodec.getIncomingEncodedFrameSize()];
+					synchronized (sync) {
+						avail = buffer.available();
+						if (!ready) {
+							if (avail > 30) {
+								ready = true;
+							}
+						} else {
+							if (avail == 0) {
+								ready = false;
+							}
+						}
+						if (ready) {
+							buffer.take(codedBuffer, 0);
+						}
+					}
+					if (ready) {
+						timeStamp += sipCodec.getIncomingPacketization();
+						try {
+							rtmpUser.pushAudio(codedBuffer, timeStamp, 130);
+							try {
 
-//        byte[] codedBuffer 		= new byte[ sipCodec.getIncomingEncodedFrameSize() ];
-        byte[] internalBuffer 	= new byte[sipCodec.getIncomingEncodedFrameSize() + RTP_HEADER_SIZE ];
+								long pause = sipCodec.getOutgoingPacketization();
+								if (avail > BUFFER_LENGTH / 2) {
+									pause -= 5;
+								}
+								if (avail > BUFFER_LENGTH / 5) {
+									pause -= 1;
+								}
+								log.trace("Sleep pause: " + pause);
+								Thread.sleep(pause, 800000);
+							} catch (InterruptedException e) {
 
-        RtpPacket rtpPacket = new RtpPacket( internalBuffer, 0 );
+							}
+						} catch (IOException e) {
+							log.error("rtmpUser.pushAudio", e);
+						}
+					}
+					Thread.yield();
+				}
+			}
+		});
 
-        running = true;
+		sendThread.start();
 
-        final int BUFFER_LENGTH = 100;
-        final BytesBuffer buffer = new BytesBuffer( sipCodec.getIncomingEncodedFrameSize(), BUFFER_LENGTH );
+		try {
 
-        Thread sendThread = new Thread(new Runnable() {
-            public void run() {
-                boolean ready = false;
-                int avail = 0;
-                while(running) {
-                    byte[] codedBuffer = new byte[ sipCodec.getIncomingEncodedFrameSize() ];
-                    synchronized (sync) {
-                        avail = buffer.available();
-                        if(!ready) {
-                            if(avail > 30) {
-                                ready = true;
-                            }
-                        } else {
-                            if(avail == 0 ) {
-                                ready = false;
-                            }
-                        }
-                        if(ready) {
-                            buffer.take(codedBuffer, 0);
-                        }
-                    }
-                    if(ready) {
-                        timeStamp += sipCodec.getIncomingPacketization();
-                        try {
-                            rtmpUser.pushAudio(codedBuffer, timeStamp, 130);
-                            try {
+			rtp_socket.getDatagramSocket().setSoTimeout(SO_TIMEOUT);
 
-                                long pause = sipCodec.getOutgoingPacketization();
-                                if(avail > BUFFER_LENGTH / 2) {
-                                    pause -= 5;
-                                }
-                                if(avail > BUFFER_LENGTH / 5) {
-                                    pause -= 1;
-                                }
-                                log.trace("Sleep pause: " + pause);
-                                Thread.sleep( pause, 800000 );
-                            } catch (InterruptedException e) {
+			while (running) {
 
-                            }
-                        } catch (IOException e) {
-                            log.error("rtmpUser.pushAudio", e);
-                        }
-                    }
-                    Thread.yield();
-                }
-            }
-        });
+				try {
+					rtp_socket.receive(rtpPacket);
+					frameCounter++;
 
-        sendThread.start();
+					if (running) {
 
-        try {
+						byte[] packetBuffer = rtpPacket.getPacket();
+						int offset = rtpPacket.getHeaderLength();
+						int payloadType = rtpPacket.getPayloadType();
 
-            rtp_socket.getDatagramSocket().setSoTimeout( SO_TIMEOUT );
+						if (payloadType < 20) {
+							synchronized (sync) {
+								buffer.push(packetBuffer, offset, sipCodec.getIncomingEncodedFrameSize());
+							}
+						}
+					}
+				} catch (java.io.InterruptedIOException e) {
+				}
+			}
+		} catch (Exception e) {
 
-            while ( running ) {
+			running = false;
+			log.error("Exception", e);
+		}
 
-                try {
-                    rtp_socket.receive( rtpPacket );
-                    frameCounter++;
+		// Close RtpSocket and local DatagramSocket.
+		DatagramSocket socket = rtp_socket.getDatagramSocket();
+		rtp_socket.close();
 
-                    if ( running ) {
+		if (socketIsLocal && socket != null) {
+			socket.close();
+		}
 
-                        byte[] packetBuffer = rtpPacket.getPacket();
-                        int offset = rtpPacket.getHeaderLength();
-                        int payloadType = rtpPacket.getPayloadType();
+		// Free all.
+		rtp_socket = null;
 
-                        if(payloadType < 20)
-                        {
-                            synchronized (sync) {
-                                buffer.push(packetBuffer, offset, sipCodec.getIncomingEncodedFrameSize());
-                            }
-                        }
-                    }
-                }
-                catch ( java.io.InterruptedIOException e ) {
-                }
-            }
-        }
-        catch ( Exception e ) {
+		println("run", "Terminated.");
+		println("run", "Frames = " + frameCounter + ".");
+	}
 
-            running = false;
-            log.error("Exception", e);
-        }
-
-        // Close RtpSocket and local DatagramSocket.
-        DatagramSocket socket = rtp_socket.getDatagramSocket();
-        rtp_socket.close();
-
-        if ( socketIsLocal && socket != null ) {
-            socket.close();
-        }
-
-        // Free all.
-        rtp_socket = null;
-
-        println( "run", "Terminated." );
-        println( "run", "Frames = " + frameCounter + "." );
-    }
-
-
-    /** Debug output */
-    private static void println( String method, String message ) {
-        //log.debug( "RtpStreamReceiver - " + method + " -> " + message );
-    }
+	/** Debug output */
+	private static void println(String method, String message) {
+		// log.debug( "RtpStreamReceiver - " + method + " -> " + message );
+	}
 }
-

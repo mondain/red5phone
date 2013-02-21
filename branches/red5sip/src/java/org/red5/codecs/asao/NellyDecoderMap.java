@@ -1,6 +1,5 @@
 package org.red5.codecs.asao;
 
-
 /*
  * Copyright (c) 2007 a840bda5870ba11f19698ff6eb9581dfb0f95fa5,
  *                    539459aeb7d425140b62a3ec7dbf6dc8e408a306, and
@@ -33,27 +32,26 @@ package org.red5.codecs.asao;
 //------------------------------------------------------------------------
 final class NellyDecoderMap implements DecoderMap {
 
-    public final float[] a = new float[ 64 ];
+	public final float[] a = new float[64];
 
-    public final float[] b = new float[ 256 ];
+	public final float[] b = new float[256];
 
-    public final float[] c = new float[ 128 ];
+	public final float[] c = new float[128];
 
-    public final float[] d = new float[ 124 ];
+	public final float[] d = new float[124];
 
-    public final float[] e = new float[ 124 ];
+	public final float[] e = new float[124];
 
-    public final byte[] f = new byte[ 124 ];
+	public final byte[] f = new byte[124];
 
-    public final int[] g = new int[ 124 ];
+	public final int[] g = new int[124];
 
-    final Decoder decoder;
+	final Decoder decoder;
 
+	public NellyDecoderMap(Decoder decoder) {
 
-    public NellyDecoderMap( Decoder decoder ) {
-
-        super();
-        this.decoder = decoder;
-    }
+		super();
+		this.decoder = decoder;
+	}
 
 }

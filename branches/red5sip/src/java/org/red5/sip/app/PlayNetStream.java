@@ -13,72 +13,72 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PlayNetStream extends AbstractClientStream implements IEventDispatcher {
-    private static Logger logger = LoggerFactory.getLogger(PlayNetStream.class);
+	private static Logger logger = LoggerFactory.getLogger(PlayNetStream.class);
 
-    private int audioTs = 0;
+	private int audioTs = 0;
 
-    private IMediaSender mediaSender;
+	private IMediaSender mediaSender;
 
-    private IMediaStream mediaStream;
+	private IMediaStream mediaStream;
 
-    public PlayNetStream(IMediaSender mediaSender) {
-        this.mediaSender = mediaSender;
-    }
+	public PlayNetStream(IMediaSender mediaSender) {
+		this.mediaSender = mediaSender;
+	}
 
-    public void close() {
-        if(mediaSender != null) {
-            mediaSender.deleteStream(getStreamId());
-        }
-    }
+	public void close() {
+		if (mediaSender != null) {
+			mediaSender.deleteStream(getStreamId());
+		}
+	}
 
-    public void start() {
-        if(mediaSender != null) {
-            mediaStream = mediaSender.createStream(getStreamId());
-        }
-    }
+	public void start() {
+		if (mediaSender != null) {
+			mediaStream = mediaSender.createStream(getStreamId());
+		}
+	}
 
-    public void stop() {
-        if(mediaSender != null) {
-            mediaSender.deleteStream(getStreamId());
-        }
-    }
+	public void stop() {
+		if (mediaSender != null) {
+			mediaSender.deleteStream(getStreamId());
+		}
+	}
 
-    public void dispatchEvent(IEvent event) {
+	public void dispatchEvent(IEvent event) {
 
-        if (!(event instanceof IRTMPEvent)) {
-            logger.debug("skipping non rtmp event: " + event);
-            return;
-        }
+		if (!(event instanceof IRTMPEvent)) {
+			logger.debug("skipping non rtmp event: " + event);
+			return;
+		}
 
-        IRTMPEvent rtmpEvent = (IRTMPEvent) event;
+		IRTMPEvent rtmpEvent = (IRTMPEvent) event;
 
-        if (!(rtmpEvent instanceof IStreamData)) {
-            logger.debug("skipping non stream data");
-            return;
-        }
+		if (!(rtmpEvent instanceof IStreamData)) {
+			logger.debug("skipping non stream data");
+			return;
+		}
 
-        if (rtmpEvent.getHeader().getSize() == 0) {
-            logger.debug("skipping event where size == 0");
-            return;
-        }
+		if (rtmpEvent.getHeader().getSize() == 0) {
+			logger.debug("skipping event where size == 0");
+			return;
+		}
 
-        if (rtmpEvent instanceof VideoData) {
-            // videoTs += rtmpEvent.getTimestamp();
-            // tag.setTimestamp(videoTs);
+		if (rtmpEvent instanceof VideoData) {
+			// videoTs += rtmpEvent.getTimestamp();
+			// tag.setTimestamp(videoTs);
 
-        } else if (rtmpEvent instanceof AudioData) {
-            audioTs = rtmpEvent.getTimestamp();
+		} else if (rtmpEvent instanceof AudioData) {
+			audioTs = rtmpEvent.getTimestamp();
 
-            IoBuffer audioData = ((AudioData) rtmpEvent).getData().asReadOnlyBuffer();
-            byte[] data = SerializeUtils.ByteBufferToByteArray(audioData);
+			IoBuffer audioData = ((AudioData) rtmpEvent).getData().asReadOnlyBuffer();
+			byte[] data = SerializeUtils.ByteBufferToByteArray(audioData);
 
-            try {
-                if(mediaStream != null) {
-                    mediaStream.send(audioTs, data, 1, data.length - 1);
-                }
-            } catch (Exception e) {
-            	logger.error("PlayNetStream dispatchEvent exception ", e);
-            }
-        }
-    }
+			try {
+				if (mediaStream != null) {
+					mediaStream.send(audioTs, data, 1, data.length - 1);
+				}
+			} catch (Exception e) {
+				logger.error("PlayNetStream dispatchEvent exception ", e);
+			}
+		}
+	}
 }

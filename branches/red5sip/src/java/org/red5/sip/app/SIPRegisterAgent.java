@@ -28,8 +28,7 @@ import org.zoolu.sip.transaction.TransactionClient;
 import org.zoolu.sip.transaction.TransactionClientListener;
 
 /**
- * Register User Agent. It registers (one time or periodically) a contact
- * address with a registrar server.
+ * Register User Agent. It registers (one time or periodically) a contact address with a registrar server.
  */
 public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 	protected static Logger log = LoggerFactory.getLogger(SIPRegisterAgent.class);
@@ -94,18 +93,16 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 	KeepAliveSip keep_alive;
 
 	/** Creates a new RegisterAgent. */
-	public SIPRegisterAgent(SipProvider sip_provider, String target_url,
-			String contact_url, SIPRegisterAgentListener listener) {
+	public SIPRegisterAgent(SipProvider sip_provider, String target_url, String contact_url,
+			SIPRegisterAgentListener listener) {
 		init(sip_provider, target_url, contact_url, listener);
 	}
 
 	/**
-	 * Creates a new RegisterAgent with authentication credentials (i.e.
-	 * username, realm, and passwd).
+	 * Creates a new RegisterAgent with authentication credentials (i.e. username, realm, and passwd).
 	 */
-	public SIPRegisterAgent(SipProvider sip_provider, String target_url,
-			String contact_url, String username, String realm, String passwd,
-			SIPRegisterAgentListener listener) {
+	public SIPRegisterAgent(SipProvider sip_provider, String target_url, String contact_url, String username,
+			String realm, String passwd, SIPRegisterAgentListener listener) {
 		init(sip_provider, target_url, contact_url, listener);
 		// authentication
 		this.username = username;
@@ -114,8 +111,7 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 	}
 
 	/** Inits the RegisterAgent. */
-	private void init(SipProvider sip_provider, String target_url,
-			String contact_url, SIPRegisterAgentListener listener) {
+	private void init(SipProvider sip_provider, String target_url, String contact_url, SIPRegisterAgentListener listener) {
 		this.listener = listener;
 		this.sip_provider = sip_provider;
 		this.target = new NameAddress(target_url);
@@ -150,7 +146,7 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 	/** Registers with the registrar server. */
 	public void register() {
 		if (listener != null && listener instanceof SIPTransport) {
-			((SIPTransport)listener).roomClient.stop();
+			((SIPTransport) listener).roomClient.stop();
 		}
 		register(expire_time);
 	}
@@ -163,13 +159,11 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 		if (expire_time > 0) {
 			this.expire_time = expire_time;
 		}
-		Message req = MessageFactory.createRegisterRequest(sip_provider,
-				target, target, contact);
+		Message req = MessageFactory.createRegisterRequest(sip_provider, target, target, contact);
 
 		/*
-		 * MY_FIX: registerCallID contains the CallerID randomly generated in
-		 * the first REGISTER method. It will be reused for all successive
-		 * REGISTER invocations
+		 * MY_FIX: registerCallID contains the CallerID randomly generated in the first REGISTER method. It will be
+		 * reused for all successive REGISTER invocations
 		 */
 		if (this.registerCallID == null) {
 			this.registerCallID = req.getCallIdHeader();
@@ -191,14 +185,12 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 			ah.addNonceParam(next_nonce);
 			ah.addUriParam(req.getRequestLine().getAddress().toString());
 			ah.addQopParam(qop);
-			String response = (new DigestAuthentication(SipMethods.REGISTER,
-					ah, null, passwd)).getResponse();
+			String response = (new DigestAuthentication(SipMethods.REGISTER, ah, null, passwd)).getResponse();
 			ah.addResponseParam(response);
 			req.setAuthorizationHeader(ah);
 		}
 		if (expire_time > 0) {
-			printLog("Registering contact " + contact + " (it expires in "
-					+ expire_time + " secs)");
+			printLog("Registering contact " + contact + " (it expires in " + expire_time + " secs)");
 		} else {
 			printLog("Unregistering contact " + contact);
 		}
@@ -214,8 +206,7 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 	/** Unregister all contacts with the registrar server */
 	public void unregisterall() {
 		attempts = 0;
-		Message req = MessageFactory.createRegisterRequest(sip_provider,
-				target, target, null);
+		Message req = MessageFactory.createRegisterRequest(sip_provider, target, target, null);
 		// ContactHeader contact_star=new ContactHeader(); // contact is *
 		// req.setContactHeader(contact_star);
 		req.setExpiresHeader(new ExpiresHeader(String.valueOf(0)));
@@ -251,8 +242,7 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 	 * @param keepalive_time
 	 *            keep-alive packet rate (inter-arrival time) in milliseconds
 	 */
-	public void loopRegister(int expire_time, int renew_time,
-			long keepalive_time) {
+	public void loopRegister(int expire_time, int renew_time, long keepalive_time) {
 		loopRegister(expire_time, renew_time);
 		// keep-alive
 		if (keepalive_time > 0) {
@@ -262,8 +252,8 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 			if (targe_port < 0) {
 				targe_port = SipStack.default_port;
 			}
-			keep_alive = new KeepAliveSip(sip_provider, new SocketAddress(
-					target_host, targe_port), null, keepalive_time);
+			keep_alive = new KeepAliveSip(sip_provider, new SocketAddress(target_host, targe_port), null,
+					keepalive_time);
 		}
 	}
 
@@ -316,12 +306,10 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 	}
 
 	/** Callback function called when client sends back a success response. */
-	public void onTransSuccessResponse(TransactionClient transaction,
-			Message resp) {
+	public void onTransSuccessResponse(TransactionClient transaction, Message resp) {
 		if (transaction.getTransactionMethod().equals(SipMethods.REGISTER)) {
 			if (resp.hasAuthenticationInfoHeader()) {
-				next_nonce = resp.getAuthenticationInfoHeader()
-						.getNextnonceParam();
+				next_nonce = resp.getAuthenticationInfoHeader().getNextnonceParam();
 			}
 			StatusLine status = resp.getStatusLine();
 			String result = status.getCode() + " " + status.getReason();
@@ -344,19 +332,13 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 			if (expires > 0 && expires < renew_time) {
 				renew_time = expires;
 				if (renew_time < minRenewTime) {
-					printLog("Attempt to set renew time below min renew. Attempted="
-							+ renew_time
-							+ " min="
-							+ minRenewTime
-							+ "\r\nResponse=" + resp.toString());
+					printLog("Attempt to set renew time below min renew. Attempted=" + renew_time + " min="
+							+ minRenewTime + "\r\nResponse=" + resp.toString());
 					renew_time = minRenewTime;
 				}
 			} else if (expires > orig_renew_time) {
-				printLog("Attempt to set renew time above original renew. Attempted="
-						+ expires
-						+ " origrenew="
-						+ orig_renew_time
-						+ "\r\nResponse=" + resp.toString());
+				printLog("Attempt to set renew time above original renew. Attempted=" + expires + " origrenew="
+						+ orig_renew_time + "\r\nResponse=" + resp.toString());
 			}
 
 			printLog("Registration success: ");
@@ -368,21 +350,16 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 	}
 
 	/** Callback function called when client sends back a failure response. */
-	public void onTransFailureResponse(TransactionClient transaction,
-			Message resp) {
+	public void onTransFailureResponse(TransactionClient transaction, Message resp) {
 		printLog("onTransFailureResponse start: ");
 
 		if (transaction.getTransactionMethod().equals(SipMethods.REGISTER)) {
 			StatusLine status = resp.getStatusLine();
 			int code = status.getCode();
-			if ((code == 401 && attempts < MAX_ATTEMPTS
-					&& resp.hasWwwAuthenticateHeader() && resp
-					.getWwwAuthenticateHeader().getRealmParam()
-					.equalsIgnoreCase(realm))
-					|| (code == 407 && attempts < MAX_ATTEMPTS
-							&& resp.hasProxyAuthenticateHeader() && resp
-							.getProxyAuthenticateHeader().getRealmParam()
-							.equalsIgnoreCase(realm)))
+			if ((code == 401 && attempts < MAX_ATTEMPTS && resp.hasWwwAuthenticateHeader() && resp
+					.getWwwAuthenticateHeader().getRealmParam().equalsIgnoreCase(realm))
+					|| (code == 407 && attempts < MAX_ATTEMPTS && resp.hasProxyAuthenticateHeader() && resp
+							.getProxyAuthenticateHeader().getRealmParam().equalsIgnoreCase(realm)))
 
 			{
 				printLog("onTransFailureResponse 401 or 407: ");
@@ -410,9 +387,8 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 				req.addViaHeader(via);
 				qop = (qop_options != null) ? "auth" : null;
 
-				DigestAuthentication digest = new DigestAuthentication(
-						SipMethods.REGISTER, req.getRequestLine().getAddress()
-								.toString(), wah, qop, null, username, passwd);
+				DigestAuthentication digest = new DigestAuthentication(SipMethods.REGISTER, req.getRequestLine()
+						.getAddress().toString(), wah, qop, null, username, passwd);
 				AuthorizationHeader ah;
 				if (code == 401)
 					ah = digest.getAuthorizationHeader();
@@ -420,8 +396,7 @@ public class SIPRegisterAgent implements Runnable, TransactionClientListener {
 					ah = digest.getProxyAuthorizationHeader();
 
 				req.setAuthorizationHeader(ah);
-				TransactionClient t = new TransactionClient(sip_provider, req,
-						this);
+				TransactionClient t = new TransactionClient(sip_provider, req, this);
 				t.request();
 			} else {
 				String result = code + " " + status.getReason();

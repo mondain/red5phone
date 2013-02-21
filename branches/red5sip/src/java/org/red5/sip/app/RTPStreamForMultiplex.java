@@ -7,57 +7,57 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RTPStreamForMultiplex implements IMediaStream {
-    protected static Logger log = LoggerFactory.getLogger(RTPStreamForMultiplex.class);
+	protected static Logger log = LoggerFactory.getLogger(RTPStreamForMultiplex.class);
 
-    private int streamId;
-    private boolean ready = false;
-    protected DecoderMap decoderMap = null;
-    private BytesBuffer buffer = new BytesBuffer(NELLYMOSER_ENCODED_PACKET_SIZE, 200) {
-        @Override
-        protected void onBufferOverflow() {
-            super.onBufferOverflow();
-            log.error("Stream %d buffer overflow. Buffer is cleared");
-        }
+	private int streamId;
+	private boolean ready = false;
+	protected DecoderMap decoderMap = null;
+	private BytesBuffer buffer = new BytesBuffer(NELLYMOSER_ENCODED_PACKET_SIZE, 200) {
+		@Override
+		protected void onBufferOverflow() {
+			super.onBufferOverflow();
+			log.error("Stream %d buffer overflow. Buffer is cleared");
+		}
 
-        @Override
-        protected void onBufferEmpty() {
-            super.onBufferEmpty();
-            ready = false;
-        }
-    };
+		@Override
+		protected void onBufferEmpty() {
+			super.onBufferEmpty();
+			ready = false;
+		}
+	};
 
-    protected RTPStreamForMultiplex(int streamId) {
-        this.streamId = streamId;
-    }
+	protected RTPStreamForMultiplex(int streamId) {
+		this.streamId = streamId;
+	}
 
-    public int getStreamId() {
-        return streamId;
-    }
+	public int getStreamId() {
+		return streamId;
+	}
 
-    public void send(long timestamp, byte[] asaoBuffer, int offset, int num) {
-    	log.trace("Stream " + streamId + " send");
-        for(int i=0;i<num;i+=NELLYMOSER_ENCODED_PACKET_SIZE) {
-            synchronized (this) {
-                buffer.push(asaoBuffer, offset+i, NELLYMOSER_ENCODED_PACKET_SIZE);
-            }
-            Thread.yield();
-        }
-        synchronized (this) {
-            if(!ready && buffer.bufferUsage() > 0.2) {
-                ready = true;
-            }
-        }
-    }
+	public void send(long timestamp, byte[] asaoBuffer, int offset, int num) {
+		log.trace("Stream " + streamId + " send");
+		for (int i = 0; i < num; i += NELLYMOSER_ENCODED_PACKET_SIZE) {
+			synchronized (this) {
+				buffer.push(asaoBuffer, offset + i, NELLYMOSER_ENCODED_PACKET_SIZE);
+			}
+			Thread.yield();
+		}
+		synchronized (this) {
+			if (!ready && buffer.bufferUsage() > 0.2) {
+				ready = true;
+			}
+		}
+	}
 
-    protected synchronized boolean ready() {
-        return ready;
-    }
+	protected synchronized boolean ready() {
+		return ready;
+	}
 
-    protected synchronized float bufferUsage() {
-        return buffer.bufferUsage();
-    }
+	protected synchronized float bufferUsage() {
+		return buffer.bufferUsage();
+	}
 
-    protected synchronized int read(byte[] dst, int offset) {
-        return buffer.take(dst, offset);
-    }
+	protected synchronized int read(byte[] dst, int offset) {
+		return buffer.take(dst, offset);
+	}
 }
