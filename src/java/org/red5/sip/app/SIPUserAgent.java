@@ -1,6 +1,5 @@
 package org.red5.sip.app;
 
-
 import java.util.Enumeration;
 import java.util.Vector;
 
@@ -25,970 +24,892 @@ import org.zoolu.tools.Parser;
 
 //import java.util.Iterator;
 
-
 public class SIPUserAgent extends CallListenerAdapter {
 
-    protected static Logger log = LoggerFactory.getLogger( SIPUserAgent.class );
+	protected static Logger log = LoggerFactory.getLogger(SIPUserAgent.class);
 
-    /** UserAgentProfile */
-    protected SIPUserAgentProfile userProfile;
+	/** UserAgentProfile */
+	protected SIPUserAgentProfile userProfile;
 
-    /** SipProvider */
-    protected SipProvider sipProvider;
+	/** SipProvider */
+	protected SipProvider sipProvider;
 
-    /** Call */
-    // Call call;
-    protected ExtendedCall call;
+	/** Call */
+	// Call call;
+	protected ExtendedCall call;
 
-    /** Call transfer */
-    protected ExtendedCall callTransfer;
+	/** Call transfer */
+	protected ExtendedCall callTransfer;
 
-    /** Audio application */
-    public SIPAudioLauncher audioApp = null;
+	/** Audio application */
+	public SIPAudioLauncher audioApp = null;
 
-    /** Video application */
-    protected MediaLauncher videoApp = null;
+	/** Video application */
+	protected MediaLauncher videoApp = null;
 
-    /** Local sdp */
-    protected String localSession = null;
+	/** Local sdp */
+	protected String localSession = null;
 
-    /** SIPUserAgent listener */
-    protected SIPUserAgentListener listener = null;
+	/** SIPUserAgent listener */
+	protected SIPUserAgentListener listener = null;
 
-    /** Media file path */
-    final String MEDIA_PATH = "media/local/ua/";
+	/** Media file path */
+	final String MEDIA_PATH = "media/local/ua/";
 
-    /** On wav file */
-    final String CLIP_ON = MEDIA_PATH + "on.wav";
+	/** On wav file */
+	final String CLIP_ON = MEDIA_PATH + "on.wav";
 
-    /** Off wav file */
-    final String CLIP_OFF = MEDIA_PATH + "off.wav";
+	/** Off wav file */
+	final String CLIP_OFF = MEDIA_PATH + "off.wav";
 
-    /** Ring wav file */
-    final String CLIP_RING = MEDIA_PATH + "ring.wav";
+	/** Ring wav file */
+	final String CLIP_RING = MEDIA_PATH + "ring.wav";
 
-    /** Ring sound */
-    AudioClipPlayer clip_ring;
+	/** Ring sound */
+	AudioClipPlayer clip_ring;
 
-    /** On sound */
-    AudioClipPlayer clip_on;
+	/** On sound */
+	AudioClipPlayer clip_on;
 
-    /** Off sound */
-    AudioClipPlayer clip_off;
+	/** Off sound */
+	AudioClipPlayer clip_off;
 
-    private IMediaReceiver mediaReceiver;
+	private IMediaReceiver mediaReceiver;
 
-    /** Sip codec to be used on audio session */
-    private SIPCodec sipCodec = null;
+	/** Sip codec to be used on audio session */
+	private SIPCodec sipCodec = null;
 
+	// *********************** Startup Configuration ***********************
 
-    // *********************** Startup Configuration ***********************
+	/** UA_IDLE=0 */
+	static final String UA_IDLE = "IDLE";
 
-    /** UA_IDLE=0 */
-    static final String UA_IDLE = "IDLE";
+	/** UA_INCOMING_CALL=1 */
+	static final String UA_INCOMING_CALL = "INCOMING_CALL";
 
-    /** UA_INCOMING_CALL=1 */
-    static final String UA_INCOMING_CALL = "INCOMING_CALL";
+	/** UA_OUTGOING_CALL=2 */
+	static final String UA_OUTGOING_CALL = "OUTGOING_CALL";
 
-    /** UA_OUTGOING_CALL=2 */
-    static final String UA_OUTGOING_CALL = "OUTGOING_CALL";
+	/** UA_ONCALL=3 */
+	static final String UA_ONCALL = "ONCALL";
 
-    /** UA_ONCALL=3 */
-    static final String UA_ONCALL = "ONCALL";
+	/**
+	 * Call state
+	 * <P>
+	 * UA_IDLE=0, <BR>
+	 * UA_INCOMING_CALL=1, <BR>
+	 * UA_OUTGOING_CALL=2, <BR>
+	 * UA_ONCALL=3
+	 */
+	String call_state = UA_IDLE;
 
-    /**
-     * Call state
-     * <P>
-     * UA_IDLE=0, <BR>
-     * UA_INCOMING_CALL=1, <BR>
-     * UA_OUTGOING_CALL=2, <BR>
-     * UA_ONCALL=3
-     */
-    String call_state = UA_IDLE;
+	// *************************** Basic methods ***************************
 
+	/** Changes the call state */
+	protected void changeStatus(String state) {
 
-    // *************************** Basic methods ***************************
+		call_state = state;
+		// printLog("state: "+call_state);
+	}
 
-    /** Changes the call state */
-    protected void changeStatus( String state ) {
+	/** Checks the call state */
+	protected boolean statusIs(String state) {
 
-        call_state = state;
-        // printLog("state: "+call_state);
-    }
+		return call_state.equals(state);
+	}
 
+	/** Gets the call state */
+	protected String getStatus() {
 
-    /** Checks the call state */
-    protected boolean statusIs( String state ) {
+		return call_state;
+	}
 
-        return call_state.equals( state );
-    }
+	/**
+	 * Sets the automatic answer time (default is -1 that means no auto accept mode)
+	 */
+	public void setAcceptTime(int accept_time) {
 
+		userProfile.acceptTime = accept_time;
+	}
 
-    /** Gets the call state */
-    protected String getStatus() {
+	/**
+	 * Sets the automatic hangup time (default is 0, that corresponds to manual hangup mode)
+	 */
+	public void setHangupTime(int time) {
 
-        return call_state;
-    }
+		userProfile.hangupTime = time;
+	}
 
+	/** Sets the redirection url (default is null, that is no redircetion) */
+	public void setRedirection(String url) {
 
-    /**
-     * Sets the automatic answer time (default is -1 that means no auto accept
-     * mode)
-     */
-    public void setAcceptTime( int accept_time ) {
+		userProfile.redirectTo = url;
+	}
 
-        userProfile.acceptTime = accept_time;
-    }
+	/** Sets the no offer mode for the invite (default is false) */
+	public void setNoOfferMode(boolean nooffer) {
 
+		userProfile.noOffer = nooffer;
+	}
 
-    /**
-     * Sets the automatic hangup time (default is 0, that corresponds to manual
-     * hangup mode)
-     */
-    public void setHangupTime( int time ) {
+	/** Enables audio */
+	public void setAudio(boolean enable) {
 
-        userProfile.hangupTime = time;
-    }
+		userProfile.audio = enable;
+	}
 
+	/** Enables video */
+	public void setVideo(boolean enable) {
 
-    /** Sets the redirection url (default is null, that is no redircetion) */
-    public void setRedirection( String url ) {
+		userProfile.video = enable;
+	}
 
-        userProfile.redirectTo = url;
-    }
+	/** Sets the receive only mode */
+	public void setReceiveOnlyMode(boolean r_only) {
 
+		userProfile.recvOnly = r_only;
+	}
 
-    /** Sets the no offer mode for the invite (default is false) */
-    public void setNoOfferMode( boolean nooffer ) {
+	/** Sets the send only mode */
+	public void setSendOnlyMode(boolean s_only) {
 
-        userProfile.noOffer = nooffer;
-    }
+		userProfile.sendOnly = s_only;
+	}
 
+	/** Sets the send tone mode */
+	public void setSendToneMode(boolean s_tone) {
 
-    /** Enables audio */
-    public void setAudio( boolean enable ) {
+		userProfile.sendTone = s_tone;
+	}
 
-        userProfile.audio = enable;
-    }
+	/** Sets the send file */
+	public void setSendFile(String file_name) {
 
+		userProfile.sendFile = file_name;
+	}
 
-    /** Enables video */
-    public void setVideo( boolean enable ) {
+	/** Sets the recv file */
+	public void setRecvFile(String file_name) {
 
-        userProfile.video = enable;
-    }
+		userProfile.recvFile = file_name;
+	}
 
+	/** Gets the local SDP */
+	public String getSessionDescriptor() {
 
-    /** Sets the receive only mode */
-    public void setReceiveOnlyMode( boolean r_only ) {
+		return localSession;
+	}
 
-        userProfile.recvOnly = r_only;
-    }
+	/** Sets the local SDP */
+	public void setSessionDescriptor(String sdp) {
 
+		localSession = sdp;
+	}
 
-    /** Sets the send only mode */
-    public void setSendOnlyMode( boolean s_only ) {
+	/** Inits the local SDP (no media spec) */
+	public void initSessionDescriptor() {
 
-        userProfile.sendOnly = s_only;
-    }
+		printLog("initSessionDescriptor", "Init...");
 
+		SessionDescriptor newSdp = SdpUtils.createInitialSdp(userProfile.username, sipProvider.getViaAddress(),
+				userProfile.audioPort, userProfile.videoPort, userProfile.audioCodecsPrecedence);
 
-    /** Sets the send tone mode */
-    public void setSendToneMode( boolean s_tone ) {
+		localSession = newSdp.toString();
 
-        userProfile.sendTone = s_tone;
-    }
+		printLog("initSessionDescriptor", "localSession = " + localSession);
+	}
 
+	// *************************** Public Methods **************************
 
-    /** Sets the send file */
-    public void setSendFile( String file_name ) {
+	/** Costructs a UA with a default media port */
+	public SIPUserAgent(SipProvider sip_provider, SIPUserAgentProfile user_profile, SIPUserAgentListener listener,
+			IMediaReceiver mediaReceiver) {
 
-        userProfile.sendFile = file_name;
-    }
+		this.sipProvider = sip_provider;
+		this.listener = listener;
+		this.userProfile = user_profile;
+		this.mediaReceiver = mediaReceiver;
 
+		// If no contact_url and/or from_url has been set, create it now.
+		user_profile.initContactAddress(sip_provider);
 
-    /** Sets the recv file */
-    public void setRecvFile( String file_name ) {
+		// Set local sdp.
+		initSessionDescriptor();
+	}
 
-        userProfile.recvFile = file_name;
-    }
+	public void call(String target_url) {
 
+		printLog("call", "Init...");
 
-    /** Gets the local SDP */
-    public String getSessionDescriptor() {
+		changeStatus(UA_OUTGOING_CALL);
 
-        return localSession;
-    }
+		if (call != null) {
+			printLog("call", "cancelling old object:" + this.call);
+			this.call.cancel();
+		}
 
+		call = new ExtendedCall(sipProvider, userProfile.fromUrl, userProfile.contactUrl, userProfile.username,
+				userProfile.realm, userProfile.passwd, this);
 
-    /** Sets the local SDP */
-    public void setSessionDescriptor( String sdp ) {
+		// In case of incomplete url (e.g. only 'user' is present), try to
+		// complete it.
 
-        localSession = sdp;
-    }
+		target_url = sipProvider.completeNameAddress(target_url).toString();
 
+		if (userProfile.noOffer) {
+			call.call(target_url);
+		} else {
+			call.call(target_url, localSession);
+		}
+	}
 
-    /** Inits the local SDP (no media spec) */
-    public void initSessionDescriptor() {
+	public void setMedia(IMediaReceiver mediaReceiver) {
 
-        printLog( "initSessionDescriptor", "Init..." );
+		printLog("setMedia", "Init...");
 
-        SessionDescriptor newSdp = SdpUtils.createInitialSdp(
-                userProfile.username, sipProvider.getViaAddress(),
-                userProfile.audioPort, userProfile.videoPort,
-                userProfile.audioCodecsPrecedence);
+		this.mediaReceiver = mediaReceiver;
+	}
 
-        localSession = newSdp.toString();
+	/** Call Transfer test by Lior */
 
-        printLog( "initSessionDescriptor", "localSession = " + localSession );
-    }
+	public void transfer(String transfer_to) {
+		printLog("REFER/TRANSFER", "Init...");
+		try {
+			if (call != null && call.isOnCall()) {
+				call.transfer(transfer_to);
+			}
+		} catch (Exception e) {
+			printLog("transfer: ", e.toString());
+		}
+	}
 
+	/** end of transfer test code */
 
-    // *************************** Public Methods **************************
+	/** Waits for an incoming call (acting as UAS). */
+	public void listen() {
 
-    /** Costructs a UA with a default media port */
-    public SIPUserAgent(
-        SipProvider sip_provider,
-        SIPUserAgentProfile user_profile,
-        SIPUserAgentListener listener,
-        IMediaReceiver mediaReceiver) {
+		printLog("listen", "Init...");
 
-        this.sipProvider = sip_provider;
-        this.listener = listener;
-        this.userProfile = user_profile;
-        this.mediaReceiver = mediaReceiver;
+		changeStatus(UA_IDLE);
 
-        // If no contact_url and/or from_url has been set, create it now.
-        user_profile.initContactAddress( sip_provider );
+		if (call != null) {
+			printLog("listen", "cancelling old object:" + this.call);
+			this.call.cancel();
+		}
 
-        // Set local sdp.
-        initSessionDescriptor();
-    }
+		call = new ExtendedCall(sipProvider, userProfile.fromUrl, userProfile.contactUrl, userProfile.username,
+				userProfile.realm, userProfile.passwd, this);
 
+		call.listen();
+	}
 
-    public void call( String target_url ) {
+	/** Closes an ongoing, incoming, or pending call */
+	public void hangup() {
 
-        printLog( "call", "Init..." );
+		printLog("hangup", "Init...");
 
-        changeStatus( UA_OUTGOING_CALL );
+		if (clip_ring != null) {
+			clip_ring.stop();
+		}
 
-        if (call != null) {
-        	printLog( "call", "cancelling old object:" + this.call);
-        	this.call.cancel();
-        }
+		closeMediaApplication();
 
-        call = new ExtendedCall( sipProvider, userProfile.fromUrl,
-                userProfile.contactUrl, userProfile.username,
-                userProfile.realm, userProfile.passwd, this );
+		if (call != null) {
+			call.hangup();
+		}
 
-        // In case of incomplete url (e.g. only 'user' is present), try to
-        // complete it.
+		changeStatus(UA_IDLE);
+	}
 
-        target_url = sipProvider.completeNameAddress( target_url ).toString();
+	/** Closes an ongoing, incoming, or pending call */
+	public void accept() {
 
-        if ( userProfile.noOffer ) {
-            call.call( target_url );
-        }
-        else {
-            call.call( target_url, localSession );
-        }
-    }
+		printLog("accept", "Init...");
 
+		if (clip_ring != null) {
+			clip_ring.stop();
+		}
 
-    public void setMedia( IMediaReceiver mediaReceiver) {
+		if (call != null) {
+			call.accept(localSession);
+		}
+	}
 
-        printLog( "setMedia", "Init..." );
+	/** Redirects an incoming call */
+	public void redirect(String redirection) {
 
-        this.mediaReceiver = mediaReceiver;
-    }
+		printLog("redirect", "Init...");
 
-  /** Call Transfer test by Lior */
+		if (clip_ring != null) {
+			clip_ring.stop();
+		}
 
-   public void transfer( String transfer_to ){
-         printLog("REFER/TRANSFER", "Init..." );
-  	         try
-  			      { if (call!=null && call.isOnCall())
-  			         {
-  			            call.transfer(transfer_to);
-  			         }
-  			      }
-  			      catch (Exception e) { printLog("transfer: ", e.toString());}
-  	}
-/** end of transfer test code */
+		if (call != null) {
+			call.redirect(redirection);
+		}
+	}
 
+	protected void launchMediaApplication() {
 
-    /** Waits for an incoming call (acting as UAS). */
-    public void listen() {
+		// Exit if the Media Application is already running.
+		if (audioApp != null || videoApp != null) {
 
-        printLog( "listen", "Init..." );
+			printLog("launchMediaApplication", "Media application is already running.");
+			return;
+		}
 
-        changeStatus( UA_IDLE );
+		if (listener != null) {
 
-        if (call != null) {
-        	printLog( "listen", "cancelling old object:" + this.call);
-        	this.call.cancel();
-        }
+			listener.onUaCallConnected(this);
+		}
 
-        call = new ExtendedCall( sipProvider, userProfile.fromUrl,
-                userProfile.contactUrl, userProfile.username,
-                userProfile.realm, userProfile.passwd, this );
+		SessionDescriptor localSdp = new SessionDescriptor(call.getLocalSessionDescriptor());
 
-        call.listen();
-    }
+		int localAudioPort = 0;
+		int localVideoPort = 0;
 
+		// parse local sdp
+		for (Enumeration<MediaDescriptor> e = localSdp.getMediaDescriptors().elements(); e.hasMoreElements();) {
+			MediaField media = e.nextElement().getMedia();
+			if (media.getMedia().equals("audio")) {
+				localAudioPort = media.getPort();
+			}
+			if (media.getMedia().equals("video")) {
+				localVideoPort = media.getPort();
+			}
+		}
 
-    /** Closes an ongoing, incoming, or pending call */
-    public void hangup() {
+		printLog("launchMediaApplication", "localAudioPort = " + localAudioPort + ", localVideoPort = "
+				+ localVideoPort + ".");
 
-        printLog( "hangup", "Init..." );
+		// Parse remote sdp.
+		SessionDescriptor remoteSdp = new SessionDescriptor(call.getRemoteSessionDescriptor());
+		String remoteMediaAddress = (new Parser(remoteSdp.getConnection().toString())).skipString().skipString()
+				.getString();
 
-        if ( clip_ring != null ) {
-            clip_ring.stop();
-        }
+		int remoteAudioPort = 0;
+		int remoteVideoPort = 0;
 
-        closeMediaApplication();
+		for (Enumeration<MediaDescriptor> e = remoteSdp.getMediaDescriptors().elements(); e.hasMoreElements();) {
 
-        if ( call != null ) {
-            call.hangup();
-        }
+			MediaDescriptor descriptor = e.nextElement();
+			MediaField media = descriptor.getMedia();
 
-        changeStatus( UA_IDLE );
-    }
+			if (media.getMedia().equals("audio")) {
+				remoteAudioPort = media.getPort();
+			}
 
+			if (media.getMedia().equals("video")) {
+				remoteVideoPort = media.getPort();
+			}
+		}
 
-    /** Closes an ongoing, incoming, or pending call */
-    public void accept() {
+		printLog("launchMediaApplication", "remoteAudioPort = " + remoteAudioPort + ", remoteVideoPort = "
+				+ remoteVideoPort + ".");
 
-        printLog( "accept", "Init..." );
+		// Select the media direction (send_only, recv_ony, fullduplex).
+		int dir = 0;
+		if (userProfile.recvOnly) {
+			dir = -1;
+		} else if (userProfile.sendOnly) {
+			dir = 1;
+		}
 
-        if ( clip_ring != null ) {
-            clip_ring.stop();
-        }
+		printLog("launchMediaApplication", "user_profile.audio = " + userProfile.audio + ", user_profile.video = "
+				+ userProfile.video + ", audio_app = " + audioApp + ", video_app = " + videoApp + ".");
 
-        if ( call != null ) {
-            call.accept( localSession );
-        }
-    }
+		if (userProfile.audio && localAudioPort != 0 && remoteAudioPort != 0) {
 
+			if (audioApp == null) {
 
-    /** Redirects an incoming call */
-    public void redirect( String redirection ) {
+				if (sipCodec != null) {
 
-        printLog( "redirect", "Init..." );
+					audioApp = new SIPAudioLauncher(sipCodec, localAudioPort, remoteMediaAddress, remoteAudioPort,
+							mediaReceiver);
+				} else {
+					printLog("launchMediaApplication", "SipCodec not initialized.");
+				}
+			}
 
-        if ( clip_ring != null ) {
-            clip_ring.stop();
-        }
+			if (audioApp != null) {
 
-        if ( call != null ) {
-            call.redirect( redirection );
-        }
-    }
+				audioApp.startMedia();
+			}
+		}
+		if (userProfile.video && localVideoPort != 0 && remoteVideoPort != 0) {
 
+			if (videoApp == null) {
 
-    protected void launchMediaApplication() {
+				printLog("launchMediaApplication",
+						"No external video application nor JMF has been provided: Video not started.");
+				return;
+			}
 
-        // Exit if the Media Application is already running.
-        if ( audioApp != null || videoApp != null ) {
+			videoApp.startMedia();
+		}
+	}
 
-            printLog( "launchMediaApplication",
-                    "Media application is already running." );
-            return;
-        }
+	/** Close the Media Application */
+	protected void closeMediaApplication() {
 
-        if ( listener != null ) {
+		printLog("closeMediaApplication", "Init...");
 
-            listener.onUaCallConnected( this );
-        }
+		if (audioApp != null) {
 
-        SessionDescriptor localSdp =
-                new SessionDescriptor( call.getLocalSessionDescriptor() );
+			audioApp.stopMedia();
+			audioApp = null;
+		}
 
-        int localAudioPort = 0;
-        int localVideoPort = 0;
+		if (videoApp != null) {
 
-        // parse local sdp
-        for ( Enumeration<MediaDescriptor> e = localSdp.getMediaDescriptors().elements(); e.hasMoreElements(); ) {
-            MediaField media = e.nextElement().getMedia();
-            if ( media.getMedia().equals( "audio" ) ) {
-                localAudioPort = media.getPort();
-            }
-            if ( media.getMedia().equals( "video" ) ) {
-                localVideoPort = media.getPort();
-            }
-        }
+			videoApp.stopMedia();
+			videoApp = null;
+		}
+	}
 
-        printLog( "launchMediaApplication",
-                "localAudioPort = " + localAudioPort +
-                ", localVideoPort = " + localVideoPort + "." );
+	// ********************** Call callback functions **********************
 
-        // Parse remote sdp.
-        SessionDescriptor remoteSdp =
-                new SessionDescriptor( call.getRemoteSessionDescriptor() );
-        String remoteMediaAddress = ( new Parser(
-                remoteSdp.getConnection().toString() ) ).
-                skipString().skipString().getString();
+	/**
+	 * Callback function called when arriving a new INVITE method (incoming call)
+	 */
+	public void onCallIncoming(Call call, NameAddress callee, NameAddress caller, String sdp, Message invite) {
 
-        int remoteAudioPort = 0;
-        int remoteVideoPort = 0;
+		printLog("onCallIncoming", "Init...");
 
-        for ( Enumeration<MediaDescriptor> e = remoteSdp.getMediaDescriptors().elements(); e.hasMoreElements(); ) {
+		if (call != this.call) {
+			printLog("onCallIncoming", "NOT the current call.");
+			return;
+		}
 
-            MediaDescriptor descriptor = e.nextElement();
-            MediaField media = descriptor.getMedia();
+		printLog("onCallIncoming", "INCOMING.");
+		printLog("onCallIncoming", "Inside SIPUserAgent.onCallIncoming(): sdp=\n" + sdp);
 
-            if ( media.getMedia().equals( "audio" ) ) {
-                remoteAudioPort = media.getPort();
-            }
+		changeStatus(UA_INCOMING_CALL);
+		call.ring();
 
-            if ( media.getMedia().equals( "video" ) ) {
-                remoteVideoPort = media.getPort();
-            }
-        }
+		if (sdp != null) {
 
-        printLog( "launchMediaApplication",
-                "remoteAudioPort = " + remoteAudioPort +
-                ", remoteVideoPort = " + remoteVideoPort + "." );
+			SessionDescriptor remoteSdp = new SessionDescriptor(sdp);
+			SessionDescriptor localSdp = new SessionDescriptor(localSession);
 
-        // Select the media direction (send_only, recv_ony, fullduplex).
-        int dir = 0;
-        if ( userProfile.recvOnly ) {
-            dir = -1;
-        }
-        else if ( userProfile.sendOnly ) {
-            dir = 1;
-        }
+			printLog("onCallIncoming", "localSdp = " + localSdp.toString() + ".");
+			printLog("onCallIncoming", "remoteSdp = " + remoteSdp.toString() + ".");
 
-        printLog( "launchMediaApplication",
-                "user_profile.audio = " + userProfile.audio +
-                ", user_profile.video = " + userProfile.video +
-                ", audio_app = " + audioApp +
-                ", video_app = " + videoApp + "." );
+			// First we need to make payloads negotiation so the related
+			// attributes can be then matched.
+			SessionDescriptor newSdp = SdpUtils.makeMediaPayloadsNegotiation(localSdp, remoteSdp);
 
-        if ( userProfile.audio && localAudioPort != 0 && remoteAudioPort != 0 ) {
+			// After we can create the correct audio codec considering
+			// audio negotiation made above.
+			sipCodec = SdpUtils.getNegotiatedAudioCodec(newSdp);
 
-            if ( audioApp == null ) {
+			// Now we complete the SDP negotiation informing the selected
+			// codec, so it can be internally updated during the process.
+			SdpUtils.completeSdpNegotiation(newSdp, localSdp, remoteSdp);
 
-                if ( sipCodec != null ) {
+			localSession = newSdp.toString();
 
-                    audioApp = new SIPAudioLauncher( sipCodec, localAudioPort,
-                            remoteMediaAddress, remoteAudioPort, mediaReceiver);
-                }
-                else {
-                    printLog( "launchMediaApplication", "SipCodec not initialized." );
-                }
-            }
+			printLog("onCallIncoming", "newSdp = " + localSession + ".");
 
-            if ( audioApp != null ) {
+			// Finally, we use the "newSdp" and "remoteSdp" to initialize
+			// the lasting codec informations.
+			SIPCodecUtils.initSipAudioCodec(sipCodec, userProfile.audioDefaultPacketization,
+					userProfile.audioDefaultPacketization, newSdp, remoteSdp);
+		}
 
-                audioApp.startMedia();
-            }
-        }
-        if ( userProfile.video && localVideoPort != 0 && remoteVideoPort != 0 ) {
+		if (listener != null) {
 
-            if ( videoApp == null ) {
+			listener.onUaCallIncoming(this, callee, caller);
+		}
+	}
 
-                printLog( "launchMediaApplication",
-                        "No external video application nor JMF has been provided: Video not started." );
-                return;
-            }
+	/**
+	 * Callback function called when arriving a new Re-INVITE method (re-inviting/call modify)
+	 */
+	public void onCallModifying(Call call, String sdp, Message invite) {
 
-            videoApp.startMedia();
-        }
-    }
+		printLog("onCallModifying", "Init...");
 
+		if (call != this.call) {
+			printLog("onCallModifying", "NOT the current call.");
+			return;
+		}
 
-    /** Close the Media Application */
-    protected void closeMediaApplication() {
+		printLog("onCallModifying", "RE-INVITE/MODIFY.");
 
-        printLog( "closeMediaApplication", "Init..." );
+		// to be implemented.
+		// currently it simply accepts the session changes (see method
+		// onCallModifying() in CallListenerAdapter)
+		super.onCallModifying(call, sdp, invite);
+	}
 
-        if ( audioApp != null ) {
+	/**
+	 * Callback function that may be overloaded (extended). Called when arriving a 180 Ringing
+	 */
+	public void onCallRinging(Call call, Message resp) {
 
-            audioApp.stopMedia();
-            audioApp = null;
-        }
+		printLog("onCallRinging", "Init...");
 
-        if ( videoApp != null ) {
+		if (call != this.call && call != callTransfer) {
+			printLog("onCallRinging", "NOT the current call.");
+			return;
+		}
 
-            videoApp.stopMedia();
-            videoApp = null;
-        }
-    }
+		printLog("onCallRinging", "RINGING.");
 
+		// Play "on" sound.
+		if (listener != null) {
+			listener.onUaCallRinging(this);
+		}
+	}
 
-    // ********************** Call callback functions **********************
+	/** Callback function called when arriving a 2xx (call accepted) */
+	public void onCallAccepted(Call call, String sdp, Message resp) {
 
-    /**
-     * Callback function called when arriving a new INVITE method (incoming
-     * call)
-     */
-    public void onCallIncoming( Call call, NameAddress callee, NameAddress caller, String sdp, Message invite ) {
+		printLog("onCallAccepted", "Init...");
 
-        printLog( "onCallIncoming", "Init..." );
+		if (call != this.call && call != callTransfer) {
+			printLog("onCallAccepted", "NOT the current call.");
+			return;
+		}
 
-        if ( call != this.call ) {
-            printLog( "onCallIncoming", "NOT the current call." );
-            return;
-        }
+		printLog("onCallAccepted", "ACCEPTED/CALL.");
 
-        printLog( "onCallIncoming", "INCOMING." );
-        printLog( "onCallIncoming", "Inside SIPUserAgent.onCallIncoming(): sdp=\n" + sdp );
+		changeStatus(UA_ONCALL);
 
-        changeStatus( UA_INCOMING_CALL );
-        call.ring();
+		SessionDescriptor remoteSdp = new SessionDescriptor(sdp);
+		SessionDescriptor localSdp = new SessionDescriptor(localSession);
 
-        if ( sdp != null ) {
+		printLog("onCallAccepted", "localSdp = " + localSdp.toString() + ".");
+		printLog("onCallAccepted", "remoteSdp = " + remoteSdp.toString() + ".");
 
-            SessionDescriptor remoteSdp = new SessionDescriptor( sdp );
-            SessionDescriptor localSdp = new SessionDescriptor( localSession );
+		// First we need to make payloads negotiation so the related
+		// attributes can be then matched.
+		SessionDescriptor newSdp = SdpUtils.makeMediaPayloadsNegotiation(localSdp, remoteSdp);
 
-            printLog( "onCallIncoming", "localSdp = " + localSdp.toString() + "." );
-            printLog( "onCallIncoming", "remoteSdp = " + remoteSdp.toString() + "." );
+		// After we can create the correct audio codec considering
+		// audio negotiation made above.
+		sipCodec = SdpUtils.getNegotiatedAudioCodec(newSdp);
 
-            // First we need to make payloads negotiation so the related
-            // attributes can be then matched.
-            SessionDescriptor newSdp = SdpUtils.makeMediaPayloadsNegotiation(localSdp, remoteSdp);
+		// Now we complete the SDP negotiation informing the selected
+		// codec, so it can be internally updated during the process.
+		SdpUtils.completeSdpNegotiation(newSdp, localSdp, remoteSdp);
 
-            // After we can create the correct audio codec considering
-            // audio negotiation made above.
-            sipCodec = SdpUtils.getNegotiatedAudioCodec( newSdp );
+		localSession = newSdp.toString();
 
-            // Now we complete the SDP negotiation informing the selected
-            // codec, so it can be internally updated during the process.
-            SdpUtils.completeSdpNegotiation(newSdp, localSdp, remoteSdp);
+		printLog("onCallAccepted", "newSdp = " + localSession + ".");
 
-            localSession = newSdp.toString();
+		// Finally, we use the "newSdp" and "remoteSdp" to initialize
+		// the lasting codec informations.
+		SIPCodecUtils.initSipAudioCodec(sipCodec, userProfile.audioDefaultPacketization,
+				userProfile.audioDefaultPacketization, newSdp, remoteSdp);
 
-            printLog( "onCallIncoming", "newSdp = " + localSession + "." );
+		if (userProfile.noOffer) {
 
-            // Finally, we use the "newSdp" and "remoteSdp" to initialize
-            // the lasting codec informations.
-            SIPCodecUtils.initSipAudioCodec(
-                    sipCodec,
-                    userProfile.audioDefaultPacketization,
-                    userProfile.audioDefaultPacketization, newSdp, remoteSdp );
-        }
+			// Answer with the local sdp.
+			call.ackWithAnswer(localSession);
+		}
 
-        if ( listener != null ) {
+		launchMediaApplication();
 
-            listener.onUaCallIncoming( this, callee, caller );
-        }
-    }
+		if (call == callTransfer) {
+			StatusLine statusLine = resp.getStatusLine();
+			int code = statusLine.getCode();
+			String reason = statusLine.getReason();
+			this.call.notify(code, reason);
+		}
 
+		if (listener != null) {
+			listener.onUaCallAccepted(this);
+		}
+	}
 
-    /**
-     * Callback function called when arriving a new Re-INVITE method
-     * (re-inviting/call modify)
-     */
-    public void onCallModifying( Call call, String sdp, Message invite ) {
+	/** Callback function called when arriving an ACK method (call confirmed) */
+	public void onCallConfirmed(Call call, String sdp, Message ack) {
 
-        printLog( "onCallModifying", "Init..." );
+		printLog("onCallConfirmed", "Init...");
 
-        if ( call != this.call ) {
-            printLog( "onCallModifying", "NOT the current call." );
-            return;
-        }
+		if (call != this.call) {
+			printLog("onCallConfirmed", "NOT the current call.");
+			return;
+		}
 
-        printLog( "onCallModifying", "RE-INVITE/MODIFY." );
+		printLog("onCallConfirmed", "CONFIRMED/CALL.");
 
-        // to be implemented.
-        // currently it simply accepts the session changes (see method
-        // onCallModifying() in CallListenerAdapter)
-        super.onCallModifying( call, sdp, invite );
-    }
+		changeStatus(UA_ONCALL);
 
+		// Play "on" sound.
+		if (clip_on != null) {
+			clip_on.replay();
+		}
 
-    /**
-     * Callback function that may be overloaded (extended). Called when arriving
-     * a 180 Ringing
-     */
-    public void onCallRinging( Call call, Message resp ) {
+		launchMediaApplication();
+	}
 
-        printLog( "onCallRinging", "Init..." );
+	/** Callback function called when arriving a 2xx (re-invite/modify accepted) */
+	public void onCallReInviteAccepted(Call call, String sdp, Message resp) {
 
-        if ( call != this.call && call != callTransfer ) {
-            printLog( "onCallRinging", "NOT the current call." );
-            return;
-        }
+		printLog("onCallReInviteAccepted", "Init...");
 
-        printLog( "onCallRinging", "RINGING." );
+		if (call != this.call) {
+			printLog("onCallReInviteAccepted", "NOT the current call.");
+			return;
+		}
 
-        // Play "on" sound.
-        if ( listener != null ) {
-            listener.onUaCallRinging( this );
-        }
-    }
+		printLog("onCallReInviteAccepted", "RE-INVITE-ACCEPTED/CALL.");
+	}
 
+	/** Callback function called when arriving a 4xx (re-invite/modify failure) */
+	public void onCallReInviteRefused(Call call, String reason, Message resp) {
 
-    /** Callback function called when arriving a 2xx (call accepted) */
-    public void onCallAccepted( Call call, String sdp, Message resp ) {
+		printLog("onCallReInviteRefused", "Init...");
 
-        printLog( "onCallAccepted", "Init..." );
+		if (call != this.call) {
+			printLog("onCallReInviteRefused", "NOT the current call");
+			return;
+		}
 
-        if ( call != this.call && call != callTransfer ) {
-            printLog( "onCallAccepted", "NOT the current call." );
-            return;
-        }
+		printLog("onCallReInviteRefused", "RE-INVITE-REFUSED (" + reason + ")/CALL.");
 
-        printLog( "onCallAccepted", "ACCEPTED/CALL." );
+		if (listener != null) {
+			listener.onUaCallFailed(this);
+		}
+	}
 
-        changeStatus( UA_ONCALL );
+	/** Callback function called when arriving a 4xx (call failure) */
+	public void onCallRefused(Call call, String reason, Message resp) {
 
-        SessionDescriptor remoteSdp = new SessionDescriptor( sdp );
-        SessionDescriptor localSdp = new SessionDescriptor( localSession );
+		printLog("onCallRefused", "Init...");
 
-        printLog( "onCallAccepted", "localSdp = " + localSdp.toString() + "." );
-        printLog( "onCallAccepted", "remoteSdp = " + remoteSdp.toString() + "." );
+		if (call != this.call) {
+			printLog("onCallRefused", "NOT the current call.");
+			return;
+		}
 
-        // First we need to make payloads negotiation so the related
-        // attributes can be then matched.
-        SessionDescriptor newSdp = SdpUtils.makeMediaPayloadsNegotiation(localSdp, remoteSdp);
+		printLog("onCallRefused", "REFUSED (" + reason + ").");
 
-        // After we can create the correct audio codec considering
-        // audio negotiation made above.
-        sipCodec = SdpUtils.getNegotiatedAudioCodec( newSdp );
+		changeStatus(UA_IDLE);
 
-        // Now we complete the SDP negotiation informing the selected
-        // codec, so it can be internally updated during the process.
-        SdpUtils.completeSdpNegotiation(newSdp, localSdp, remoteSdp);
+		if (call == callTransfer) {
+			StatusLine status_line = resp.getStatusLine();
+			int code = status_line.getCode();
+			// String reason=status_line.getReason();
+			this.call.notify(code, reason);
+			callTransfer = null;
+		}
 
-        localSession = newSdp.toString();
+		if (listener != null) {
+			listener.onUaCallFailed(this);
+		}
+	}
 
-        printLog( "onCallAccepted", "newSdp = " + localSession + "." );
+	/** Callback function called when arriving a 3xx (call redirection) */
+	public void onCallRedirection(Call call, String reason, Vector<String> contact_list, Message resp) {
 
-        // Finally, we use the "newSdp" and "remoteSdp" to initialize
-        // the lasting codec informations.
-        SIPCodecUtils.initSipAudioCodec(
-                sipCodec,
-                userProfile.audioDefaultPacketization,
-                userProfile.audioDefaultPacketization, newSdp, remoteSdp );
+		printLog("onCallRedirection", "Init...");
 
-        if ( userProfile.noOffer ) {
+		if (call != this.call) {
+			printLog("onCallRedirection", "NOT the current call.");
+			return;
+		}
 
-            // Answer with the local sdp.
-            call.ackWithAnswer( localSession );
-        }
+		printLog("onCallRedirection", "REDIRECTION (" + reason + ").");
 
-        launchMediaApplication();
+		call.call(((String) contact_list.elementAt(0)));
+	}
 
-        if ( call == callTransfer ) {
-            StatusLine statusLine = resp.getStatusLine();
-            int code = statusLine.getCode();
-            String reason = statusLine.getReason();
-            this.call.notify( code, reason );
-        }
+	/**
+	 * Callback function that may be overloaded (extended). Called when arriving a CANCEL request
+	 */
+	public void onCallCanceling(Call call, Message cancel) {
 
-        if ( listener != null ) {
-            listener.onUaCallAccepted( this );
-        }
-    }
+		printLog("onCallCanceling", "Init...");
 
+		if (call != this.call) {
+			printLog("onCallCanceling", "NOT the current call.");
+			return;
+		}
 
-    /** Callback function called when arriving an ACK method (call confirmed) */
-    public void onCallConfirmed( Call call, String sdp, Message ack ) {
+		printLog("onCallCanceling", "CANCEL.");
 
-        printLog( "onCallConfirmed", "Init..." );
+		changeStatus(UA_IDLE);
 
-        if ( call != this.call ) {
-            printLog( "onCallConfirmed", "NOT the current call." );
-            return;
-        }
+		if (listener != null) {
+			listener.onUaCallCancelled(this);
+		}
+	}
 
-        printLog( "onCallConfirmed", "CONFIRMED/CALL." );
+	/** Callback function called when arriving a BYE request */
+	public void onCallClosing(Call call, Message bye) {
 
-        changeStatus( UA_ONCALL );
+		printLog("onCallClosing", "Init...");
 
-        // Play "on" sound.
-        if ( clip_on != null ) {
-            clip_on.replay();
-        }
+		if (call != this.call && call != callTransfer) {
+			printLog("onCallClosing", "NOT the current call.");
+			return;
+		}
 
-        launchMediaApplication();
-    }
+		if (call != callTransfer && callTransfer != null) {
+			printLog("onCallClosing", "CLOSE PREVIOUS CALL.");
+			this.call = callTransfer;
+			callTransfer = null;
+			return;
+		}
 
+		printLog("onCallClosing", "CLOSE.");
 
-    /** Callback function called when arriving a 2xx (re-invite/modify accepted) */
-    public void onCallReInviteAccepted( Call call, String sdp, Message resp ) {
+		closeMediaApplication();
 
-        printLog( "onCallReInviteAccepted", "Init..." );
+		// Play "off" sound.
+		if (clip_off != null) {
+			clip_off.replay();
+		}
 
-        if ( call != this.call ) {
-            printLog( "onCallReInviteAccepted", "NOT the current call." );
-            return;
-        }
+		if (listener != null) {
+			listener.onUaCallClosing(this);
+		}
 
-        printLog( "onCallReInviteAccepted", "RE-INVITE-ACCEPTED/CALL." );
-    }
+		changeStatus(UA_IDLE);
 
+		// Rest local sdp for next call.
+		initSessionDescriptor();
+	}
 
-    /** Callback function called when arriving a 4xx (re-invite/modify failure) */
-    public void onCallReInviteRefused( Call call, String reason, Message resp ) {
+	/**
+	 * Callback function called when arriving a response after a BYE request (call closed)
+	 */
+	public void onCallClosed(Call call, Message resp) {
 
-        printLog( "onCallReInviteRefused", "Init..." );
+		printLog("onCallClosed", "Init...");
 
-        if ( call != this.call ) {
-            printLog( "onCallReInviteRefused", "NOT the current call" );
-            return;
-        }
+		if (call != this.call) {
+			printLog("onCallClosed", "NOT the current call.");
+			return;
+		}
 
-        printLog( "onCallReInviteRefused", "RE-INVITE-REFUSED (" + reason + ")/CALL." );
+		printLog("onCallClosed", "CLOSE/OK.");
 
-        if ( listener != null ) {
-            listener.onUaCallFailed( this );
-        }
-    }
+		if (listener != null) {
+			listener.onUaCallClosed(this);
+		}
 
+		changeStatus(UA_IDLE);
+	}
 
-    /** Callback function called when arriving a 4xx (call failure) */
-    public void onCallRefused( Call call, String reason, Message resp ) {
+	/** Callback function called when the invite expires */
+	public void onCallTimeout(Call call) {
 
-        printLog( "onCallRefused", "Init..." );
+		printLog("onCallTimeout", "Init...");
 
-        if ( call != this.call ) {
-            printLog( "onCallRefused", "NOT the current call." );
-            return;
-        }
+		if (call != this.call) {
+			printLog("onCallTimeout", "NOT the current call.");
+			return;
+		}
 
-        printLog( "onCallRefused", "REFUSED (" + reason + ")." );
+		printLog("onCallTimeout", "NOT FOUND/TIMEOUT.");
 
-        changeStatus( UA_IDLE );
+		changeStatus(UA_IDLE);
 
-        if ( call == callTransfer ) {
-            StatusLine status_line = resp.getStatusLine();
-            int code = status_line.getCode();
-            // String reason=status_line.getReason();
-            this.call.notify( code, reason );
-            callTransfer = null;
-        }
+		if (call == callTransfer) {
+			int code = 408;
+			String reason = "Request Timeout";
+			this.call.notify(code, reason);
+			callTransfer = null;
+		}
 
-        if ( listener != null ) {
-            listener.onUaCallFailed( this );
-        }
-    }
+		// Play "off" sound.
+		if (clip_off != null) {
+			clip_off.replay();
+		}
 
+		if (listener != null) {
+			listener.onUaCallFailed(this);
+		}
+	}
 
-    /** Callback function called when arriving a 3xx (call redirection) */
-    public void onCallRedirection( Call call, String reason, Vector<String> contact_list, Message resp ) {
+	// ****************** ExtendedCall callback functions ******************
 
-        printLog( "onCallRedirection", "Init..." );
+	/**
+	 * Callback function called when arriving a new REFER method (transfer request)
+	 */
+	public void onCallTransfer(ExtendedCall call, NameAddress refer_to, NameAddress refered_by, Message refer) {
 
-        if ( call != this.call ) {
-            printLog( "onCallRedirection", "NOT the current call." );
-            return;
-        }
+		printLog("onCallTransfer", "Init...");
 
-        printLog( "onCallRedirection", "REDIRECTION (" + reason + ")." );
+		if (call != this.call) {
+			printLog("onCallTransfer", "NOT the current call.");
+			return;
+		}
 
-        call.call( ( (String) contact_list.elementAt( 0 ) ) );
-    }
+		printLog("onCallTransfer", "Transfer to " + refer_to.toString() + ".");
 
+		call.acceptTransfer();
 
-    /**
-     * Callback function that may be overloaded (extended). Called when arriving
-     * a CANCEL request
-     */
-    public void onCallCanceling( Call call, Message cancel ) {
+		callTransfer = new ExtendedCall(sipProvider, userProfile.fromUrl, userProfile.contactUrl, this);
+		callTransfer.call(refer_to.toString(), localSession);
+	}
 
-        printLog( "onCallCanceling", "Init..." );
+	/** Callback function called when a call transfer is accepted. */
+	public void onCallTransferAccepted(ExtendedCall call, Message resp) {
 
-        if ( call != this.call ) {
-            printLog( "onCallCanceling", "NOT the current call." );
-            return;
-        }
+		printLog("onCallTransferAccepted", "Init...");
 
-        printLog( "onCallCanceling", "CANCEL." );
+		if (call != this.call) {
+			printLog("onCallTransferAccepted", "NOT the current call.");
+			return;
+		}
 
-        changeStatus( UA_IDLE );
+		printLog("onCallTransferAccepted", "Transfer accepted.");
+	}
 
-        if ( listener != null ) {
-            listener.onUaCallCancelled( this );
-        }
-    }
+	/** Callback function called when a call transfer is refused. */
+	public void onCallTransferRefused(ExtendedCall call, String reason, Message resp) {
 
+		printLog("onCallTransferRefused", "Init...");
 
-    /** Callback function called when arriving a BYE request */
-    public void onCallClosing( Call call, Message bye ) {
+		if (call != this.call) {
+			printLog("onCallTransferRefused", "NOT the current call.");
+			return;
+		}
 
-        printLog( "onCallClosing", "Init..." );
+		printLog("onCallTransferRefused", "Transfer refused.");
+	}
 
-        if ( call != this.call && call != callTransfer ) {
-            printLog( "onCallClosing", "NOT the current call." );
-            return;
-        }
+	/** Callback function called when a call transfer is successfully completed */
+	public void onCallTransferSuccess(ExtendedCall call, Message notify) {
 
-        if ( call != callTransfer && callTransfer != null ) {
-            printLog( "onCallClosing", "CLOSE PREVIOUS CALL." );
-            this.call = callTransfer;
-            callTransfer = null;
-            return;
-        }
+		printLog("onCallTransferSuccess", "Init...");
 
-        printLog( "onCallClosing", "CLOSE." );
+		if (call != this.call) {
+			printLog("onCallTransferSuccess", "NOT the current call.");
+			return;
+		}
 
-        closeMediaApplication();
+		printLog("onCallTransferSuccess", "Transfer successed.");
 
-        // Play "off" sound.
-        if ( clip_off != null ) {
-            clip_off.replay();
-        }
+		call.hangup();
 
-        if ( listener != null ) {
-            listener.onUaCallClosing( this );
-        }
+		if (listener != null) {
+			listener.onUaCallTrasferred(this);
+		}
+	}
 
-        changeStatus( UA_IDLE );
+	/**
+	 * Callback function called when a call transfer is NOT sucessfully completed
+	 */
+	public void onCallTransferFailure(ExtendedCall call, String reason, Message notify) {
 
-        // Rest local sdp for next call.
-        initSessionDescriptor();
-    }
+		printLog("onCallTransferFailure", "Init...");
 
+		if (call != this.call) {
+			printLog("onCallTransferFailure", "NOT the current call.");
+			return;
+		}
 
-    /**
-     * Callback function called when arriving a response after a BYE request
-     * (call closed)
-     */
-    public void onCallClosed( Call call, Message resp ) {
+		printLog("onCallTransferFailure", "Transfer failed.");
+	}
 
-        printLog( "onCallClosed", "Init..." );
-
-        if ( call != this.call ) {
-            printLog( "onCallClosed", "NOT the current call." );
-            return;
-        }
-
-        printLog( "onCallClosed", "CLOSE/OK." );
-
-        if ( listener != null ) {
-            listener.onUaCallClosed( this );
-        }
-
-        changeStatus( UA_IDLE );
-    }
-
-
-    /** Callback function called when the invite expires */
-    public void onCallTimeout( Call call ) {
-
-        printLog( "onCallTimeout", "Init..." );
-
-        if ( call != this.call ) {
-            printLog( "onCallTimeout", "NOT the current call." );
-            return;
-        }
-
-        printLog( "onCallTimeout", "NOT FOUND/TIMEOUT." );
-
-        changeStatus( UA_IDLE );
-
-        if ( call == callTransfer ) {
-            int code = 408;
-            String reason = "Request Timeout";
-            this.call.notify( code, reason );
-            callTransfer = null;
-        }
-
-        // Play "off" sound.
-        if ( clip_off != null ) {
-            clip_off.replay();
-        }
-
-        if ( listener != null ) {
-            listener.onUaCallFailed( this );
-        }
-    }
-
-
-    // ****************** ExtendedCall callback functions ******************
-
-    /**
-     * Callback function called when arriving a new REFER method (transfer
-     * request)
-     */
-    public void onCallTransfer( ExtendedCall call, NameAddress refer_to, NameAddress refered_by, Message refer ) {
-
-        printLog( "onCallTransfer", "Init..." );
-
-        if ( call != this.call ) {
-            printLog( "onCallTransfer", "NOT the current call." );
-            return;
-        }
-
-        printLog( "onCallTransfer", "Transfer to " + refer_to.toString() + "." );
-
-        call.acceptTransfer();
-
-        callTransfer = new ExtendedCall( sipProvider, userProfile.fromUrl, userProfile.contactUrl, this );
-        callTransfer.call( refer_to.toString(), localSession );
-    }
-
-
-    /** Callback function called when a call transfer is accepted. */
-    public void onCallTransferAccepted( ExtendedCall call, Message resp ) {
-
-        printLog( "onCallTransferAccepted", "Init..." );
-
-        if ( call != this.call ) {
-            printLog( "onCallTransferAccepted", "NOT the current call." );
-            return;
-        }
-
-        printLog( "onCallTransferAccepted", "Transfer accepted." );
-    }
-
-
-    /** Callback function called when a call transfer is refused. */
-    public void onCallTransferRefused( ExtendedCall call, String reason, Message resp ) {
-
-        printLog( "onCallTransferRefused", "Init..." );
-
-        if ( call != this.call ) {
-            printLog( "onCallTransferRefused", "NOT the current call." );
-            return;
-        }
-
-        printLog( "onCallTransferRefused", "Transfer refused." );
-    }
-
-
-    /** Callback function called when a call transfer is successfully completed */
-    public void onCallTransferSuccess( ExtendedCall call, Message notify ) {
-
-        printLog( "onCallTransferSuccess", "Init..." );
-
-        if ( call != this.call ) {
-            printLog( "onCallTransferSuccess", "NOT the current call." );
-            return;
-        }
-
-        printLog( "onCallTransferSuccess", "Transfer successed." );
-
-        call.hangup();
-
-        if ( listener != null ) {
-            listener.onUaCallTrasferred( this );
-        }
-    }
-
-
-    /**
-     * Callback function called when a call transfer is NOT sucessfully
-     * completed
-     */
-    public void onCallTransferFailure( ExtendedCall call, String reason, Message notify ) {
-
-        printLog( "onCallTransferFailure", "Init..." );
-
-        if ( call != this.call ) {
-            printLog( "onCallTransferFailure", "NOT the current call." );
-            return;
-        }
-
-        printLog( "onCallTransferFailure", "Transfer failed." );
-    }
-
-
-    private static void printLog( String method, String message ) {
-        log.debug( "SipUserAgent - " + method + " -> " + message );
-    }
+	private static void printLog(String method, String message) {
+		log.debug("SipUserAgent - " + method + " -> " + message);
+	}
 }

@@ -7,8 +7,7 @@ import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.provider.SipProvider;
 import org.zoolu.sip.provider.SipStack;
 
-public abstract class SIPTransport implements SIPUserAgentListener,
-		SIPRegisterAgentListener, ISipNumberListener {
+public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterAgentListener, ISipNumberListener {
 	protected static Logger log = LoggerFactory.getLogger(SIPTransport.class);
 
 	protected RTMPRoomClient roomClient;
@@ -35,8 +34,7 @@ public abstract class SIPTransport implements SIPUserAgentListener,
 		this.rtpPort = rtpPort;
 	}
 
-	public void login(String obproxy, String phone, String username,
-			String password, String realm, String proxy) {
+	public void login(String obproxy, String phone, String username, String password, String realm, String proxy) {
 		p("login");
 
 		this.username = username;
@@ -52,8 +50,7 @@ public abstract class SIPTransport implements SIPUserAgentListener,
 			SipStack.log_path = "log";
 
 			sip_provider = new SipProvider(null, sipPort);
-			sip_provider
-					.setOutboundProxy(new SocketAddress(opt_outbound_proxy));
+			sip_provider.setOutboundProxy(new SocketAddress(opt_outbound_proxy));
 
 			user_profile = new SIPUserAgentProfile();
 			user_profile.audioPort = rtpPort;
@@ -61,8 +58,7 @@ public abstract class SIPTransport implements SIPUserAgentListener,
 			user_profile.passwd = password;
 			user_profile.realm = realm;
 			user_profile.fromUrl = fromURL;
-			user_profile.contactUrl = "sip:" + phone + "@"
-					+ sip_provider.getViaAddress();
+			user_profile.contactUrl = "sip:" + phone + "@" + sip_provider.getViaAddress();
 
 			if (sip_provider.getPort() != SipStack.default_port) {
 				user_profile.contactUrl += ":" + sip_provider.getPort();
@@ -111,11 +107,9 @@ public abstract class SIPTransport implements SIPUserAgentListener,
 		try {
 
 			if (sip_provider != null) {
-				ra = new SIPRegisterAgent(sip_provider, user_profile.fromUrl,
-						user_profile.contactUrl, username, user_profile.realm,
-						password, this);
-				loopRegister(user_profile.expires, user_profile.expires / 2,
-						user_profile.keepaliveTime);
+				ra = new SIPRegisterAgent(sip_provider, user_profile.fromUrl, user_profile.contactUrl, username,
+						user_profile.realm, password, this);
+				loopRegister(user_profile.expires, user_profile.expires / 2, user_profile.keepaliveTime);
 			}
 
 		} catch (Exception e) {

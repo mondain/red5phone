@@ -2,12 +2,12 @@ package org.red5.sip.app;
 
 public interface IMediaSender {
 
-    IMediaStream createStream(int streamId);
+	IMediaStream createStream(int streamId);
 
-    void deleteStream(int streamId);
+	void deleteStream(int streamId);
 
-    void start();
+	void start();
 
-    void halt();
+	void halt();
 
 }

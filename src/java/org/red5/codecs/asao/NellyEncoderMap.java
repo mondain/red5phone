@@ -1,6 +1,5 @@
 package org.red5.codecs.asao;
 
-
 /*
  * Copyright (c) 2007 a840bda5870ba11f19698ff6eb9581dfb0f95fa5,
  *                    539459aeb7d425140b62a3ec7dbf6dc8e408a306, and
@@ -33,29 +32,28 @@ package org.red5.codecs.asao;
 //------------------------------------------------------------------------
 final class NellyEncoderMap implements EncoderMap {
 
-    public final float[] a = new float[ 64 ];
+	public final float[] a = new float[64];
 
-    public final float[] b = new float[ 256 ];
+	public final float[] b = new float[256];
 
-    public final float[] c = new float[ 256 ];
+	public final float[] c = new float[256];
 
-    public final float[] d = new float[ 23 ];
+	public final float[] d = new float[23];
 
-    public final float[] e = new float[ 23 ];
+	public final float[] e = new float[23];
 
-    public final float[] f = new float[ 124 ];
+	public final float[] f = new float[124];
 
-    public final float[] g = new float[ 124 ];
+	public final float[] g = new float[124];
 
-    public final int[] h = new int[ 124 ];
+	public final int[] h = new int[124];
 
-    final Encoder encoder;
+	final Encoder encoder;
 
+	public NellyEncoderMap(Encoder encoder) {
 
-    public NellyEncoderMap( Encoder encoder ) {
-
-        super();
-        this.encoder = encoder;
-    }
+		super();
+		this.encoder = encoder;
+	}
 
 }
