@@ -330,8 +330,10 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
                     this.conn.close();
                 } else if("updateMuteStatus".equals(msgValue.get(0))) {
                     Client client = (Client)msgValue.get(1);
-                    log.info("Mic switched: " + client.getMicMuted());
-                    this.micMuted = client.getMicMuted();
+                    if (this.publicSID.equals(client.getPublicSID())) {
+	                    log.info("Mic switched: " + client.getMicMuted());
+	                    this.micMuted = client.getMicMuted();
+                    }
                 }
             } catch (Exception ignored) {}
         }
