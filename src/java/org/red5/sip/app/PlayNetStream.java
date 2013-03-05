@@ -17,32 +17,48 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 
 	private int audioTs = 0;
 
-	private IMediaSender mediaSender;
+	private IMediaSender audioSender;
 
-	private IMediaStream mediaStream;
+	private IMediaStream audioStream;
+	
+	private IMediaSender videoSender;
 
-	public PlayNetStream(IMediaSender mediaSender) {
-		this.mediaSender = mediaSender;
+	private IMediaStream videoStream;
+
+	public PlayNetStream(IMediaSender audioSender, IMediaSender videoSender) {
+		this.audioSender = audioSender;
+		this.videoSender = videoSender;
 	}
 
 	public void close() {
-		if (mediaSender != null) {
-			mediaSender.deleteStream(getStreamId());
+		if (audioSender != null) {
+			audioSender.deleteStream(getStreamId());
+		}
+		if (videoSender != null) {
+			videoSender.deleteStream(getStreamId());
 		}
 	}
 
 	public void start() {
-		if (mediaSender != null) {
-			mediaStream = mediaSender.createStream(getStreamId());
+		if (audioSender != null) {
+			audioStream = audioSender.createStream(getStreamId());
+		}
+		if (videoSender != null) {
+			videoStream = videoSender.createStream(getStreamId());
 		}
 	}
 
 	public void stop() {
-		if (mediaSender != null) {
-			mediaSender.deleteStream(getStreamId());
+		if (audioSender != null) {
+			audioSender.deleteStream(getStreamId());
+		}
+		if (videoSender != null) {
+			videoSender.deleteStream(getStreamId());
 		}
 	}
 
+	private long sipStream = -1;
+	
 	public void dispatchEvent(IEvent event) {
 
 		if (!(event instanceof IRTMPEvent)) {
@@ -63,9 +79,22 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 		}
 
 		if (rtmpEvent instanceof VideoData) {
-			// videoTs += rtmpEvent.getTimestamp();
-			// tag.setTimestamp(videoTs);
-
+			if (sipStream == -1)
+				sipStream = rtmpEvent.getHeader().getStreamId();
+			if (rtmpEvent.getHeader().getStreamId() != sipStream) return;
+			
+			int videoTs = rtmpEvent.getTimestamp();
+			IoBuffer videoData = ((VideoData) rtmpEvent).getData().asReadOnlyBuffer();
+			videoData.reset();
+			byte[] data = SerializeUtils.ByteBufferToByteArray(videoData);
+			
+			try {
+				if (videoStream != null) {
+					videoStream.send(videoTs, data, 0, data.length);
+				}
+			} catch (Exception e) {
+				logger.error("PlayNetStream dispatchEvent exception ", e);
+			}
 		} else if (rtmpEvent instanceof AudioData) {
 			audioTs = rtmpEvent.getTimestamp();
 
@@ -73,8 +102,8 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 			byte[] data = SerializeUtils.ByteBufferToByteArray(audioData);
 
 			try {
-				if (mediaStream != null) {
-					mediaStream.send(audioTs, data, 1, data.length - 1);
+				if (audioStream != null) {
+					audioStream.send(audioTs, data, 1, data.length - 1);
 				}
 			} catch (Exception e) {
 				logger.error("PlayNetStream dispatchEvent exception ", e);

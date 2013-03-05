@@ -116,7 +116,7 @@ public class RTPStreamSender implements IMediaSender {
 	private void init(IMediaReceiver mediaReceiver, boolean do_sync, SIPCodec sipCodec, DatagramSocket src_socket,
 			String dest_addr, int dest_port) {
 
-		mediaReceiver.setSender(this);
+		mediaReceiver.setAudioSender(this);
 		this.sipCodec = sipCodec;
 		this.doSync = do_sync;
 

@@ -6,6 +6,10 @@ public interface IMediaReceiver {
 
 	void pushAudio(byte[] audio, long ts, int codec) throws IOException;
 
-	void setSender(IMediaSender sender);
+	void pushVideo(byte[] video, long ts) throws IOException;
+	
+	void setAudioSender(IMediaSender sender);
+	
+	void setVideoSender(IMediaSender sender);
 
 }
