@@ -7,6 +7,7 @@ import org.red5.server.net.rtmp.event.AudioData;
 import org.red5.server.net.rtmp.event.IRTMPEvent;
 import org.red5.server.net.rtmp.event.SerializeUtils;
 import org.red5.server.net.rtmp.event.VideoData;
+import org.red5.server.net.rtmp.event.VideoData.FrameType;
 import org.red5.server.stream.AbstractClientStream;
 import org.red5.server.stream.IStreamData;
 import org.slf4j.Logger;
@@ -24,10 +25,17 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 	private IMediaSender videoSender;
 
 	private IMediaStream videoStream;
+	
+	private RTMPRoomClient client;
+	
+	private int currentStreamID = -1;
+	
+	private boolean keyframeReceived = false;
 
-	public PlayNetStream(IMediaSender audioSender, IMediaSender videoSender) {
+	public PlayNetStream(IMediaSender audioSender, IMediaSender videoSender, RTMPRoomClient client) {
 		this.audioSender = audioSender;
 		this.videoSender = videoSender;
+		this.client = client;
 	}
 
 	public void close() {
@@ -56,8 +64,6 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 			videoSender.deleteStream(getStreamId());
 		}
 	}
-
-	private long sipStream = -1;
 	
 	public void dispatchEvent(IEvent event) {
 
@@ -79,9 +85,25 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 		}
 
 		if (rtmpEvent instanceof VideoData) {
-			if (sipStream == -1)
-				sipStream = rtmpEvent.getHeader().getStreamId();
-			if (rtmpEvent.getHeader().getStreamId() != sipStream) return;
+			int newStreamId = client.getActiveVideoStreamID();
+			if (rtmpEvent.getHeader().getStreamId() != newStreamId) {
+				return;
+			}
+			
+			if (currentStreamID != newStreamId) {
+				logger.debug("switching video to a new stream: " + newStreamId);
+				currentStreamID = newStreamId;
+				keyframeReceived = false;
+			}
+			
+			if (((VideoData) rtmpEvent).getFrameType() == FrameType.KEYFRAME) {
+				keyframeReceived = true;
+			}
+			
+			if (!keyframeReceived) {
+				logger.debug("Keyframe is not received. Packet is ignored.");
+				return;
+			}
 			
 			int videoTs = rtmpEvent.getTimestamp();
 			IoBuffer videoData = ((VideoData) rtmpEvent).getData().asReadOnlyBuffer();
