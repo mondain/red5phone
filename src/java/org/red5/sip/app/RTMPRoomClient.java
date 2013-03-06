@@ -59,6 +59,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	private String sipNumber = null;
 	private ISipNumberListener sipNumberListener = null;
 	private long lastSendActivityMS = 0L;
+	private boolean videoStarted = false;
 	private final Runnable updateTask = new Runnable() {
 		public void run() {
 			while (true) {
@@ -199,12 +200,12 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		conn.invoke("setSipTransport", new Object[] { Long.valueOf(roomId), publicSID, "" + broadCastId }, this);
 	}
 
-	protected void setUserAVSettings() {
+	protected void setUserAVSettings(String mode) {
 		String[] remoteMessage = new String[3];
 		remoteMessage[0] = "avsettings";
 		remoteMessage[1] = "0";
-		remoteMessage[2] = "av";
-		conn.invoke("setUserAVSettings", new Object[] { "av", remoteMessage, 120, 90 }, this);
+		remoteMessage[2] = mode;
+		conn.invoke("setUserAVSettings", new Object[] { mode, remoteMessage, 120, 90, Long.valueOf(roomId), publicSID, -1 }, this);
 	}
 
 	protected void getSipNumber() {
@@ -396,7 +397,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		case getBroadCastId:
 			log.info("getBroadCastId");
 			this.broadCastId = ((Number) call.getResult()).intValue();
-			this.setUserAVSettings();
+			this.setUserAVSettings("a");
 			break;
 		case getPublicSID:
 			log.info("getPublicSID");
@@ -516,8 +517,12 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	public void pushVideo(byte[] video, long ts) throws IOException {
 		if(publishStreamId == null) {
 			log.debug("publishStreamId == null !!!");
-            return;
-        }
+			return;
+		}
+		if (!videoStarted) {
+			setUserAVSettings("av");
+			videoStarted = true;
+		}
 		if (videoBuffer == null || (videoBuffer.capacity() < video.length && !videoBuffer.isAutoExpand())) {
 			videoBuffer = IoBuffer.allocate(video.length);
 			videoBuffer.setAutoExpand(true);
