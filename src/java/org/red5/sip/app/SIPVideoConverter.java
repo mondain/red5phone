@@ -69,12 +69,9 @@ public class SIPVideoConverter {
 		if (data[0] == 0x17 && data[1] == 0) {
 			byte[] pdata = Arrays.copyOfRange(data, 2, data.length);
 			int cfgVer = pdata[3];
-			log.debug("cfgVer=" + cfgVer);
 			if (cfgVer == 1) {
 				int lenSize = pdata[7] & 0x03 + 1;
 				int numSPS = pdata[8] & 0x1f;
-				log.debug("lenSize=" + lenSize);
-				log.debug("numSPS=" + numSPS);
 				pdata = Arrays.copyOfRange(pdata, 9, pdata.length);
 				byte[] sps = null;
 				for (int i = 0; i < numSPS; i++) {
@@ -86,7 +83,6 @@ public class SIPVideoConverter {
 					pdata = Arrays.copyOfRange(pdata, lenSPS, pdata.length);
 				}
 				int numPPS = pdata[0];
-				log.debug("numPPS=" + numSPS);
 				pdata = Arrays.copyOfRange(pdata, 1, pdata.length);
 				byte[] pps = null;
 				for (int i = 0; i < numPPS; i++) {
@@ -123,7 +119,6 @@ public class SIPVideoConverter {
 			if (spsSent && ppsSent) {
 				List<ByteArrayBuilder> nals = new ArrayList<ByteArrayBuilder>();
 				byte[] pdata = Arrays.copyOfRange(data, 5, data.length);
-				log.debug("pdata.length=" + pdata.length);
 				while (pdata.length > 0) {
 					int nalSize = 0;
 					switch (lenSize) {
@@ -142,18 +137,15 @@ public class SIPVideoConverter {
 					default:
 						throw new RuntimeException("Invalid length size: " + lenSize);
 					}
-					log.debug("nalSize=" + nalSize);
 					ByteArrayBuilder nalData = new ByteArrayBuilder(Arrays.copyOfRange(pdata, lenSize, lenSize + nalSize));
 					nals.add(nalData);
 					pdata = Arrays.copyOfRange(pdata, lenSize + nalSize, pdata.length);
 				}
-				log.debug("nals.size()=" + nals.size());
 				if (nals.size() > 0) {
 					byte[] remaining = nals.get(nals.size() - 1).buildArray();
 					int nalType = remaining[0] & 0x1f;
 					int nri = remaining[0] & 0x60;
 					int maxSize = 1446;
-					log.debug("nalType=" + nalType);
 					if (nalType == 5 || nalType == 1) {
 						long ts1 = ts * 90;
 						if (remaining.length < maxSize) {
@@ -186,7 +178,6 @@ public class SIPVideoConverter {
 				}
 			}
 		}
-		log.debug("result.size()=" + result.size());
 		return result;
 	}
 	
