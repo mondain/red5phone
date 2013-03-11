@@ -520,7 +520,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			return;
 		}
 		if (!videoStarted) {
-			setUserAVSettings("av");
+			//setUserAVSettings("av"); //TODO video support is disabled now as unstable
 			videoStarted = true;
 		}
 		if (videoBuffer == null || (videoBuffer.capacity() < video.length && !videoBuffer.isAutoExpand())) {
