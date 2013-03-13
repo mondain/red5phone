@@ -10,10 +10,10 @@ public class RTPVideoStream implements IMediaStream {
 	private SIPVideoConverter converter;
 	private SIPCodec codec;
 	
-	public RTPVideoStream(RTPStreamVideoSender sender, SIPCodec codec) {
+	public RTPVideoStream(SIPTransport sipTransport, RTPStreamVideoSender sender, SIPCodec codec) {
 		this.sender = sender;
 		this.codec = codec;
-		converter = new SIPVideoConverter();
+		converter = new SIPVideoConverter(sipTransport);
 	}
 	
 	@Override

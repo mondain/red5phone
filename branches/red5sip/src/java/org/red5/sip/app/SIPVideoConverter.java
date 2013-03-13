@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import local.net.RtpPacket;
+
 import org.red5.codecs.SIPCodec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import local.net.RtpPacket;
 
 public class SIPVideoConverter {
 
@@ -23,13 +23,15 @@ public class SIPVideoConverter {
 	private long startTm;
 	private long startRelativeTime;
 	private List<RtpPacketWrapper> packetsQueue;
+	private SIPTransport sipTransport;
 	
 	// rtmp => rtp
 	private int lenSize;
 	private boolean spsSent = false;
 	private boolean ppsSent = false;
 	
-	public SIPVideoConverter() {
+	public SIPVideoConverter(SIPTransport sipTransport) {
+		this.sipTransport = sipTransport;
 		resetConverter();
 		startRelativeTime = System.currentTimeMillis();
 	}
@@ -359,6 +361,7 @@ public class SIPVideoConverter {
 	
 	protected void requestFIR() {
 		log.debug("requesting FIR...");
+		sipTransport.requestFIR();
 	}
 	
 	public static class RTMPPacketInfo {

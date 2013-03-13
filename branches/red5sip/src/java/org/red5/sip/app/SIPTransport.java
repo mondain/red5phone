@@ -4,6 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zoolu.net.SocketAddress;
 import org.zoolu.sip.address.NameAddress;
+import org.zoolu.sip.message.Message;
+import org.zoolu.sip.message.MessageFactory;
+import org.zoolu.sip.message.SipMethods;
 import org.zoolu.sip.provider.SipProvider;
 import org.zoolu.sip.provider.SipStack;
 
@@ -11,8 +14,8 @@ public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterA
 	protected static Logger log = LoggerFactory.getLogger(SIPTransport.class);
 
 	protected RTMPRoomClient roomClient;
-	private SipProvider sip_provider;
-	private SIPUserAgentProfile user_profile;
+	private SipProvider sipProvider;
+	private SIPUserAgentProfile userProfile;
 	private String opt_outbound_proxy = null;
 	private SIPUserAgent ua;
 	private SIPRegisterAgent ra;
@@ -51,27 +54,27 @@ public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterA
 			SipStack.debug_level = 0;
 			SipStack.log_path = "log";
 
-			sip_provider = new SipProvider(null, sipPort);
-			sip_provider.setOutboundProxy(new SocketAddress(opt_outbound_proxy));
+			sipProvider = new SipProvider(null, sipPort);
+			sipProvider.setOutboundProxy(new SocketAddress(opt_outbound_proxy));
 
-			user_profile = new SIPUserAgentProfile();
-			user_profile.audioPort = rtpAudioPort;
-			user_profile.videoPort = rtpVideoPort;
-			user_profile.username = username;
-			user_profile.passwd = password;
-			user_profile.realm = realm;
-			user_profile.fromUrl = fromURL;
-			user_profile.contactUrl = "sip:" + phone + "@" + sip_provider.getViaAddress();
+			userProfile = new SIPUserAgentProfile();
+			userProfile.audioPort = rtpAudioPort;
+			userProfile.videoPort = rtpVideoPort;
+			userProfile.username = username;
+			userProfile.passwd = password;
+			userProfile.realm = realm;
+			userProfile.fromUrl = fromURL;
+			userProfile.contactUrl = "sip:" + phone + "@" + sipProvider.getViaAddress();
 
-			if (sip_provider.getPort() != SipStack.default_port) {
-				user_profile.contactUrl += ":" + sip_provider.getPort();
+			if (sipProvider.getPort() != SipStack.default_port) {
+				userProfile.contactUrl += ":" + sipProvider.getPort();
 			}
 
-			user_profile.keepaliveTime = 8000;
-			user_profile.acceptTime = 0;
-			user_profile.hangupTime = 20;
+			userProfile.keepaliveTime = 8000;
+			userProfile.acceptTime = 0;
+			userProfile.hangupTime = 20;
 
-			ua = new SIPUserAgent(sip_provider, user_profile, this, roomClient);
+			ua = new SIPUserAgent(sipProvider, userProfile, this, roomClient);
 
 			ua.listen();
 
@@ -84,7 +87,7 @@ public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterA
 		p("Calling " + destination);
 
 		try {
-			roomClient.init();
+			roomClient.init(destination);
 
 			ua.setMedia(roomClient);
 			ua.hangup();
@@ -109,10 +112,10 @@ public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterA
 
 		try {
 
-			if (sip_provider != null) {
-				ra = new SIPRegisterAgent(sip_provider, user_profile.fromUrl, user_profile.contactUrl, username,
-						user_profile.realm, password, this);
-				loopRegister(user_profile.expires, user_profile.expires / 2, user_profile.keepaliveTime);
+			if (sipProvider != null) {
+				ra = new SIPRegisterAgent(sipProvider, userProfile.fromUrl, userProfile.contactUrl, username,
+						userProfile.realm, password, this);
+				loopRegister(userProfile.expires, userProfile.expires / 2, userProfile.keepaliveTime);
 			}
 
 		} catch (Exception e) {
@@ -131,7 +134,7 @@ public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterA
 
 		try {
 			p("provider.halt");
-			sip_provider.halt();
+			sipProvider.halt();
 		} catch (Exception e) {
 			p("close: Exception:>\n" + e);
 		}
@@ -243,5 +246,19 @@ public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterA
 		log.info("Room number: " + number);
 		this.number = number;
 		this.call(number);
+	}
+
+	public void requestFIR() {
+		log.debug("requesting FIR...");
+		Message msg = MessageFactory.createRequest(
+			sipProvider
+			, SipMethods.INFO
+			, sipProvider.completeNameAddress(roomClient.getDestination())
+			, sipProvider.completeNameAddress(userProfile.fromUrl)
+			, ""); // no way to pass content-type, will set empty message for now
+		msg.setBody("application/media_control+xml"
+			, "<?xml version=\"1.0\" encoding=\"utf-8\" ?><media_control><vc_primitive><to_encoder>" +
+					"<picture_fast_update></picture_fast_update></to_encoder></vc_primitive></media_control>");
+		sipProvider.sendMessage(msg);
 	}
 }
