@@ -15,11 +15,11 @@ public class SIPVideoLauncher implements MediaLauncher {
 	protected RTPStreamVideoReceiver receiver;
 	protected RTPStreamVideoSender sender;
 	
-	public SIPVideoLauncher(int localPort, String remoteAddr, int remotePort, IMediaReceiver mediaReceiver, SIPCodec codec) {
+	public SIPVideoLauncher(int localPort, String remoteAddr, int remotePort, SIPTransport sipTransport, IMediaReceiver mediaReceiver, SIPCodec codec) {
 		try {
 			socket = new DatagramSocket(localPort);
-			receiver = new RTPStreamVideoReceiver(mediaReceiver, socket, codec);
-			sender = new RTPStreamVideoSender(mediaReceiver, codec, socket, remoteAddr, remotePort);
+			receiver = new RTPStreamVideoReceiver(sipTransport, mediaReceiver, socket, codec);
+			sender = new RTPStreamVideoSender(sipTransport, mediaReceiver, codec, socket, remoteAddr, remotePort);
 		} catch (Exception e) {
 			log.error("", e);
 		}

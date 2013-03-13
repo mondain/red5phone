@@ -410,14 +410,6 @@ public class SIPUserAgent extends CallListenerAdapter {
 		printLog("launchMediaApplication", "remoteAudioPort = " + remoteAudioPort + ", remoteVideoPort = "
 				+ remoteVideoPort + ".");
 
-		// Select the media direction (send_only, recv_ony, fullduplex).
-		int dir = 0;
-		if (userProfile.recvOnly) {
-			dir = -1;
-		} else if (userProfile.sendOnly) {
-			dir = 1;
-		}
-
 		printLog("launchMediaApplication", "user_profile.audio = " + userProfile.audio + ", user_profile.video = "
 				+ userProfile.video + ", audio_app = " + audioApp + ", video_app = " + videoApp + ".");
 
@@ -442,7 +434,7 @@ public class SIPUserAgent extends CallListenerAdapter {
 		if (userProfile.video && localVideoPort != 0 && remoteVideoPort != 0) {
 			if (videoApp == null) {
         		if (sipVideoCodec != null) {
-        			videoApp = new SIPVideoLauncher(localVideoPort, remoteMediaAddress, remoteAudioPort, mediaReceiver, sipVideoCodec);
+        			videoApp = new SIPVideoLauncher(localVideoPort, remoteMediaAddress, remoteAudioPort, (SIPTransport)listener, mediaReceiver, sipVideoCodec);
         		} else {
         			printLog( "launchMediaApplication", "SipCodec for video not initialized." );
         		}

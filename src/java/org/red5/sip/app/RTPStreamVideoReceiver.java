@@ -21,11 +21,11 @@ public class RTPStreamVideoReceiver extends Thread {
 	private boolean running;
 	private ConverterThread converterThread;
 	
-	public RTPStreamVideoReceiver(IMediaReceiver mediaReceiver, DatagramSocket socket, SIPCodec codec) {
+	public RTPStreamVideoReceiver(SIPTransport sipTransport, IMediaReceiver mediaReceiver, DatagramSocket socket, SIPCodec codec) {
 		this.mediaReceiver = mediaReceiver;
 		rtpSocket = new RtpSocket(socket);
 		this.codec = codec;
-		converterThread = new ConverterThread();
+		converterThread = new ConverterThread(sipTransport);
 	}
 
 	@Override
@@ -57,9 +57,9 @@ public class RTPStreamVideoReceiver extends Thread {
 		private boolean running;
 		private SIPVideoConverter converter;
 		
-		public ConverterThread() {
+		public ConverterThread(SIPTransport sipTransport) {
 			packetQueue = new ConcurrentLinkedQueue<RtpPacket>();
-			converter = new SIPVideoConverter();
+			converter = new SIPVideoConverter(sipTransport);
 		}
 		
 		public void addPacket(RtpPacket packet) {

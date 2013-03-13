@@ -60,6 +60,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	private ISipNumberListener sipNumberListener = null;
 	private long lastSendActivityMS = 0L;
 	private boolean videoStarted = false;
+	private boolean streamCreated = false;
 	private final Runnable updateTask = new Runnable() {
 		public void run() {
 			while (true) {
@@ -84,6 +85,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	final private String context;
 	final private String host;
 	private int activeVideoStreamID = -1;
+	private String destination;
 
 	public RTMPRoomClient(String host, String context, int roomId) {
 		super();
@@ -126,7 +128,9 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		this.sipNumberListener = sipNumberListener;
 	}
 
-	public void init() {
+	public void init(String destination) {
+		this.destination = destination;
+		streamCreated = false;
 		getPublicSID();
 	}
 
@@ -414,7 +418,10 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		case setUserAVSettings:
 			log.info("setUserAVSettings");
 			// SIP -> red5
-			createStream(this);
+			if (!streamCreated) {
+				createStream(this);
+				streamCreated = true;
+			}
 			break;
 		case setSipTransport:
 			log.info("setSipTransport");
@@ -520,7 +527,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			return;
 		}
 		if (!videoStarted) {
-			//setUserAVSettings("av"); //TODO video support is disabled now as unstable
+			setUserAVSettings("av");
 			videoStarted = true;
 		}
 		if (videoBuffer == null || (videoBuffer.capacity() < video.length && !videoBuffer.isAutoExpand())) {
@@ -539,5 +546,13 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		message.setBody(videoData);
 		
 		publishStreamData(publishStreamId, message);
+	}
+
+	public String getDestination() {
+		return destination;
+	}
+
+	public void setDestination(String destination) {
+		this.destination = destination;
 	}
 }
