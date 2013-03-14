@@ -257,8 +257,15 @@ public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterA
 			, sipProvider.completeNameAddress(userProfile.fromUrl)
 			, ""); // no way to pass content-type, will set empty message for now
 		msg.setBody("application/media_control+xml"
-			, "<?xml version=\"1.0\" encoding=\"utf-8\" ?><media_control><vc_primitive><to_encoder>" +
-					"<picture_fast_update></picture_fast_update></to_encoder></vc_primitive></media_control>");
+			,	"<?xml version=\"1.0\" encoding=\"utf-8\" ?>\n" +
+				" <media_control>\n" +
+				"  <vc_primitive>\n" +
+				"   <to_encoder>\n" +
+				"    <picture_fast_update>\n" +
+				"    </picture_fast_update>\n" +
+				"   </to_encoder>\n" +
+				"  </vc_primitive>\n" +
+				" </media_control>\n");
 		sipProvider.sendMessage(msg);
 	}
 }
