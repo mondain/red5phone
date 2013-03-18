@@ -4,4 +4,6 @@ public interface IMediaStream {
 
 	void send(long timestamp, byte[] asaoBuffer, int offset, int num);
 
+	void stop();
+	
 }

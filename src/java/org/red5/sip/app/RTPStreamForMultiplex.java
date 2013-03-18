@@ -60,4 +60,9 @@ public class RTPStreamForMultiplex implements IMediaStream {
 	protected synchronized int read(byte[] dst, int offset) {
 		return buffer.take(dst, offset);
 	}
+
+	@Override
+	public void stop() {
+		// nothing to do
+	}
 }
