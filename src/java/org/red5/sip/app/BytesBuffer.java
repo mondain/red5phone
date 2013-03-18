@@ -28,7 +28,11 @@ public class BytesBuffer {
 	}
 
 	protected int available() {
-		return (end > start) ? (end - start) : (buffersCount - start + end);
+        if(start >= 0) {
+		    return (end > start) ? (end - start) : (buffersCount - start + end);
+        } else {
+            return 0;
+        }
 	}
 
 	protected float bufferUsage() {
