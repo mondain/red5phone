@@ -164,6 +164,10 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	public int getActiveVideoStreamID() {
 		return activeVideoStreamID;
 	}
+	
+	public void setActiveVideoStreamID(int activeVideoStreamID) {
+		this.activeVideoStreamID = activeVideoStreamID;
+	}
 
 	private void createPlayStream(long broadCastId) {
 
@@ -193,9 +197,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 				conn.addClientStream(stream);
 				play(streamIdInt, "" + broadCastId, -2000, -1000);
 				stream.start();
-				if (activeVideoStreamID == -1) {
-					activeVideoStreamID = streamIdInt;
-				}
 			}
 		}
 	}
@@ -358,12 +359,8 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			conn.getStreamById(streamId).stop();
 			conn.removeClientStream(streamId);
 			conn.deleteStreamById(streamId);
-			if (streamId == activeVideoStreamID) {
-				if (clientStreamMap.size() == 0) {
-					activeVideoStreamID = -1;
-				} else {
-					activeVideoStreamID = clientStreamMap.values().iterator().next();
-				}
+			if (streamId == getActiveVideoStreamID()) {
+				setActiveVideoStreamID(-1);
 			}
 		}
 	}

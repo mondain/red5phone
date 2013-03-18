@@ -13,22 +13,24 @@ import org.slf4j.LoggerFactory;
 public class SIPVideoConverter {
 
 	private static final Logger log = LoggerFactory.getLogger(SIPVideoConverter.class);
+	private static final int MAX_RTP_PAYLOAD_SIZE = 1446;
 	
 	// rtp => rtmp
-	private byte[] sps1;
+	private byte[] sps;
 	private byte[] pps;
 	private boolean sentSeq;
 	private long lastFIRTime;
 	private long startTs;
 	private long startTm;
 	private long startRelativeTime;
+	private int lastReceivedSequenceNumber;
 	private List<RtpPacketWrapper> packetsQueue;
 	private SIPTransport sipTransport;
 	
 	// rtmp => rtp
 	private int lenSize;
-	private boolean spsSent = false;
-	private boolean ppsSent = false;
+	private boolean spsSent;
+	private boolean ppsSent;
 	
 	public SIPVideoConverter(SIPTransport sipTransport) {
 		this.sipTransport = sipTransport;
@@ -39,11 +41,14 @@ public class SIPVideoConverter {
 	public void resetConverter() {
 		packetsQueue = new ArrayList<RtpPacketWrapper>();
 		lastFIRTime = System.currentTimeMillis();
-		sps1 = new byte[0];
+		sps = new byte[0];
 		pps = new byte[0];
 		sentSeq = false;
 		startTs = -1;
 		startTm = -1;
+		lastReceivedSequenceNumber = -1;
+		spsSent = false;
+		ppsSent = false;
 	}
 	
 	public List<RTMPPacketInfo> rtp2rtmp(RtpPacket packet, SIPCodec codec) {
@@ -68,6 +73,7 @@ public class SIPVideoConverter {
 	
 	private List<RtpPacket> rtmp2rtpH254(byte data[], long ts) {
 		List<RtpPacket> result = new ArrayList<RtpPacket>();
+		long ts1 = ts * 90;
 		if (data[0] == 0x17 && data[1] == 0) {
 			byte[] pdata = Arrays.copyOfRange(data, 2, data.length);
 			int cfgVer = pdata[3];
@@ -98,7 +104,6 @@ public class SIPVideoConverter {
 				this.lenSize = lenSize;
 				if (sps != null) {
 					spsSent = true;
-					long ts1 = ts * 90;
 					byte[] buffer = new byte[sps.length + 12];
 					RtpPacket packet = new RtpPacket(buffer, 0);
 					packet.setPayload(sps, sps.length);
@@ -108,7 +113,6 @@ public class SIPVideoConverter {
 				}
 				if (pps != null) {
 					ppsSent = true;
-					long ts1 = ts * 90;
 					byte[] buffer = new byte[pps.length + 12];
 					RtpPacket packet = new RtpPacket(buffer, 0);
 					packet.setPayload(pps, pps.length);
@@ -116,6 +120,8 @@ public class SIPVideoConverter {
 					buffer[1] = (byte) 0xe3;
 					result.add(packet);
 				}
+			} else {
+				log.debug("Unsuported cfgVer=" + cfgVer);
 			}
 		} else if ((data[0] == 0x17 || data[0] == 0x27) && data[1] == 1) {
 			if (spsSent && ppsSent) {
@@ -147,10 +153,8 @@ public class SIPVideoConverter {
 					byte[] remaining = nals.get(nals.size() - 1).buildArray();
 					int nalType = remaining[0] & 0x1f;
 					int nri = remaining[0] & 0x60;
-					int maxSize = 1446;
 					if (nalType == 5 || nalType == 1) {
-						long ts1 = ts * 90;
-						if (remaining.length < maxSize) {
+						if (remaining.length < MAX_RTP_PAYLOAD_SIZE) {
 							byte[] buffer = new byte[remaining.length + 12];
 							RtpPacket packet = new RtpPacket(buffer, 0);
 							packet.setPayload(remaining, remaining.length);
@@ -161,8 +165,8 @@ public class SIPVideoConverter {
 							byte start = (byte) 0x80;
 							remaining = Arrays.copyOfRange(remaining, 1, remaining.length);
 							while (remaining.length > 0) {
-								pdata = Arrays.copyOf(remaining, Math.min(maxSize - 2, remaining.length));
-								remaining = Arrays.copyOfRange(remaining, Math.min(maxSize - 2, remaining.length), remaining.length);
+								pdata = Arrays.copyOf(remaining, Math.min(MAX_RTP_PAYLOAD_SIZE - 2, remaining.length));
+								remaining = Arrays.copyOfRange(remaining, Math.min(MAX_RTP_PAYLOAD_SIZE - 2, remaining.length), remaining.length);
 								byte end = (byte) ((remaining.length > 0)? 0: 0x40);
 								ByteArrayBuilder payload = new ByteArrayBuilder((byte) (nri | 28), (byte) (start | end | nalType));
 								payload.putArray(pdata);
@@ -179,20 +183,30 @@ public class SIPVideoConverter {
 					}
 				}
 			}
+		} else {
+			log.debug("Missing rtmp data");
 		}
 		return result;
 	}
 	
 	private List<RTMPPacketInfo> rtp2rtmpH264(RtpPacket packet) {
+		if (packet.getPayloadType() != 35) {
+			return new ArrayList<RTMPPacketInfo>();
+		}
+		if (lastReceivedSequenceNumber != -1 && (packet.getSequenceNumber() - lastReceivedSequenceNumber != 1)) {
+			log.debug("Missing new packet sequence number " + packet.getSequenceNumber());
+			resetConverter();
+			return new ArrayList<RTMPPacketInfo>();
+		}
+		lastReceivedSequenceNumber = packet.getSequenceNumber();
+
 		List<RTMPPacketInfo> result = new ArrayList<RTMPPacketInfo>();
 		byte[] payload = packet.getPayload();
 		int nalType = payload[0] & 0x1f;
-		byte[] naldata = null;
-
 		switch (nalType) {
 		case 7: // SPS
-			sps1 = payload;
-			log.debug("SPS received: " + Arrays.toString(sps1));
+			sps = payload;
+			log.debug("SPS received: " + Arrays.toString(sps));
 			break;
 		case 8: // PPS
 			pps = payload;
@@ -200,18 +214,18 @@ public class SIPVideoConverter {
 			break;
 		default:
 			if (payload.length > 1) {
-				if (nalType == 24) { // for cisco phones
+				if (nalType == 24) { // for aggregated SPS and PPS
 					payload = Arrays.copyOfRange(payload, 1, payload.length);
 					while (payload.length > 0) {
-						int size = payload[1];
+						int size = payload[0] & 0xff;
 						payload = Arrays.copyOfRange(payload, 2, payload.length);
-						naldata = Arrays.copyOf(payload, size);
+						byte[] naldata = Arrays.copyOf(payload, size);
 						payload = Arrays.copyOfRange(payload, size, payload.length);
 						int nt = naldata[0] & 0x1f;
 						switch (nt) {
 						case 7:
-							sps1 = naldata;
-							log.debug("SPS received: " + Arrays.toString(sps1));
+							sps = naldata;
+							log.debug("SPS received: " + Arrays.toString(sps));
 							break;
 						case 8:
 							pps = naldata;
@@ -267,9 +281,9 @@ public class SIPVideoConverter {
 				case 24:
 					payload = Arrays.copyOfRange(payload, 1, payload.length);
 					while (payload.length > 0) {
-						int size = payload[0];
+						int size = payload[1] & 0xff;
 						payload = Arrays.copyOfRange(payload, 2, payload.length);
-						naldata = Arrays.copyOf(payload, size);
+						byte[] naldata = Arrays.copyOf(payload, size);
 						payload = Arrays.copyOfRange(payload, size, payload.length);
 						int nt = naldata[0] & 0x1f;
 						if (nt == 5 || nt == 1) {
@@ -317,14 +331,13 @@ public class SIPVideoConverter {
 				payloads.add(newdata);
 			}
 			
-			if (!sentSeq && nalType != 5 && pps.length > 0 && sps1.length > 0 || sps1.length == 0 || pps.length == 0) {
-				packetsQueue.clear();
+			if (!sentSeq && nalType != 5 && pps.length > 0 && sps.length > 0 || sps.length == 0 || pps.length == 0) {
 				if (System.currentTimeMillis() - lastFIRTime > 5000) {
 					lastFIRTime = System.currentTimeMillis();
 					requestFIR();
 				}
 			} else {
-				if (pps.length > 0 && sps1.length > 0 && !sentSeq && nalType == 5) {
+				if (pps.length > 0 && sps.length > 0 && !sentSeq && nalType == 5) {
 					sentSeq = true;
 				}
 				
@@ -336,15 +349,15 @@ public class SIPVideoConverter {
 					startTm = System.currentTimeMillis() - startRelativeTime;
 				}
 
-				long tm = startTm + (packet.getTimestamp() - startTs) / 90; // 90 = bitrate / 1000
+				long tm = startTm + (packet.getTimestamp() - startTs) / 132;
 				if (nalType == 5 && payloads.size() > 0) {
 					ByteArrayBuilder data = new ByteArrayBuilder();
 					// first byte: 0x17 for intra-frame
 					// second byte: 0x00 for configuration data
 					data.putArray(new byte[]{0x17, 0, 0, 0, 0, 1});
-					data.putArray(Arrays.copyOfRange(sps1, 1, 4));
-					data.putArray((byte) 0xff, (byte) 0xe1, (byte) (sps1.length >>> 8), (byte) sps1.length);
-					data.putArray(sps1);
+					data.putArray(Arrays.copyOfRange(sps, 1, 4));
+					data.putArray((byte) 0xff, (byte) 0xe1, (byte) (sps.length >>> 8), (byte) sps.length);
+					data.putArray(sps);
 					data.putArray((byte) 1, (byte) (pps.length >>> 8), (byte) pps.length);
 					data.putArray(pps);
 					payloads.add(0, data);
@@ -360,7 +373,6 @@ public class SIPVideoConverter {
 	}
 	
 	protected void requestFIR() {
-		log.debug("requesting FIR...");
 		sipTransport.requestFIR();
 	}
 	

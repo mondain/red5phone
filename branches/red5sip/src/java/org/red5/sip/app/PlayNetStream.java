@@ -24,7 +24,7 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 	
 	private IMediaSender videoSender;
 
-	private IMediaStream videoStream;
+	private RTPVideoStream videoStream;
 	
 	private RTMPRoomClient client;
 	
@@ -52,7 +52,7 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 			audioStream = audioSender.createStream(getStreamId());
 		}
 		if (videoSender != null) {
-			videoStream = videoSender.createStream(getStreamId());
+			videoStream = (RTPVideoStream) videoSender.createStream(getStreamId());
 		}
 	}
 
@@ -62,6 +62,12 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 		}
 		if (videoSender != null) {
 			videoSender.deleteStream(getStreamId());
+		}
+		if (audioStream != null) {
+			audioStream.stop();
+		}
+		if (videoStream != null) {
+			videoStream.stop();
 		}
 	}
 	
@@ -86,7 +92,12 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 
 		if (rtmpEvent instanceof VideoData) {
 			int newStreamId = client.getActiveVideoStreamID();
+			if (newStreamId == -1) {
+				newStreamId = rtmpEvent.getHeader().getStreamId();
+				client.setActiveVideoStreamID(newStreamId);
+			}
 			if (rtmpEvent.getHeader().getStreamId() != newStreamId) {
+				logger.debug("ignoring stream id=" + rtmpEvent.getHeader().getStreamId() + " current stream is " + newStreamId);
 				return;
 			}
 			
@@ -94,6 +105,9 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 				logger.debug("switching video to a new stream: " + newStreamId);
 				currentStreamID = newStreamId;
 				keyframeReceived = false;
+				if (videoStream != null) {
+					videoStream.getConverter().resetConverter();
+				}
 			}
 			
 			if (((VideoData) rtmpEvent).getFrameType() == FrameType.KEYFRAME) {

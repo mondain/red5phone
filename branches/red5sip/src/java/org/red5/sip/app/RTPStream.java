@@ -147,4 +147,9 @@ public class RTPStream implements IMediaStream {
 
 		return finalCopySize;
 	}
+
+	@Override
+	public void stop() {
+		// nothing to do
+	}
 }
