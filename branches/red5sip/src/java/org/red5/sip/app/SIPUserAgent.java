@@ -434,7 +434,7 @@ public class SIPUserAgent extends CallListenerAdapter {
 		if (userProfile.video && localVideoPort != 0 && remoteVideoPort != 0) {
 			if (videoApp == null) {
         		if (sipVideoCodec != null) {
-        			videoApp = new SIPVideoLauncher(localVideoPort, remoteMediaAddress, remoteAudioPort, (SIPTransport)listener, mediaReceiver, sipVideoCodec);
+        			videoApp = new SIPVideoLauncher(localVideoPort, remoteMediaAddress, remoteVideoPort, (SIPTransport)listener, mediaReceiver, sipVideoCodec);
         		} else {
         			printLog( "launchMediaApplication", "SipCodec for video not initialized." );
         		}
