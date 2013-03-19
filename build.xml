@@ -83,7 +83,12 @@
 		</javac>
 	</target>
 	
-	<target name="all" depends="compile.only" >
+	<target name="clean">
+		<delete includeemptydirs="true" dir="${classes.dir}" />
+		<delete file="${red5sip.jar}" />
+	</target>
+	
+	<target name="all" depends="clean,compile.only" >
 	    <jar destfile="${red5sip.jar}" filesetmanifest="mergewithoutmain">
 	      <zipfileset dir="${classes.dir}"/>
 	    </jar>
