@@ -12,17 +12,17 @@ import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.openmeetings.persistence.beans.room.Client;
 import org.red5.io.utils.ObjectMap;
-import org.red5.server.api.IScope;
+import org.red5.server.api.scope.IScope;
 import org.red5.server.api.event.IEvent;
 import org.red5.server.api.service.IPendingServiceCall;
 import org.red5.server.api.service.IPendingServiceCallback;
 import org.red5.server.api.service.IServiceCall;
 import org.red5.server.api.service.IServiceInvoker;
-import org.red5.server.net.rtmp.BaseRTMPClientHandler;
+import org.red5.client.net.rtmp.BaseRTMPClientHandler;
 import org.red5.server.net.rtmp.Channel;
-import org.red5.server.net.rtmp.ClientExceptionHandler;
-import org.red5.server.net.rtmp.INetStreamEventHandler;
-import org.red5.server.net.rtmp.RTMPClient;
+import org.red5.client.net.rtmp.ClientExceptionHandler;
+import org.red5.client.net.rtmp.INetStreamEventHandler;
+import org.red5.client.net.rtmp.RTMPClient;
 import org.red5.server.net.rtmp.RTMPConnection;
 import org.red5.server.net.rtmp.codec.RTMP;
 import org.red5.server.net.rtmp.event.AudioData;
@@ -505,16 +505,14 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		audioBuffer.flip();
 
 		AudioData audioData = new AudioData(audioBuffer);
-		audioData.setTimestamp((int) ts);
 
 		kt++;
 		if (kt < 10) {
 			log.debug("+++ " + audioData);
 		}
 
-		RTMPMessage rtmpMsg = new RTMPMessage();
-		rtmpMsg.setBody(audioData);
-		publishStreamData(publishStreamId, rtmpMsg);
+		RTMPMessage message = RTMPMessage.build(audioData, (int)ts);
+		publishStreamData(publishStreamId, message);
 	}
 	
 	@Override
@@ -536,11 +534,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		videoBuffer.put(video);
 		videoBuffer.flip();
 		
-		VideoData videoData = new VideoData(videoBuffer);
-		videoData.setTimestamp((int) ts);
-		
-		RTMPMessage message = new RTMPMessage();
-		message.setBody(videoData);
+		RTMPMessage message = RTMPMessage.build(new VideoData(videoBuffer), (int)ts);
 		
 		publishStreamData(publishStreamId, message);
 	}
