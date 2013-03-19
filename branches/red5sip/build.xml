@@ -1,278 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project name="red5sip" default="all">
-        
-  <!-- Compiler options -->
-  
-  <property name="compiler.debug" value="off"/>
-  <property name="compiler.generate.no.warnings" value="off"/>
-  <property name="compiler.args" value=""/>
-  <property name="compiler.max.memory" value="128m"/>
-  <patternset id="ignored.files">
-    <exclude name="**/CVS/**"/>
-    <exclude name="**/SCCS/**"/>
-    <exclude name="**/RCS/**"/>
-    <exclude name="**/rcs/**"/>
-    <exclude name="**/.DS_Store/**"/>
-    <exclude name="**/.svn/**"/>
-    <exclude name="**/.pyc/**"/>
-    <exclude name="**/.pyo/**"/>
-    <exclude name="**/*.pyc/**"/>
-    <exclude name="**/*.pyo/**"/>
-    <exclude name="**/.git/**"/>
-    <exclude name="**/*.hprof/**"/>
-    <exclude name="**/_svn/**"/>
-    <exclude name="**/.hg/**"/>
-    <exclude name="**/*.lib/**"/>
-    <exclude name="**/*~/**"/>
-    <exclude name="**/__pycache__/**"/>
-    <exclude name="**/.bundle/**"/>
-    <exclude name="**/vssver.scc/**"/>
-    <exclude name="**/vssver2.scc/**"/>
-  </patternset>
-  <patternset id="library.patterns">
-    <include name="*.war"/>
-    <include name="*.ear"/>
-    <include name="*.zip"/>
-    <include name="*.swc"/>
-    <include name="*.egg"/>
-    <include name="*.jar"/>
-  </patternset>
-  <patternset id="compiler.resources">
-    <include name="**/?*.properties"/>
-    <include name="**/?*.xml"/>
-    <include name="**/?*.gif"/>
-    <include name="**/?*.png"/>
-    <include name="**/?*.jpeg"/>
-    <include name="**/?*.jpg"/>
-    <include name="**/?*.html"/>
-    <include name="**/?*.dtd"/>
-    <include name="**/?*.tld"/>
-    <include name="**/?*.ftl"/>
-  </patternset>
-  
-  
-  <!-- Project Libraries -->
-  
-  <path id="library.apache-commons.classpath">
-    <pathelement location="${basedir}/lib/commons-beanutils-1.8.2.jar"/>
-    <pathelement location="${basedir}/lib/commons-daemon-1.0.3.jar"/>
-    <pathelement location="${basedir}/lib/commons-io-1.4.jar"/>
-  </path>
-  
-  <path id="library.log.classpath">
-    <pathelement location="${basedir}/lib/logback-classic-0.9.26.jar"/>
-    <pathelement location="${basedir}/lib/logback-core-0.9.26.jar"/>
-    <pathelement location="${basedir}/lib/slf4j-api-1.6.4.jar"/>
-  </path>
-  
-  <path id="library.mjsip.classpath">
-    <pathelement location="${basedir}/lib/sip.jar"/>
-    <pathelement location="${basedir}/lib/ua.jar"/>
-  </path>
-  
-  <path id="library.openmeetings.classpath">
-    <pathelement location="${basedir}/lib/geronimo-jpa_2.0_spec-1.1.jar"/>
-    <pathelement location="${basedir}/lib/openjpa-2.1.0.jar"/>
-    <pathelement location="${basedir}/lib/openmeetings.jar"/>
-  </path>
-  
-  <path id="library.red5.classpath">
-    <pathelement location="${basedir}/lib/bcprov-jdk16-145.jar"/>
-    <pathelement location="${basedir}/lib/cglib-2.2.2.jar"/>
-    <pathelement location="${basedir}/lib/ehcache-2.2.0.jar"/>
-    <pathelement location="${basedir}/lib/javaee-api-5.1.2.jar"/>
-    <pathelement location="${basedir}/lib/mina-core-2.0.2.jar"/>
-    <pathelement location="${basedir}/lib/red5.jar"/>
-    <pathelement location="${basedir}/lib/xmlrpc-2.0.1.jar"/>
-  </path>
+<project name="red5sip" default="all" basedir="./"
+	xmlns:ivy="antlib:org.apache.ivy.ant"
+	>
+	<loadproperties srcFile="build.properties" />
+	
+	<property name="out.dir" value="${basedir}/out" />
+	<property name="lib.dir" value="${basedir}/lib" />
+	<property name="ivy.lib.dir" value="${out.dir}/lib" />
+	<property name="ivy.jar.path" value="${ivy.lib.dir}/ivy-${ivy.install.version}.jar" />
+	<property name="red5sip.jar" value="${lib.dir}/red5sip.jar" />
+	<property name="src.dir" value="${basedir}/src/java"/>
+	<property name="classes.dir" value="${out.dir}/classes"/>
 
-    <path id="library.libresample4j.classpath">
-        <pathelement location="${basedir}/lib/libresample4j-1.0.jar"/>
-    </path>
-  
-  <path id="library.red5sip.classpath">
-    <pathelement location="${basedir}/lib/red5sip.jar"/>
-  </path>
-  
-  <path id="library.springframwork.classpath">
-    <pathelement location="${basedir}/lib/com.springsource.javax.xml.stream-1.0.1.jar"/>
-    <pathelement location="${basedir}/lib/com.springsource.org.antlr-3.1.3.jar"/>
-    <pathelement location="${basedir}/lib/com.springsource.org.aopalliance-1.0.0.jar"/>
-    <pathelement location="${basedir}/lib/com.springsource.org.apache.commons.codec-1.4.0.jar"/>
-    <pathelement location="${basedir}/lib/com.springsource.org.apache.commons.collections-3.2.1.jar"/>
-    <pathelement location="${basedir}/lib/com.springsource.org.apache.commons.httpclient-3.1.0.jar"/>
-    <pathelement location="${basedir}/lib/com.springsource.org.apache.commons.lang-2.4.0.jar"/>
-    <pathelement location="${basedir}/lib/com.springsource.org.apache.commons.modeler-2.0.1.jar"/>
-    <pathelement location="${basedir}/lib/com.springsource.org.apache.commons.pool-1.5.3.jar"/>
-    <pathelement location="${basedir}/lib/com.springsource.org.apache.xerces-2.9.1.jar"/>
-    <pathelement location="${basedir}/lib/com.springsource.org.codehaus.groovy-1.7.0.jar"/>
-    <pathelement location="${basedir}/lib/com.springsource.org.mozilla.javascript-1.7.0.R2.jar"/>
-    <pathelement location="${basedir}/lib/com.springsource.org.objectweb.asm-3.2.0.jar"/>
-    <pathelement location="${basedir}/lib/com.springsource.org.objectweb.asm.commons-3.2.0.jar"/>
-    <pathelement location="${basedir}/lib/com.springsource.slf4j.api-1.6.1.jar"/>
-    <pathelement location="${basedir}/lib/com.springsource.slf4j.bridge-1.6.1.jar"/>
-    <pathelement location="${basedir}/lib/jcl-over-slf4j-1.6.1.jar"/>
-    <pathelement location="${basedir}/lib/org.springframework.aop-3.0.5.RELEASE.jar"/>
-    <pathelement location="${basedir}/lib/org.springframework.asm-3.0.5.RELEASE.jar"/>
-    <pathelement location="${basedir}/lib/org.springframework.aspects-3.0.5.RELEASE.jar"/>
-    <pathelement location="${basedir}/lib/org.springframework.beans-3.0.5.RELEASE.jar"/>
-    <pathelement location="${basedir}/lib/org.springframework.context-3.0.5.RELEASE.jar"/>
-    <pathelement location="${basedir}/lib/org.springframework.context.support-3.0.5.RELEASE.jar"/>
-    <pathelement location="${basedir}/lib/org.springframework.core-3.0.5.RELEASE.jar"/>
-    <pathelement location="${basedir}/lib/org.springframework.expression-3.0.5.RELEASE.jar"/>
-    <pathelement location="${basedir}/lib/org.springframework.jdbc-3.0.5.RELEASE.jar"/>
-    <pathelement location="${basedir}/lib/org.springframework.orm-3.0.5.RELEASE.jar"/>
-    <pathelement location="${basedir}/lib/org.springframework.test-3.0.5.RELEASE.jar"/>
-    <pathelement location="${basedir}/lib/org.springframework.transaction-3.0.5.RELEASE.jar"/>
-    <pathelement location="${basedir}/lib/org.springframework.web-3.0.5.RELEASE.jar"/>
-    <pathelement location="${basedir}/lib/org.springframework.web.servlet-3.0.5.RELEASE.jar"/>
-  </path>
-  
-  
-  <!-- Application Server Libraries -->
-  
-  <!-- Modules -->
-  
-  
-  <!-- Module red5sip -->
-  
-  <dirname property="module.red5sip.basedir" file="${ant.file}"/>
-  
-  
-  
-  <property name="compiler.args.red5sip" value="${compiler.args}"/>
-  
-  <property name="red5sip.output.dir" value="${module.red5sip.basedir}/out/production/sip/WEB-INF/classes"/>
-  <property name="red5sip.testoutput.dir" value="${module.red5sip.basedir}/out/test/sip"/>
-  
-  <path id="red5sip.module.bootclasspath">
-    <!-- Paths to be included in compilation bootclasspath -->
-  </path>
-  
-  <path id="red5sip.module.production.classpath">
-    <path refid="library.mjsip.classpath"/>
-    <path refid="library.red5.classpath"/>
-    <path refid="library.log.classpath"/>
-    <path refid="library.libresample4j.classpath"/>
-    <path refid="library.apache-commons.classpath"/>
-    <path refid="library.openmeetings.classpath"/>
-    <path refid="library.springframwork.classpath"/>
-    <path refid="library.red5sip.classpath"/>
-  </path>
-  
-  <path id="red5sip.runtime.production.module.classpath">
-    <pathelement location="${red5sip.output.dir}"/>
-    <path refid="library.mjsip.classpath"/>
-    <path refid="library.red5.classpath"/>
-    <path refid="library.log.classpath"/>
-    <path refid="library.libresample4j.classpath"/>
-    <path refid="library.apache-commons.classpath"/>
-    <path refid="library.openmeetings.classpath"/>
-    <path refid="library.springframwork.classpath"/>
-    <path refid="library.red5sip.classpath"/>
-  </path>
-  
-  <path id="red5sip.module.classpath">
-    <pathelement location="${red5sip.output.dir}"/>
-    <path refid="library.mjsip.classpath"/>
-    <path refid="library.red5.classpath"/>
-    <path refid="library.log.classpath"/>
-    <path refid="library.libresample4j.classpath"/>
-    <path refid="library.apache-commons.classpath"/>
-    <path refid="library.openmeetings.classpath"/>
-    <path refid="library.springframwork.classpath"/>
-    <path refid="library.red5sip.classpath"/>
-  </path>
-  
-  <path id="red5sip.runtime.module.classpath">
-    <pathelement location="${red5sip.testoutput.dir}"/>
-    <pathelement location="${red5sip.output.dir}"/>
-    <path refid="library.mjsip.classpath"/>
-    <path refid="library.red5.classpath"/>
-    <path refid="library.log.classpath"/>
-    <path refid="library.libresample4j.classpath"/>
-    <path refid="library.apache-commons.classpath"/>
-    <path refid="library.openmeetings.classpath"/>
-    <path refid="library.springframwork.classpath"/>
-    <path refid="library.red5sip.classpath"/>
-  </path>
-  
-  
-  <patternset id="excluded.from.module.red5sip">
-    <patternset refid="ignored.files"/>
-  </patternset>
-  
-  <patternset id="excluded.from.compilation.red5sip">
-    <patternset refid="excluded.from.module.red5sip"/>
-  </patternset>
-  
-  <path id="red5sip.module.sourcepath">
-    <dirset dir="${module.red5sip.basedir}">
-      <include name="src/java"/>
-    </dirset>
-  </path>
-  
-  
-  <target name="compile.module.red5sip" depends="compile.module.red5sip.production,compile.module.red5sip.tests" description="Compile module red5sip"/>
-  
-  <target name="compile.module.red5sip.production" description="Compile module red5sip; production classes">
-    <mkdir dir="${red5sip.output.dir}"/>
-    <javac destdir="${red5sip.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true">
-      <compilerarg line="${compiler.args.red5sip}"/>
-      <bootclasspath refid="red5sip.module.bootclasspath"/>
-      <classpath refid="red5sip.module.production.classpath"/>
-      <src refid="red5sip.module.sourcepath"/>
-      <patternset refid="excluded.from.compilation.red5sip"/>
-    </javac>
-    
-    <copy todir="${red5sip.output.dir}">
-      <fileset dir="${module.red5sip.basedir}/src/java">
-        <patternset refid="compiler.resources"/>
-        <type type="file"/>
-      </fileset>
-    </copy>
-  </target>
-  
-  <target name="compile.module.red5sip.tests" depends="compile.module.red5sip.production" description="compile module red5sip; test classes" unless="skip.tests"/>
-  
-  <target name="clean.module.red5sip" description="cleanup module">
-    <delete dir="${red5sip.output.dir}"/>
-    <delete dir="${red5sip.testoutput.dir}"/>
-  </target>
-  
-  <target name="init" description="Build initialization">
-    <!-- Perform any build initialization in this target -->
-  </target>
-  
-  <target name="clean" depends="clean.module.red5sip" description="cleanup all"/>
-  
-  <target name="build.modules" depends="init, clean, compile.module.red5sip" description="build all modules"/>
-  
-  <target name="init.artifacts">
-    <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
-    <property name="artifact.output.red5sip" value="${basedir}/lib"/>
-    <mkdir dir="${artifacts.temp.dir}"/>
-    <property name="temp.jar.path.red5sip.jar" value="${artifacts.temp.dir}/red5sip.jar"/>
-  </target>
-  
-  <target name="artifact.red5sip" depends="init.artifacts, compile.module.red5sip" description="Build &apos;red5sip&apos; artifact">
-    <property name="artifact.temp.output.red5sip" value="${artifacts.temp.dir}/red5sip"/>
-    <mkdir dir="${artifact.temp.output.red5sip}"/>
-    <jar destfile="${temp.jar.path.red5sip.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
-      <zipfileset dir="${red5sip.output.dir}"/>
-    </jar>
-    <copy file="${temp.jar.path.red5sip.jar}" tofile="${artifact.temp.output.red5sip}/red5sip.jar"/>
-  </target>
-  
-  <target name="build.all.artifacts" depends="artifact.red5sip" description="Build all artifacts">
-    <mkdir dir="${artifact.output.red5sip}"/>
-    <copy todir="${artifact.output.red5sip}">
-      <fileset dir="${artifact.temp.output.red5sip}"/>
-    </copy>
-    
-    <!-- Delete temporary files -->
-    <delete dir="${artifacts.temp.dir}"/>
-  </target>
-  
-  <target name="all" depends="build.modules, build.all.artifacts" description="build all"/>
+	<target name="-check-ivy-installed">
+		<available file="${ivy.jar.path}" type="file" property="ivy.installed" />
+	</target>
+	<target name="-download-ivy" depends="-check-ivy-installed" unless="ivy.installed">
+		<mkdir dir="${ivy.lib.dir}"/>
+		<echo message="Downloading ivy..."/>
+		<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+			dest="${ivy.jar.path}" usetimestamp="true"/>
+	</target>
+	
+	<target name="-install-ivy" depends="-download-ivy" description="Check if we need to download ivy or not">
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpath="${ivy.jar.path}"/>
+	</target>
+	
+	<target name="-retrieve" depends="-install-ivy" description="Retrieves the libraries if needed">
+		<condition property="ivy.conf.name" value="default">
+			<not>
+				<isset property="ivy.conf.name" />
+			</not>
+		</condition>
+		<condition property="ivy.lib.location" value="${mainlibs.lib.dir}">
+			<not>
+				<isset property="ivy.lib.location" />
+			</not>
+		</condition>
+		<condition property="ivy.transitive" value="false">
+			<not>
+				<isset property="ivy.transitive" />
+			</not>
+		</condition>
+		<echo message="Ivy conf name: ${ivy.conf.name}, destination: ${ivy.lib.location}" />
+		<ivy:resolve file="ivy.xml" conf="${ivy.conf.name}" checkIfChanged="false" transitive="${ivy.transitive}" />
+		<ivy:retrieve conf="${ivy.conf.name}" pattern="${ivy.lib.location}/[artifact]-[type]-[revision].[ext]" />
+	</target>
+	
+	<path id="ivy.classpath">
+		<fileset dir="${ivy.lib.dir}" includes="*.jar" />
+	</path>
+	
+	<path id="compile.classpath">
+		<path refid="ivy.classpath"/>
+		<fileset dir="${lib.dir}" includes="*.jar" >
+			<exclude name="${red5sip.jar}"/>
+		</fileset>
+	</path>
+	
+	<target name="prepare.mkdir">
+		<mkdir dir="${ivy.lib.dir}" />
+		<mkdir dir="${classes.dir}" />
+	</target>
+	
+	<target name="-availability-check" unless="libs.installed" description="Check which libraries need to be retrieved" depends="prepare.mkdir">
+		<available classpathref="ivy.classpath" classname="org.apache.mina.core.buffer.IoBuffer" property="libs.installed" />
+	</target>
+	
+	<target name="-retrieve-libs" unless="libs.installed" depends="-availability-check">
+		<antcall target="-retrieve" inheritAll="true" inheritRefs="true">
+			<param name="ivy.lib.location" value="${ivy.lib.dir}" />
+		</antcall>
+	</target>
+	
+	<!-- //clean up before build -->
+	<target name="compile.only" depends="-retrieve-libs">
+		<echo message="Compile main to ${classes.dir}" />
+		<javac debug="on" debuglevel="lines,vars,source" destdir="${classes.dir}" includeantruntime="false"
+			source="1.6" target="1.6">
+			<src path="${src.dir}" />
+			<classpath refid="compile.classpath" />
+		</javac>
+	</target>
+	
+	<target name="all" depends="compile.only" >
+	    <jar destfile="${red5sip.jar}" filesetmanifest="mergewithoutmain">
+	      <zipfileset dir="${classes.dir}"/>
+	    </jar>
+	</target>
 </project>
