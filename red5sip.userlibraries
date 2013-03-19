@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<eclipse-userlibraries>
+  <library name="openmeetings">
+    <archive path="D:/work/red5sip/lib/openjpa-2.1.0.jar" />
+    <archive path="D:/work/red5sip/lib/openmeetings.jar" />
+    <archive path="D:/work/red5sip/lib/geronimo-jpa_2.0_spec-1.1.jar" />
+  </library>
+  <library name="red5">
+    <archive path="D:/work/red5sip/lib/red5.jar" />
+    <archive path="D:/work/red5sip/lib/xmlrpc-2.0.1.jar" />
+    <archive path="D:/work/red5sip/lib/javaee-api-5.1.2.jar" />
+    <archive path="D:/work/red5sip/lib/mina-core-2.0.2.jar" />
+    <archive path="D:/work/red5sip/lib/bcprov-jdk16-145.jar" />
+    <archive path="D:/work/red5sip/lib/ehcache-2.2.0.jar" />
+    <archive path="D:/work/red5sip/lib/cglib-2.2.2.jar" />
+  </library>
+  <library name="springframwork">
+    <archive path="D:/work/red5sip/lib/org.springframework.context-3.0.5.RELEASE.jar" />
+    <archive path="D:/work/red5sip/lib/org.springframework.core-3.0.5.RELEASE.jar" />
+    <archive path="D:/work/red5sip/lib/org.springframework.web-3.0.5.RELEASE.jar" />
+    <archive path="D:/work/red5sip/lib/org.springframework.test-3.0.5.RELEASE.jar" />
+    <archive path="D:/work/red5sip/lib/org.springframework.beans-3.0.5.RELEASE.jar" />
+    <archive path="D:/work/red5sip/lib/org.springframework.aspects-3.0.5.RELEASE.jar" />
+    <archive path="D:/work/red5sip/lib/org.springframework.context.support-3.0.5.RELEASE.jar" />
+    <archive path="D:/work/red5sip/lib/org.springframework.transaction-3.0.5.RELEASE.jar" />
+    <archive path="D:/work/red5sip/lib/org.springframework.jdbc-3.0.5.RELEASE.jar" />
+    <archive path="D:/work/red5sip/lib/org.springframework.orm-3.0.5.RELEASE.jar" />
+    <archive path="D:/work/red5sip/lib/org.springframework.aop-3.0.5.RELEASE.jar" />
+    <archive path="D:/work/red5sip/lib/org.springframework.asm-3.0.5.RELEASE.jar" />
+    <archive path="D:/work/red5sip/lib/org.springframework.web.servlet-3.0.5.RELEASE.jar" />
+    <archive path="D:/work/red5sip/lib/org.springframework.expression-3.0.5.RELEASE.jar" />
+    <archive path="D:/work/red5sip/lib/com.springsource.javax.xml.stream-1.0.1.jar" />
+    <archive path="D:/work/red5sip/lib/com.springsource.org.mozilla.javascript-1.7.0.R2.jar" />
+    <archive path="D:/work/red5sip/lib/com.springsource.org.apache.commons.collections-3.2.1.jar" />
+    <archive path="D:/work/red5sip/lib/com.springsource.org.apache.commons.httpclient-3.1.0.jar" />
+    <archive path="D:/work/red5sip/lib/com.springsource.org.objectweb.asm.commons-3.2.0.jar" />
+    <archive path="D:/work/red5sip/lib/com.springsource.org.objectweb.asm-3.2.0.jar" />
+    <archive path="D:/work/red5sip/lib/com.springsource.org.apache.xerces-2.9.1.jar" />
+    <archive path="D:/work/red5sip/lib/com.springsource.org.apache.commons.modeler-2.0.1.jar" />
+    <archive path="D:/work/red5sip/lib/com.springsource.org.apache.commons.codec-1.4.0.jar" />
+    <archive path="D:/work/red5sip/lib/com.springsource.org.apache.commons.pool-1.5.3.jar" />
+    <archive path="D:/work/red5sip/lib/com.springsource.org.antlr-3.1.3.jar" />
+    <archive path="D:/work/red5sip/lib/com.springsource.org.aopalliance-1.0.0.jar" />
+    <archive path="D:/work/red5sip/lib/com.springsource.org.codehaus.groovy-1.7.0.jar" />
+    <archive path="D:/work/red5sip/lib/com.springsource.org.apache.commons.lang-2.4.0.jar" />
+    <archive path="D:/work/red5sip/lib/com.springsource.slf4j.api-1.6.1.jar" />
+    <archive path="D:/work/red5sip/lib/com.springsource.slf4j.bridge-1.6.1.jar" />
+    <archive path="D:/work/red5sip/lib/jcl-over-slf4j-1.6.1.jar" />
+  </library>
+  <library name="log">
+    <archive path="D:/work/red5sip/lib/logback-classic-0.9.26.jar" />
+    <archive path="D:/work/red5sip/lib/logback-core-0.9.26.jar" />
+    <archive path="D:/work/red5sip/lib/slf4j-api-1.6.4.jar" />
+  </library>
+  <library name="red5sip">
+    <archive path="D:/work/red5sip/lib/red5sip.jar" />
+  </library>
+  <library name="MjSIP">
+    <archive path="D:/work/red5sip/lib/sip.jar" />
+    <archive path="D:/work/red5sip/lib/ua.jar" />
+  </library>
+  <library name="apache-commons">
+    <archive path="D:/work/red5sip/lib/commons-io-1.4.jar" />
+    <archive path="D:/work/red5sip/lib/commons-daemon-1.0.3.jar" />
+    <archive path="D:/work/red5sip/lib/commons-beanutils-1.8.2.jar" />
+  </library>
+</eclipse-userlibraries>
+
