@@ -26,6 +26,7 @@ public class SIPVideoConverter {
 	private int lastReceivedSequenceNumber;
 	private List<RtpPacketWrapper> packetsQueue;
 	private SIPTransport sipTransport;
+	private boolean fuaStartedAndNotFinished;
 	
 	// rtmp => rtp
 	private int lenSize;
@@ -49,6 +50,7 @@ public class SIPVideoConverter {
 		lastReceivedSequenceNumber = -1;
 		spsSent = false;
 		ppsSent = false;
+		fuaStartedAndNotFinished = false;
 	}
 	
 	public List<RTMPPacketInfo> rtp2rtmp(RtpPacket packet, SIPCodec codec) {
@@ -300,6 +302,19 @@ public class SIPVideoConverter {
 					}
 					break;
 				case 28:
+					boolean start = (q.packet.getPayload()[1] & 0x80) == 0x80;
+					boolean finish = (q.packet.getPayload()[1] & 0x40) == 0x40;
+					if (start) {
+						fuaStartedAndNotFinished = true;
+					}
+					if (!fuaStartedAndNotFinished) {
+						log.warn("Started packet sequence for nal unit type 28 not found");
+						continue;
+					}
+					if (start && finish) {
+						log.warn("Packets with nal unit type 28 must not have start and finish bits together");
+						continue;
+					}
 					if (newdata == null) {
 						nalType = q.packet.getPayload()[1] & 0x1f;
 						realNri = q.packet.getPayload()[0] & 0x60;
@@ -308,7 +323,7 @@ public class SIPVideoConverter {
 						newdata = new ByteArrayBuilder(new byte[]{(byte) (nalType == 5? 0x17: 0x27), 1, 0, 0, 0});
 					}
 					pendingData.add(new ByteArrayBuilder(Arrays.copyOfRange(q.packet.getPayload(), 2, q.packet.getPayload().length)));
-					if ((q.packet.getPayload()[1] & 0x40) == 0x40) {
+					if (finish) {
 						ByteArrayBuilder remaining = new ByteArrayBuilder((byte) (nalType | realNri));
 						for (ByteArrayBuilder pd: pendingData) {
 							remaining.putArray(pd.buildArray());
@@ -317,6 +332,7 @@ public class SIPVideoConverter {
 						length = remaining.getLength();
 						newdata.putArray((byte) (length >>> 24), (byte) (length >>> 16), (byte) (length >>> 8), (byte) length);
 						newdata.putArray(remaining.buildArray());
+						fuaStartedAndNotFinished = false;
 					} else {
 						continue;
 					}
