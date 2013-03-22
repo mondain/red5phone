@@ -248,6 +248,10 @@ public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterA
 		this.call(number);
 	}
 
+	public int getSipUsersCount() {
+		return roomClient.getSipUsersCount();
+	}
+	
 	public void requestFIR() {
 		log.debug("requesting FIR...");
 		Message msg = MessageFactory.createRequest(
