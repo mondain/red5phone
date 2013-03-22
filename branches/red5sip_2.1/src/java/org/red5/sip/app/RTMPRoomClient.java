@@ -221,6 +221,13 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	public int getSipUsersCount() {
 		return sipUsersCount;
 	}
+	
+	private void setSipUsersCount(int sipUsersCount) {
+		this.sipUsersCount = sipUsersCount;
+		if (sipUsersCount == 0) {
+			setUserAVSettings("a");
+		}
+	}
 
 	protected void startStreaming() {
 		// red5 -> SIP
@@ -432,7 +439,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			break;
 		case updateSipTransport:
 			log.debug("updateSipTransport");
-			sipUsersCount = ((Number) call.getResult()).intValue();
+			setSipUsersCount(((Number) call.getResult()).intValue());
 			break;
 		case getSipNumber:
 			log.info("getSipNumber");
