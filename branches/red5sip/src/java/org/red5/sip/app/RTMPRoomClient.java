@@ -117,8 +117,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	}
 
 	public void start() {
-		log.debug("Connecting. Host: {}, Port: {}, Context: {}, RoomID: {}", new String[] { host, "1935", context,
-				"" + roomId });
+		log.debug("Connecting. Host: {}, Port: {}, Context: {}, RoomID: {}", new Object[] { host, "1935", context, roomId });
 		stop();
 		reconnect = true;
 		connect(host, 1935, context + "/" + roomId, this);
@@ -300,7 +299,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 
 	@Override
 	public void handleException(Throwable throwable) {
-		log.error("Exception was: {}", throwable.getStackTrace());
+		log.error("Exception was:", throwable);
 		if (throwable instanceof RuntimeIoException) {
 			if (reconnect && ++retryNumber < MAX_RETRY_NUMBER) {
 				try {
