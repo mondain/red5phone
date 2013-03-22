@@ -50,7 +50,7 @@ public abstract class RTMPControlClient extends RTMPClient implements ClientExce
 	}
 
 	public void start() {
-		log.debug("Connecting. Host: {}, Port: {}, Context: {}", new String[] { host, "1935", context });
+		log.debug("Connecting. Host: {}, Port: {}, Context: {}", new Object[] { host, "1935", context });
 		stop();
 		reconnect = true;
 		connect(host, 1935, context + "/0", this);
@@ -91,7 +91,7 @@ public abstract class RTMPControlClient extends RTMPClient implements ClientExce
 
 	@Override
 	public void handleException(Throwable throwable) {
-		log.error("Exception was: {}", throwable.getStackTrace());
+		log.error("Exception was: ", throwable);
 		if (throwable instanceof RuntimeIoException) {
 			if (reconnect) {
 				try {
