@@ -39,6 +39,8 @@ import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -206,7 +208,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 	boolean force_rport = false;
 
 	/** List of provider listeners */
-	SpcHashtable listeners = null;
+	Map<Identifier, Set<SipProviderListener>> listeners = null;
 
 	/** List of exception listeners */
 	HashSet<SipProviderExceptionListener> exception_listeners = null;
@@ -307,10 +309,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 		force_rport = SipStack.force_rport;
 
 		exception_listeners = new HashSet<SipProviderExceptionListener>();
-		// listeners=new Hashtable();
-		Hashtable<Identifier, String> dupeKeys = new Hashtable<Identifier, String>();
-		dupeKeys.put(INVITE, "");
-		listeners = new SpcHashtable(dupeKeys);
+		listeners = new Hashtable<Identifier, Set<SipProviderListener>>();
 		connections = new Hashtable<ConnectionIdentifier, ConnectedTransport>();
 	}
 
@@ -370,8 +369,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 	public void halt() {
 		log.debug("halt: SipProvider is going down");
 		stopTrasport();
-		// listeners=new Hashtable();
-		listeners = new SpcHashtable(null);
+		listeners = new Hashtable<Identifier, Set<SipProviderListener>>();
 		exception_listeners = new HashSet<SipProviderExceptionListener>();
 	}
 
@@ -470,14 +468,6 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 		return toString();
 	}
 
-	/** Gets a String with the list of transport protocols. */
-	private String transportProtocolsToString() {
-		String list = transport_protocols[0];
-		for (int i = 1; i < transport_protocols.length; i++)
-			list += "/" + transport_protocols[i];
-		return list;
-	}
-
 	// ************************** Public methods *************************
 
 	/** Gets via address. */
@@ -571,7 +561,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 	}
 
 	/** Returns the list (Hashtable) of active listener_IDs. */
-	public SpcHashtable getListeners() {
+	public Map<Identifier, Set<SipProviderListener>> getListeners() {
 		return listeners;
 	}
 
@@ -623,18 +613,22 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 		log.debug("adding SipProviderListener: " + key);
 		boolean ret;
 		// Identifier key=id;
-		if (listeners.containsKey(key) && !key.toString().equals("INVITE")) {
+		if (listeners.containsKey(key) && !"INVITE".equals(key)) {
 			log.error("trying to add a SipProviderListener with a id that is already in use.");
 			ret = false;
 		} else {
-			listeners.put(key, listener);
-			ret = true;
+			Set<SipProviderListener> s = listeners.get(key);
+			if (s == null) {
+				listeners.put(key, s = new HashSet<SipProviderListener>());
+			}
+			ret = s.add(listener);
 		}
 
-		if (listeners != null) {
+		if (log.isTraceEnabled() && listeners != null) {
 			String list = "";
-			for (Enumeration e = listeners.keys(); e.hasMoreElements();)
-				list += e.nextElement() + ", ";
+			for (Identifier e : listeners.keySet()) {
+				list += e + ", ";
+			}
 			log.trace(listeners.size() + " listeners: " + list);
 		}
 		return ret;
@@ -659,31 +653,37 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 			ret = true;
 		}
 
-		if (listeners != null) {
+		if (log.isTraceEnabled() && listeners != null) {
 			String list = "";
-			for (Enumeration e = listeners.keys(); e.hasMoreElements();)
-				list += e.nextElement() + ", ";
+			for (Identifier e : listeners.keySet()) {
+				list += e + ", ";
+			}
 			log.trace(listeners.size() + " listeners: " + list);
 		}
 		return ret;
 	}
 
-	public boolean removeSipProviderListener(Identifier key, Object listener) {
+	public boolean removeSipProviderListener(Identifier key, SipProviderListener listener) {
 		log.error("removing SipProviderListener Pair: " + key);
 		boolean ret;
 
-		if (!listeners.containsPair(key, listener)) {
+		if (!listeners.containsKey(key)) {
 			log.trace("trying to remove a missed SipProviderListener Pair.");
 			ret = false;
 		} else {
-			listeners.removePair(key, listener);
+			Set<SipProviderListener> s = listeners.get(key);
+			s.remove(listener);
+			if (s.size() == 0) {
+				listeners.remove(key);
+			}
 			ret = true;
 		}
 
-		if (listeners != null) {
+		if (log.isTraceEnabled() && listeners != null) {
 			String list = "";
-			for (Enumeration e = listeners.keys(); e.hasMoreElements();)
-				list += e.nextElement() + ", ";
+			for (Identifier e : listeners.keySet()) {
+				list += e + ", ";
+			}
 			log.trace(listeners.size() + " listeners: " + list + "\n" + listeners.toString());
 		}
 		return ret;

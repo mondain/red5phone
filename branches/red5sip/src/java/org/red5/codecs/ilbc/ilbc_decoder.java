@@ -1521,11 +1521,10 @@ public class ilbc_decoder {
 		float[] PLClpc = new float[ilbc_constants.LPC_FILTERORDER + 1];
 		float[] zeros = new float[ilbc_constants.BLOCKL_MAX];
 		float[] one = new float[ilbc_constants.LPC_FILTERORDER + 1];
-		int k, i, start, idxForMax, pos, lastpart, ulp;
+		int k, i, start, idxForMax, lastpart, ulp;
 		int lag, ilag;
 		float cc, maxcc;
 		int[] idxVec = new int[ilbc_constants.STATE_LEN];
-		int check;
 		int[] gain_index = new int[ilbc_constants.NASUB_MAX * ilbc_constants.CB_NSTAGES];
 		int[] extra_gain_index = new int[ilbc_constants.CB_NSTAGES];
 		int[] cb_index = new int[ilbc_constants.CB_NSTAGES * ilbc_constants.NASUB_MAX];
@@ -1544,8 +1543,6 @@ public class ilbc_decoder {
 			/* decode data */
 
 			// pbytes=bytes;
-			pos = 0;
-
 			/* Set everything to zero before decoding */
 
 			for (k = 0; k < ilbc_constants.LSF_NSPLIT * ilbc_constants.LPC_N_MAX; k++) {
@@ -1691,7 +1688,7 @@ public class ilbc_decoder {
 				/* decode the lsf */
 
 				SimplelsfDEQ(lsfdeq, lsf_i, this.ULP_inst.lpc_n);
-				check = ilbc_common.LSF_check(lsfdeq, ilbc_constants.LPC_FILTERORDER, this.ULP_inst.lpc_n);
+				ilbc_common.LSF_check(lsfdeq, ilbc_constants.LPC_FILTERORDER, this.ULP_inst.lpc_n);
 				DecoderInterpolateLSF(syntdenum, weightdenum, lsfdeq, ilbc_constants.LPC_FILTERORDER);
 				Decode(decresidual, start, idxForMax, idxVec, syntdenum, cb_index, gain_index, extra_cb_index,
 						extra_gain_index, state_first);
