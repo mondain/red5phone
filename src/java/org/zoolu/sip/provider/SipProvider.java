@@ -41,7 +41,9 @@ import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.mina.util.ConcurrentHashSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zoolu.net.IpAddress;
@@ -309,7 +311,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 		force_rport = SipStack.force_rport;
 
 		exception_listeners = new HashSet<SipProviderExceptionListener>();
-		listeners = new Hashtable<Identifier, Set<SipProviderListener>>();
+		listeners = new ConcurrentHashMap<Identifier, Set<SipProviderListener>>();
 		connections = new Hashtable<ConnectionIdentifier, ConnectedTransport>();
 	}
 
@@ -369,7 +371,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 	public void halt() {
 		log.debug("halt: SipProvider is going down");
 		stopTrasport();
-		listeners = new Hashtable<Identifier, Set<SipProviderListener>>();
+		listeners = new ConcurrentHashMap<Identifier, Set<SipProviderListener>>();
 		exception_listeners = new HashSet<SipProviderExceptionListener>();
 	}
 
@@ -619,7 +621,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 		} else {
 			Set<SipProviderListener> s = listeners.get(key);
 			if (s == null) {
-				listeners.put(key, s = new HashSet<SipProviderListener>());
+				listeners.put(key, s = new ConcurrentHashSet<SipProviderListener>());
 			}
 			ret = s.add(listener);
 		}
@@ -689,6 +691,14 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 		return ret;
 	}
 
+	private SipProviderListener getListener(Identifier key) {
+		SipProviderListener r = null;
+		if (listeners.containsKey(key)) {
+			Set<SipProviderListener> s = listeners.get(key);
+			r = s.iterator().next();
+		}
+		return r;
+	}
 	/**
 	 * Sets the SipProviderExceptionListener. The SipProviderExceptionListener is the listener for all exceptions thrown
 	 * by the SipProviders.
@@ -991,7 +1001,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 			// try to look for a UA in promisque mode
 			if (listeners.containsKey(PROMISQUE)) {
 				log.debug("message passed to uas: " + PROMISQUE);
-				((SipProviderListener) listeners.get(PROMISQUE)).onReceivedMessage(this, msg);
+				getListener(PROMISQUE).onReceivedMessage(this, msg);
 			}
 
 			// after the callback check if the message is still valid
@@ -1033,7 +1043,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 			log.debug("DEBUG: transaction-id: " + key);
 			if (listeners.containsKey(key)) {
 				log.debug("message passed to transaction: " + key);
-				((SipProviderListener) listeners.get(key)).onReceivedMessage(this, msg);
+				getListener(key).onReceivedMessage(this, msg);
 				return;
 			}
 			// try to look for a dialog
@@ -1041,7 +1051,7 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 			log.debug("DEBUG: dialog-id: " + key);
 			if (listeners.containsKey(key)) {
 				log.debug("message passed to dialog: " + key);
-				((SipProviderListener) listeners.get(key)).onReceivedMessage(this, msg);
+				getListener(key).onReceivedMessage(this, msg);
 				return;
 			}
 			// try to look for a UAS
@@ -1051,20 +1061,20 @@ public class SipProvider implements Configurable, TransportListener, TcpServerLi
 				synchronized (inviteLock) {
 					if (listeners.containsKey(key)) {
 						log.debug("message passed to uas: " + key);
-						((SipProviderListener) listeners.get(key)).onReceivedMessage(this, msg);
+						getListener(key).onReceivedMessage(this, msg);
 						return;
 					}
 				}
 			} else if (listeners.containsKey(key)) {
 				log.trace("message passed to uas: " + key);
-				((SipProviderListener) listeners.get(key)).onReceivedMessage(this, msg);
+				getListener(key).onReceivedMessage(this, msg);
 				return;
 			}
 
 			// try to look for a default UA
 			if (listeners.containsKey(ANY)) {
 				log.debug("message passed to uas: " + ANY);
-				((SipProviderListener) listeners.get(ANY)).onReceivedMessage(this, msg);
+				getListener(ANY).onReceivedMessage(this, msg);
 				return;
 			}
 
