@@ -23,9 +23,10 @@
 
 package org.zoolu.sip.dialog;
 
-
 import java.util.Hashtable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.zoolu.sip.address.NameAddress;
 import org.zoolu.sip.authentication.DigestAuthentication;
 import org.zoolu.sip.header.AuthorizationHeader;
@@ -38,305 +39,276 @@ import org.zoolu.sip.message.MessageFactory;
 import org.zoolu.sip.message.SipMethods;
 import org.zoolu.sip.message.SipResponses;
 import org.zoolu.sip.provider.SipProvider;
-import org.zoolu.sip.provider.SipStack;
 import org.zoolu.sip.provider.TransactionIdentifier;
 import org.zoolu.sip.transaction.AckTransactionClient;
 import org.zoolu.sip.transaction.Transaction;
 import org.zoolu.sip.transaction.TransactionClient;
 import org.zoolu.sip.transaction.TransactionServer;
-import org.zoolu.tools.LogLevel;
 
+/**
+ * Class ExtendedInviteDialog can be used to manage extended invite dialogs.
+ * <p>
+ * An ExtendedInviteDialog allows the user: <br>
+ * - to handle authentication <br>
+ * - to handle refer/notify <br>
+ * - to capture all methods within the dialog
+ */
+public class ExtendedInviteDialog extends org.zoolu.sip.dialog.InviteDialog {
+	private static Logger log = LoggerFactory.getLogger(ExtendedInviteDialog.class);
+	/** Max number of registration attempts. */
+	static final int MAX_ATTEMPTS = 3;
 
-/** Class ExtendedInviteDialog can be used to manage extended invite dialogs.
-  * <p>
-  * An ExtendedInviteDialog allows the user:
-  * <br>- to handle authentication
-  * <br>- to handle refer/notify
-  * <br>- to capture all methods within the dialog
-  */
-public class ExtendedInviteDialog extends org.zoolu.sip.dialog.InviteDialog
-{
-   /** Max number of registration attempts. */
-   static final int MAX_ATTEMPTS=3;
+	/** ExtendedInviteDialog listener. */
+	ExtendedInviteDialogListener dialog_listener;
 
-   /** ExtendedInviteDialog listener. */
-   ExtendedInviteDialogListener dialog_listener;
+	/** Acive transactions. */
+	Hashtable<TransactionIdentifier, Transaction> transactions;
 
-   /** Acive transactions. */
-   Hashtable<TransactionIdentifier, Transaction> transactions;
+	/** User name. */
+	String username;
 
+	/** User name. */
+	String realm;
 
-   /** User name. */
-   String username;
+	/** User's passwd. */
+	String passwd;
 
-   /** User name. */
-   String realm;
+	/** Nonce for the next authentication. */
+	String next_nonce;
 
-   /** User's passwd. */
-   String passwd;
+	/** Qop for the next authentication. */
+	String qop;
 
-   /** Nonce for the next authentication. */
-   String next_nonce;
+	/** Number of authentication attempts. */
+	int attempts;
 
-   /** Qop for the next authentication. */
-   String qop;
+	/** Creates a new ExtendedInviteDialog. */
+	public ExtendedInviteDialog(SipProvider provider, ExtendedInviteDialogListener listener) {
+		super(provider, listener);
+		init(listener);
+	}
 
-   /** Number of authentication attempts. */
-   int attempts;
+	/** Creates a new ExtendedInviteDialog. */
+	public ExtendedInviteDialog(SipProvider provider, String username, String realm, String passwd,
+			ExtendedInviteDialogListener listener) {
+		super(provider, listener);
+		init(listener);
+		this.username = username;
+		this.realm = realm;
+		this.passwd = passwd;
+	}
 
+	/** Inits the ExtendedInviteDialog. */
+	private void init(ExtendedInviteDialogListener listener) {
+		this.dialog_listener = listener;
+		this.transactions = new Hashtable<TransactionIdentifier, Transaction>();
+		this.username = null;
+		this.realm = null;
+		this.passwd = null;
+		this.next_nonce = null;
+		this.qop = null;
+		this.attempts = 0;
+	}
 
+	/** Sends a new request within the dialog */
+	public void request(Message req) {
+		TransactionClient t = new TransactionClient(sip_provider, req, this);
+		transactions.put(t.getTransactionId(), t);
+		t.request();
+	}
 
+	/** Sends a new REFER within the dialog */
+	public void refer(NameAddress refer_to) {
+		refer(refer_to, null);
+	}
 
-   /** Creates a new ExtendedInviteDialog. */
-   public ExtendedInviteDialog(SipProvider provider, ExtendedInviteDialogListener listener)
-   {  super(provider,listener);
-      init(listener);
-   }
+	/** Sends a new REFER within the dialog */
+	public void refer(NameAddress refer_to, NameAddress referred_by) {
+		Message req = MessageFactory.createReferRequest(this, refer_to, referred_by);
+		request(req);
+	}
 
-   /** Creates a new ExtendedInviteDialog. */
-   public ExtendedInviteDialog(SipProvider provider, String username, String realm, String passwd, ExtendedInviteDialogListener listener)
-   {  super(provider,listener);
-      init(listener);
-      this.username=username;
-      this.realm=realm;
-      this.passwd=passwd;
-   }
+	/** Sends a new NOTIFY within the dialog */
+	public void notify(int code, String reason) {
+		notify((new StatusLine(code, reason)).toString());
+	}
 
-   /** Inits the ExtendedInviteDialog. */
-   private void init(ExtendedInviteDialogListener listener)
-   {  this.dialog_listener=listener;
-      this.transactions=new Hashtable<TransactionIdentifier, Transaction>();
-      this.username=null;
-      this.realm=null;
-      this.passwd=null;
-      this.next_nonce=null;
-      this.qop=null;
-      this.attempts=0;
-   }
+	/** Sends a new NOTIFY within the dialog */
+	public void notify(String sipfragment) {
+		Message req = MessageFactory.createNotifyRequest(this, "refer", null, sipfragment);
+		request(req);
+	}
 
+	/** Responds with <i>resp</i> */
+	public void respond(Message resp) {
+		log.debug("inside respond(resp)");
+		String method = resp.getCSeqHeader().getMethod();
+		if (method.equals(SipMethods.INVITE) || method.equals(SipMethods.CANCEL) || method.equals(SipMethods.BYE)) {
+			super.respond(resp);
+		} else {
+			TransactionIdentifier transaction_id = resp.getTransactionId();
+			log.debug("transaction-id=" + transaction_id);
+			if (transactions.containsKey(transaction_id)) {
+				log.trace("responding");
+				TransactionServer t = (TransactionServer) transactions.get(transaction_id);
+				t.respondWith(resp);
+			} else
+				log.debug("transaction server not found; message discarded");
+		}
+	}
 
-   /** Sends a new request within the dialog */
-   public void request(Message req)
-   {  TransactionClient t=new TransactionClient(sip_provider,req,this);
-      transactions.put(t.getTransactionId(),t);
-      t.request();
-   }
+	/** Accept a REFER */
+	public void acceptRefer(Message req) {
+		log.debug("inside acceptRefer(refer)");
+		Message resp = MessageFactory.createResponse(req, 202, SipResponses.reasonOf(200), null);
+		respond(resp);
+	}
 
+	/** Refuse a REFER */
+	public void refuseRefer(Message req) {
+		log.debug("inside refuseRefer(refer)");
+		Message resp = MessageFactory.createResponse(req, 603, SipResponses.reasonOf(603), null);
+		respond(resp);
+	}
 
-   /** Sends a new REFER within the dialog */
-   public void refer(NameAddress refer_to)
-   {  refer(refer_to,null);
-   }
+	/** Inherited from class SipProviderListener. */
+	public void onReceivedMessage(SipProvider provider, Message msg) {
+		log.trace("Message received: " + msg.getFirstLine().substring(0, msg.toString().indexOf('\r')));
+		if (msg.isResponse()) {
+			super.onReceivedMessage(provider, msg);
+		} else if (msg.isInvite() || msg.isAck() || msg.isCancel() || msg.isBye()) {
+			super.onReceivedMessage(provider, msg);
+		} else {
+			TransactionServer t = new TransactionServer(sip_provider, msg, this);
+			transactions.put(t.getTransactionId(), t);
+			// t.listen();
 
-   /** Sends a new REFER within the dialog */
-   public void refer(NameAddress refer_to, NameAddress referred_by)
-   {  Message req=MessageFactory.createReferRequest(this,refer_to,referred_by);
-      request(req);
-   }
+			if (msg.isRefer()) { // Message resp=MessageFactory.createResponse(msg,202,"Accepted",null,null);
+									// respond(resp);
+				NameAddress refer_to = msg.getReferToHeader().getNameAddress();
+				NameAddress referred_by = null;
+				if (msg.hasReferredByHeader())
+					referred_by = msg.getReferredByHeader().getNameAddress();
+				dialog_listener.onDlgRefer(this, refer_to, referred_by, msg);
+			} else if (msg.isNotify()) {
+				Message resp = MessageFactory.createResponse(msg, 200, SipResponses.reasonOf(200), null);
+				respond(resp);
+				String event = msg.getEventHeader().getValue();
+				String sipfragment = msg.getBody();
+				dialog_listener.onDlgNotify(this, event, sipfragment, msg);
+			} else {
+				log.debug("Received alternative request " + msg.getRequestLine().getMethod());
+				dialog_listener.onDlgAltRequest(this, msg.getRequestLine().getMethod(), msg.getBody(), msg);
+			}
+		}
+	}
 
+	/**
+	 * Inherited from TransactionClientListener. When the TransactionClientListener goes into the "Completed" state,
+	 * receiving a failure response
+	 */
+	public void onTransFailureResponse(TransactionClient tc, Message msg) {
+		log.warn("onTransFailureResponse 1");
+		log.trace("inside onTransFailureResponse(" + tc.getTransactionId() + ",msg)");
+		String method = tc.getTransactionMethod();
+		StatusLine status_line = msg.getStatusLine();
+		int code = status_line.getCode();
+		String reason = status_line.getReason();
 
-   /** Sends a new NOTIFY within the dialog */
-   public void notify(int code, String reason)
-   {  notify((new StatusLine(code,reason)).toString());
-   }
+		// AUTHENTICATION-BEGIN
+		if ((code == 401 && attempts < MAX_ATTEMPTS && msg.hasWwwAuthenticateHeader() && msg.getWwwAuthenticateHeader()
+				.getRealmParam().equalsIgnoreCase(realm))
+				|| (code == 407 && attempts < MAX_ATTEMPTS && msg.hasProxyAuthenticateHeader() && msg
+						.getProxyAuthenticateHeader().getRealmParam().equalsIgnoreCase(realm))) {
+			attempts++;
 
-   /** Sends a new NOTIFY within the dialog */
-   public void notify(String sipfragment)
-   {  Message req=MessageFactory.createNotifyRequest(this,"refer",null,sipfragment);
-      request(req);
-   }
+			Message ack = MessageFactory.createRequest(this, SipMethods.ACK, null);
+			AckTransactionClient acktc = new AckTransactionClient(sip_provider, ack, null);
+			// TransactionClient acktc=new TransactionClient(sip_provider,ack,this);
+			// transactions.put(acktc.getTransactionId(),acktc);
+			acktc.request();
 
+			Message req = tc.getRequestMessage();
+			// select a new branch - rfc3261 says should be new on each request
+			ViaHeader via = req.getViaHeader();
+			req.removeViaHeader();
+			via.setBranch(SipProvider.pickBranch());
+			req.addViaHeader(via);
+			req.setCSeqHeader(req.getCSeqHeader().incSequenceNumber());
+			WwwAuthenticateHeader wah;
+			if (code == 401)
+				wah = msg.getWwwAuthenticateHeader();
+			else
+				wah = msg.getProxyAuthenticateHeader();
+			String qop_options = wah.getQopOptionsParam();
+			qop = (qop_options != null) ? "auth" : null;
+			RequestLine rl = req.getRequestLine();
+			DigestAuthentication digest = new DigestAuthentication(rl.getMethod(), rl.getAddress().toString(), wah,
+					qop, null, username, passwd);
+			AuthorizationHeader ah;
+			if (code == 401)
+				ah = digest.getAuthorizationHeader();
+			else
+				ah = digest.getProxyAuthorizationHeader();
+			req.setAuthorizationHeader(ah);
 
-   /** Responds with <i>resp</i> */
-   public void respond(Message resp)
-   {  printLog("inside respond(resp)",LogLevel.MEDIUM);
-      String method=resp.getCSeqHeader().getMethod();
-      if (method.equals(SipMethods.INVITE) || method.equals(SipMethods.CANCEL) || method.equals(SipMethods.BYE))
-      {  super.respond(resp);
-      }
-      else
-      {  TransactionIdentifier transaction_id=resp.getTransactionId();
-         printLog("transaction-id="+transaction_id,LogLevel.MEDIUM);
-         if (transactions.containsKey(transaction_id))
-         {  printLog("responding",LogLevel.LOW);
-            TransactionServer t=(TransactionServer)transactions.get(transaction_id);
-            t.respondWith(resp);
-         }
-         else
-            printLog("transaction server not found; message discarded",LogLevel.MEDIUM);
-      }
-   }
+			if (req.isInvite()) // make sure it's an invite
+				this.invite_req = req; // must track last invite so cancel will work correctly - fixes 503 from asterisk
+										// on cancel
 
+			transactions.remove(tc.getTransactionId());
+			tc = new TransactionClient(sip_provider, req, this);
+			transactions.put(tc.getTransactionId(), tc);
+			tc.request();
+		} else
+		// AUTHENTICATION-END
+		if (method.equals(SipMethods.INVITE) || method.equals(SipMethods.CANCEL) || method.equals(SipMethods.BYE)) {
+			super.onTransFailureResponse(tc, msg);
+		} else if (tc.getTransactionMethod().equals(SipMethods.REFER)) {
+			transactions.remove(tc.getTransactionId());
+			dialog_listener.onDlgReferResponse(this, code, reason, msg);
+		} else {
+			String body = msg.getBody();
+			transactions.remove(tc.getTransactionId());
+			dialog_listener.onDlgAltResponse(this, method, code, reason, body, msg);
+		}
+	}
 
-   /** Accept a REFER */
-   public void acceptRefer(Message req)
-   {  printLog("inside acceptRefer(refer)",LogLevel.MEDIUM);
-      Message resp=MessageFactory.createResponse(req,202,SipResponses.reasonOf(200),null);
-      respond(resp);
-   }
+	/**
+	 * Inherited from TransactionClientListener. When an TransactionClientListener goes into the "Terminated" state,
+	 * receiving a 2xx response
+	 */
+	public void onTransSuccessResponse(TransactionClient t, Message msg) {
+		log.trace("inside onTransSuccessResponse(" + t.getTransactionId() + ",msg)");
+		attempts = 0;
+		String method = t.getTransactionMethod();
+		StatusLine status_line = msg.getStatusLine();
+		int code = status_line.getCode();
+		String reason = status_line.getReason();
 
+		if (method.equals(SipMethods.INVITE) || method.equals(SipMethods.CANCEL) || method.equals(SipMethods.BYE)) {
+			super.onTransSuccessResponse(t, msg);
+		} else if (t.getTransactionMethod().equals(SipMethods.REFER)) {
+			transactions.remove(t.getTransactionId());
+			dialog_listener.onDlgReferResponse(this, code, reason, msg);
+		} else {
+			String body = msg.getBody();
+			transactions.remove(t.getTransactionId());
+			dialog_listener.onDlgAltResponse(this, method, code, reason, body, msg);
+		}
+	}
 
-   /** Refuse a REFER */
-   public void refuseRefer(Message req)
-   {  printLog("inside refuseRefer(refer)",LogLevel.MEDIUM);
-      Message resp=MessageFactory.createResponse(req,603,SipResponses.reasonOf(603),null);
-      respond(resp);
-   }
-
-
-   /** Inherited from class SipProviderListener. */
-   public void onReceivedMessage(SipProvider provider, Message msg)
-   {  printLog("Message received: "+msg.getFirstLine().substring(0,msg.toString().indexOf('\r')),LogLevel.LOW);
-      if (msg.isResponse())
-      {  super.onReceivedMessage(provider,msg);
-      }
-      else
-      if (msg.isInvite() || msg.isAck() || msg.isCancel() || msg.isBye())
-      {  super.onReceivedMessage(provider,msg);
-      }
-      else
-      {  TransactionServer t=new TransactionServer(sip_provider,msg,this);
-         transactions.put(t.getTransactionId(),t);
-         //t.listen();
-
-         if (msg.isRefer())
-         {  //Message resp=MessageFactory.createResponse(msg,202,"Accepted",null,null);
-            //respond(resp);
-            NameAddress refer_to=msg.getReferToHeader().getNameAddress();
-            NameAddress referred_by=null;
-            if (msg.hasReferredByHeader()) referred_by=msg.getReferredByHeader().getNameAddress();
-            dialog_listener.onDlgRefer(this,refer_to,referred_by,msg);
-         }
-         else
-         if (msg.isNotify())
-         {  Message resp=MessageFactory.createResponse(msg,200,SipResponses.reasonOf(200),null);
-            respond(resp);
-            String event=msg.getEventHeader().getValue();
-            String sipfragment=msg.getBody();
-            dialog_listener.onDlgNotify(this,event,sipfragment,msg);
-         }
-         else
-         {  printLog("Received alternative request "+msg.getRequestLine().getMethod(),LogLevel.MEDIUM);
-            dialog_listener.onDlgAltRequest(this,msg.getRequestLine().getMethod(),msg.getBody(),msg);
-         }
-      }
-   }
-
-
-   /** Inherited from TransactionClientListener.
-     * When the TransactionClientListener goes into the "Completed" state, receiving a failure response */
-   public void onTransFailureResponse(TransactionClient tc, Message msg)
-   {
- printLog("onTransFailureResponse 1",LogLevel.HIGH);
-	   printLog("inside onTransFailureResponse("+tc.getTransactionId()+",msg)",LogLevel.LOW);
-      String method=tc.getTransactionMethod();
-      StatusLine status_line=msg.getStatusLine();
-      int code=status_line.getCode();
-      String reason=status_line.getReason();
-
-      // AUTHENTICATION-BEGIN
-      if ((code==401 && attempts<MAX_ATTEMPTS && msg.hasWwwAuthenticateHeader() && msg.getWwwAuthenticateHeader().getRealmParam().equalsIgnoreCase(realm))
-       || (code==407 && attempts<MAX_ATTEMPTS && msg.hasProxyAuthenticateHeader() && msg.getProxyAuthenticateHeader().getRealmParam().equalsIgnoreCase(realm)))
-      {  attempts++;
-
-		 Message ack=MessageFactory.createRequest(this,SipMethods.ACK,null);
-		 AckTransactionClient acktc=new AckTransactionClient(sip_provider,ack,null);
-		 //TransactionClient acktc=new TransactionClient(sip_provider,ack,this);
-		 //transactions.put(acktc.getTransactionId(),acktc);
-		 acktc.request();
-
-         Message req=tc.getRequestMessage();
-         // select a new branch - rfc3261 says should be new on each request
-         ViaHeader via=req.getViaHeader();
-         req.removeViaHeader();
-         via.setBranch(SipProvider.pickBranch());
-         req.addViaHeader(via);
-         req.setCSeqHeader(req.getCSeqHeader().incSequenceNumber());
-         WwwAuthenticateHeader wah;
-         if (code==401) wah=msg.getWwwAuthenticateHeader();
-         else wah=msg.getProxyAuthenticateHeader();
-         String qop_options=wah.getQopOptionsParam();
-         qop=(qop_options!=null)? "auth" : null;
-         RequestLine rl=req.getRequestLine();
-         DigestAuthentication digest=new DigestAuthentication(rl.getMethod(),rl.getAddress().toString(),wah,qop,null,username,passwd);
-         AuthorizationHeader ah;
-         if (code==401) ah=digest.getAuthorizationHeader();
-         else ah=digest.getProxyAuthorizationHeader();
-         req.setAuthorizationHeader(ah);
-
-         if (req.isInvite()) // make sure it's an invite
-		         	 this.invite_req=req; // must track last invite so cancel will work correctly - fixes 503 from asterisk on cancel
-
-
-
-         transactions.remove(tc.getTransactionId());
-         tc=new TransactionClient(sip_provider,req,this);
-         transactions.put(tc.getTransactionId(),tc);
-         tc.request();
-      }
-      else
-      // AUTHENTICATION-END
-      if (method.equals(SipMethods.INVITE) || method.equals(SipMethods.CANCEL) || method.equals(SipMethods.BYE))
-      {  super.onTransFailureResponse(tc,msg);
-      }
-      else
-      if (tc.getTransactionMethod().equals(SipMethods.REFER))
-      {  transactions.remove(tc.getTransactionId());
-         dialog_listener.onDlgReferResponse(this,code,reason,msg);
-      }
-      else
-      {  String body=msg.getBody();
-         transactions.remove(tc.getTransactionId());
-         dialog_listener.onDlgAltResponse(this,method,code,reason,body,msg);
-      }
-   }
-
-   /** Inherited from TransactionClientListener.
-     * When an TransactionClientListener goes into the "Terminated" state, receiving a 2xx response  */
-   public void onTransSuccessResponse(TransactionClient t, Message msg)
-   {  printLog("inside onTransSuccessResponse("+t.getTransactionId()+",msg)",LogLevel.LOW);
-      attempts=0;
-      String method=t.getTransactionMethod();
-      StatusLine status_line=msg.getStatusLine();
-      int code=status_line.getCode();
-      String reason=status_line.getReason();
-
-      if (method.equals(SipMethods.INVITE) || method.equals(SipMethods.CANCEL) || method.equals(SipMethods.BYE))
-      {  super.onTransSuccessResponse(t,msg);
-      }
-      else
-      if (t.getTransactionMethod().equals(SipMethods.REFER))
-      {  transactions.remove(t.getTransactionId());
-         dialog_listener.onDlgReferResponse(this,code,reason,msg);
-      }
-      else
-      {  String body=msg.getBody();
-         transactions.remove(t.getTransactionId());
-         dialog_listener.onDlgAltResponse(this,method,code,reason,body,msg);
-      }
-   }
-
-   /** Inherited from TransactionClientListener.
-     * When the TransactionClient goes into the "Terminated" state, caused by transaction timeout */
-   public void onTransTimeout(TransactionClient t)
-   {  printLog("inside onTransTimeout("+t.getTransactionId()+",msg)",LogLevel.LOW);
-      String method=t.getTransactionMethod();
-      if (method.equals(SipMethods.INVITE) || method.equals(SipMethods.BYE))
-      {  super.onTransTimeout(t);
-      }
-      else
-      {  // do something..
-         transactions.remove(t.getTransactionId());
-      }
-   }
-
-
-   //**************************** Logs ****************************/
-
-   /** Adds a new string to the default Log */
-   protected void printLog(String str, int level)
-   {
-	   if (log!=null) log.println("ExtendedInviteDialog#"+dialog_sqn+": "+str,level+SipStack.LOG_LEVEL_DIALOG);
-   }
-
+	/**
+	 * Inherited from TransactionClientListener. When the TransactionClient goes into the "Terminated" state, caused by
+	 * transaction timeout
+	 */
+	public void onTransTimeout(TransactionClient t) {
+		log.trace("inside onTransTimeout(" + t.getTransactionId() + ",msg)");
+		String method = t.getTransactionMethod();
+		if (method.equals(SipMethods.INVITE) || method.equals(SipMethods.BYE)) {
+			super.onTransTimeout(t);
+		} else { // do something..
+			transactions.remove(t.getTransactionId());
+		}
+	}
 }

@@ -51,8 +51,6 @@ public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterA
 
 		try {
 			SipStack.init();
-			SipStack.debug_level = 0;
-			SipStack.log_path = "log";
 
 			sipProvider = new SipProvider(null, sipPort);
 			sipProvider.setOutboundProxy(new SocketAddress(opt_outbound_proxy));
