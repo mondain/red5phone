@@ -86,6 +86,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	final private String host;
 	private int activeVideoStreamID = -1;
 	private String destination;
+	private int sipUsersCount;
 
 	public RTMPRoomClient(String host, String context, int roomId) {
 		super();
@@ -215,6 +216,10 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 
 	protected void getSipNumber() {
 		conn.invoke("getSipNumber", new Object[] { Integer.valueOf(roomId).longValue() }, this);
+	}
+
+	public int getSipUsersCount() {
+		return sipUsersCount;
 	}
 
 	protected void startStreaming() {
@@ -427,6 +432,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			break;
 		case updateSipTransport:
 			log.debug("updateSipTransport");
+			sipUsersCount = ((Number) call.getResult()).intValue();
 			break;
 		case getSipNumber:
 			log.info("getSipNumber");
