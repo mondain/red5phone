@@ -153,7 +153,7 @@ public class RTPStreamReceiver extends Thread {
 					Thread.yield();
 				}
 			}
-		});
+		}, "RTPStreamReceiver sendThread");
 
 		sendThread.start();
 
