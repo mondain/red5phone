@@ -41,7 +41,7 @@ public abstract class RTMPControlClient extends RTMPClient implements ClientExce
 				}
 			}
 		}
-	});
+	}, "RTMPControlClient updateThread");
 
 	public RTMPControlClient(String host, String context) {
 		super();

@@ -436,7 +436,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			break;
 		case setSipTransport:
 			log.info("setSipTransport");
-			updateThread = new Thread(updateTask);
+			updateThread = new Thread(updateTask, "RTMPRoomClient updateThread");
 			updateThread.start();
 			break;
 		case updateSipTransport:
