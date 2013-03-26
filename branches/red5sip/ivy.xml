@@ -42,11 +42,5 @@
 		<dependency org="org.apache.commons" name="commons-collections" rev="3.2.1"/>
 		<dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.47" />
 		<dependency org="org.apache.commons" name="commons-lang3" rev="3.1"/>
-				
-		<!-- 
-		<dependency org="org.apache.mina" name="mina-core" rev="2.0.7" transitive="false">
-			<include type="jar" />
-		</dependency>
-		 -->
 	</dependencies>
 </ivy-module>
