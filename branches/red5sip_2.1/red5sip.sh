@@ -6,10 +6,9 @@ fi
 
 
 JAVA_HOME=$(readlink -f /usr/bin/java | sed "s:bin/java::")
-LIB_DIR=$RED5SIP_HOME/lib
 LOGS_DIR=$RED5SIP_HOME/log
 SETTINGS_FILE=$RED5SIP_HOME/settings.properties
 
 echo "Starting Red5SIP"
-exec $JAVA_HOME/bin/java -Dlogs=$LOGS_DIR -cp ".:$LIB_DIR/*" org.red5.sip.app.Main $SETTINGS_FILE
+exec $JAVA_HOME/bin/java -Dlogs=$LOGS_DIR -cp ".:$RED5SIP_HOME/lib/*:$RED5SIP_HOME/out/lib/*" org.red5.sip.app.Main $SETTINGS_FILE
 
