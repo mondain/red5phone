@@ -503,7 +503,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 
 		AudioData audioData = new AudioData(audioBuffer);
 		RTMPMessage message = RTMPMessage.build(audioData, (int)ts);
-		if (++kt % 10 == 0) {
+		if (log.isDebugEnabled() && ++kt % 10 == 0) {
 			log.debug("+++ " + message.getBody());
 		}
 		publishStreamData(publishStreamId, message);
@@ -529,7 +529,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		videoBuffer.flip();
 		
 		RTMPMessage message = RTMPMessage.build(new VideoData(videoBuffer), (int)ts);
-		if (++kv % 10 == 0) {
+		if (log.isDebugEnabled() && ++kv % 10 == 0) {
 			log.debug("+++ " + message.getBody());
 		}
 		publishStreamData(publishStreamId, message);
