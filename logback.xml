@@ -6,7 +6,7 @@
         </encoder>
         <rollingPolicy class="ch.qos.logback.core.rolling.FixedWindowRollingPolicy">
             <maxIndex>10</maxIndex>
-            <FileNamePattern>${logs}/red5log.log.%i</FileNamePattern>
+            <FileNamePattern>${logs}/red5sip.log.%i</FileNamePattern>
         </rollingPolicy>
         <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
             <MaxFileSize>5MB</MaxFileSize>
