@@ -534,7 +534,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		videoBuffer.flip();
 		
 		RTMPMessage message = RTMPMessage.build(new VideoData(videoBuffer), (int)ts);
-		
 		publishStreamData(publishStreamId, message);
 	}
 
