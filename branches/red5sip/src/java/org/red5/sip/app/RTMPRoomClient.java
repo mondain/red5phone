@@ -50,7 +50,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	private IMediaSender videoSender;
 	private IoBuffer audioBuffer;
 	private IoBuffer videoBuffer;
-	private int kt = 0;
+	private int kt = 0, kv = 0;
 	private Integer publishStreamId = null;
 	private boolean reconnect = true;
 	private int retryNumber = 0;
@@ -502,19 +502,15 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		audioBuffer.flip();
 
 		AudioData audioData = new AudioData(audioBuffer);
-
-		kt++;
-		if (kt < 10) {
-			log.debug("+++ " + audioData);
-		}
-
 		RTMPMessage message = RTMPMessage.build(audioData, (int)ts);
+		if (++kt % 10 == 0) {
+			log.debug("+++ " + message);
+		}
 		publishStreamData(publishStreamId, message);
 	}
 	
 	@Override
 	public void pushVideo(byte[] video, long ts) throws IOException {
-		log.debug("pushVideo:: ts == " + ts);
 		if(publishStreamId == null) {
 			log.debug("publishStreamId == null !!!");
 			return;
@@ -533,6 +529,9 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		videoBuffer.flip();
 		
 		RTMPMessage message = RTMPMessage.build(new VideoData(videoBuffer), (int)ts);
+		if (++kv % 10 == 0) {
+			log.debug("+++ " + message);
+		}
 		publishStreamData(publishStreamId, message);
 	}
 
