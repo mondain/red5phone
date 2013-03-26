@@ -64,7 +64,7 @@ public class RTPVideoStream implements IMediaStream {
 					QueueItem item = queue.poll();
 					if (item != null) {
 						if (log.isDebugEnabled() && ++kv % 10 == 0) {
-							log.debug("+++ Video length = {}, ts = {}", item.data, item.ts);
+							log.debug("+++ Video - ts = {}, length = {}", item.ts, item.data.length);
 						}
 						for (RtpPacket packet: converter.rtmp2rtp(item.data, item.ts, codec)) {
 							sender.send(packet);
