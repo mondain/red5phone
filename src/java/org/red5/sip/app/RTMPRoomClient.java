@@ -530,7 +530,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		
 		RTMPMessage message = RTMPMessage.build(new VideoData(videoBuffer), (int)ts);
 		if (log.isDebugEnabled() && ++kv % 10 == 0) {
-			log.debug("+++ " + message.getBody());
+			log.debug("+++ {} data: {}", message.getBody(), video);
 		}
 		publishStreamData(publishStreamId, message);
 	}
