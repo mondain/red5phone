@@ -138,6 +138,8 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		if (conn != null) {
 			disconnect();
 		}
+		publishStreamId = null;
+		videoStarted = false;
 	}
 
 	public void setAudioSender(IMediaSender audioSender) {
@@ -244,10 +246,8 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		updateThread = null;
 	}
 
-	@Override
-	public void connectionClosed(RTMPConnection conn, RTMP state) {
-		log.debug("RTMP Connection closed");
-		super.connectionClosed(conn, state);
+	private void reconnect() {
+		stop();
 		if (reconnect && ++retryNumber < MAX_RETRY_NUMBER) {
 			try {
 				Thread.sleep(3000);
@@ -259,6 +259,13 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		} else {
 			shutdownUpdateThread();
 		}
+	}
+	
+	@Override
+	public void connectionClosed(RTMPConnection conn, RTMP state) {
+		log.debug("RTMP Connection closed");
+		super.connectionClosed(conn, state);
+		reconnect();
 	}
 
 	@Override
@@ -301,16 +308,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	public void handleException(Throwable throwable) {
 		log.error("Exception was:", throwable);
 		if (throwable instanceof RuntimeIoException) {
-			if (reconnect && ++retryNumber < MAX_RETRY_NUMBER) {
-				try {
-					Thread.sleep(3000);
-				} catch (InterruptedException e) {
-					log.error("Reconnection pause was interrupted", e);
-				}
-				this.start();
-			} else {
-				shutdownUpdateThread();
-			}
+			reconnect();
 		}
 
 	}
@@ -516,6 +514,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	
 	@Override
 	public void pushVideo(byte[] video, long ts) throws IOException {
+		log.debug("pushVideo:: ts == " + ts);
 		if(publishStreamId == null) {
 			log.debug("publishStreamId == null !!!");
 			return;
