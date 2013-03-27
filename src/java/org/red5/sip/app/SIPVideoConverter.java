@@ -74,6 +74,9 @@ public class SIPVideoConverter {
 	}
 	
 	private List<RtpPacket> rtmp2rtpH264(byte data[], long ts) {
+		if (sipTransport.getSipUsersCount() == 0) {
+			return new ArrayList<RtpPacket>();
+		}
 		List<RtpPacket> result = new ArrayList<RtpPacket>();
 		long ts1 = ts * 90;
 		if (data[0] == 0x17 && data[1] == 0) {

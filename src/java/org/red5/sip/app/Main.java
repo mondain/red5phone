@@ -23,6 +23,6 @@ public class Main {
 					log.error("Unexpected exception while shutting down", e);
 				}
 			}
-		}));
+		}, "Main class thread"));
 	}
 }

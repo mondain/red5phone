@@ -48,7 +48,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	private RTMPConnection conn;
 	private IMediaSender audioSender;
 	private IMediaSender videoSender;
-	private IoBuffer audioBuffer;
+	private IoBuffer audioBuffer = IoBuffer.allocate(1024);
 	private IoBuffer videoBuffer;
 	private Integer publishStreamId = null;
 	private boolean reconnect = true;
@@ -85,6 +85,8 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	final private String host;
 	private int activeVideoStreamID = -1;
 	private String destination;
+	private int sipUsersCount;
+	private String currentVideoMode = "a";
 
 	public RTMPRoomClient(String host, String context, int roomId) {
 		super();
@@ -116,7 +118,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	}
 
 	public void start() {
-		log.debug("Connecting. Host: {}, Port: {}, Context: {}, RoomID: {}", new Object[] { host, "1935", context, roomId });
+		log.debug("Connecting. Host: {}, Port: {}, Context: {}, RoomID: {}", host, "1935", context, roomId);
 		stop();
 		reconnect = true;
 		connect(host, 1935, context + "/" + roomId, this);
@@ -210,11 +212,23 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		remoteMessage[0] = "avsettings";
 		remoteMessage[1] = "0";
 		remoteMessage[2] = mode;
+		currentVideoMode = mode;
 		conn.invoke("setUserAVSettings", new Object[] { mode, remoteMessage, 120, 90, Long.valueOf(roomId), publicSID, -1 }, this);
 	}
 
 	protected void getSipNumber() {
 		conn.invoke("getSipNumber", new Object[] { Integer.valueOf(roomId).longValue() }, this);
+	}
+
+	public int getSipUsersCount() {
+		return sipUsersCount;
+	}
+	
+	private void setSipUsersCount(int sipUsersCount) {
+		this.sipUsersCount = sipUsersCount;
+		if (sipUsersCount == 0) {
+			setUserAVSettings("a");
+		}
 	}
 
 	protected void startStreaming() {
@@ -238,13 +252,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		retryNumber = 0;
 	}
 
-	private void shutdownUpdateThread() {
-		if (updateThread != null && updateThread.isAlive()) {
-			updateThread.interrupt();
-		}
-		updateThread = null;
-	}
-
 	private void reconnect() {
 		stop();
 		if (reconnect && ++retryNumber < MAX_RETRY_NUMBER) {
@@ -256,7 +263,10 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			log.debug("Try reconnect...");
 			this.start();
 		} else {
-			shutdownUpdateThread();
+			if (updateThread != null && updateThread.isAlive()) {
+				updateThread.interrupt();
+			}
+			updateThread = null;
 		}
 	}
 	
@@ -418,11 +428,12 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			break;
 		case setSipTransport:
 			log.info("setSipTransport");
-			updateThread = new Thread(updateTask);
+			updateThread = new Thread(updateTask, "RTMPRoomClient updateThread");
 			updateThread.start();
 			break;
 		case updateSipTransport:
 			log.debug("updateSipTransport");
+			setSipUsersCount(((Number) call.getResult()).intValue());
 			break;
 		case getSipNumber:
 			log.info("getSipNumber");
@@ -486,26 +497,27 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		if (publishStreamId == null) {
 			return;
 		}
-		if (audioBuffer == null) {
-			audioBuffer = IoBuffer.allocate(1024);
-			audioBuffer.setAutoExpand(true);
+		synchronized(audioBuffer) {
+			if (audioBuffer == null || (audioBuffer.capacity() < audio.length + 1 && !audioBuffer.isAutoExpand())) {
+				audioBuffer = IoBuffer.allocate(1 + audio.length);
+				audioBuffer.setAutoExpand(true);
+			}
+	
+			audioBuffer.clear();
+	
+			audioBuffer.put((byte) codec); // first byte 2 mono 5500; 6 mono 11025; 22
+			// mono 11025 adpcm 82 nellymoser 8000 178
+			// speex 8000
+			audioBuffer.put(audio);
+	
+			audioBuffer.flip();
+	
+			RTMPMessage message = RTMPMessage.build(new AudioData(audioBuffer), (int)ts);
+			if (log.isTraceEnabled()) {
+				log.trace("+++ " + message.getBody());
+			}
+			publishStreamData(publishStreamId, message);
 		}
-
-		audioBuffer.clear();
-
-		audioBuffer.put((byte) codec); // first byte 2 mono 5500; 6 mono 11025; 22
-		// mono 11025 adpcm 82 nellymoser 8000 178
-		// speex 8000
-		audioBuffer.put(audio);
-
-		audioBuffer.flip();
-
-		AudioData audioData = new AudioData(audioBuffer);
-		RTMPMessage message = RTMPMessage.build(audioData, (int)ts);
-		if (log.isTraceEnabled()) {
-			log.trace("+++ " + message.getBody());
-		}
-		publishStreamData(publishStreamId, message);
 	}
 	
 	@Override
@@ -514,7 +526,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			log.debug("publishStreamId == null !!!");
 			return;
 		}
-		if (!videoStarted) {
+		if (!videoStarted || currentVideoMode.equals("a")) {
 			setUserAVSettings("av");
 			videoStarted = true;
 		}

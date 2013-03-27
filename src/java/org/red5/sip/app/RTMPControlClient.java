@@ -28,8 +28,7 @@ public abstract class RTMPControlClient extends RTMPClient implements ClientExce
 	protected enum ServiceMethod {
 		connect, getActiveRoomIds
 	}
-
-	private Thread updateThread = new Thread(new Runnable() {
+	private final Runnable updateTask = new Runnable() {
 		public void run() {
 			while (true) {
 				try {
@@ -41,7 +40,8 @@ public abstract class RTMPControlClient extends RTMPClient implements ClientExce
 				}
 			}
 		}
-	});
+	};
+	private Thread updateThread = null;
 
 	public RTMPControlClient(String host, String context) {
 		super();
@@ -50,7 +50,7 @@ public abstract class RTMPControlClient extends RTMPClient implements ClientExce
 	}
 
 	public void start() {
-		log.debug("Connecting. Host: {}, Port: {}, Context: {}", new Object[] { host, "1935", context });
+		log.debug("Connecting. Host: {}, Port: {}, Context: {}", host, "1935", context);
 		stop();
 		reconnect = true;
 		connect(host, 1935, context + "/0", this);
@@ -70,10 +70,7 @@ public abstract class RTMPControlClient extends RTMPClient implements ClientExce
 		this.conn = conn;
 	}
 
-	@Override
-	public void connectionClosed(RTMPConnection conn, RTMP state) {
-		log.debug("RTMP Connection closed");
-		super.connectionClosed(conn, state);
+	private void reconnect() {
 		if (reconnect) {
 			try {
 				Thread.sleep(3000);
@@ -83,28 +80,25 @@ public abstract class RTMPControlClient extends RTMPClient implements ClientExce
 			log.debug("Try reconnect...");
 			this.start();
 		} else {
-			if (updateThread.isAlive()) {
+			if (updateThread != null && updateThread.isAlive()) {
 				updateThread.interrupt();
 			}
+			updateThread = null;
 		}
+	}
+	
+	@Override
+	public void connectionClosed(RTMPConnection conn, RTMP state) {
+		log.debug("RTMP Connection closed");
+		super.connectionClosed(conn, state);
+		reconnect();
 	}
 
 	@Override
 	public void handleException(Throwable throwable) {
 		log.error("Exception was: ", throwable);
 		if (throwable instanceof RuntimeIoException) {
-			if (reconnect) {
-				try {
-					Thread.sleep(3000);
-				} catch (InterruptedException e) {
-					log.error("Reconnection pause was interrupted", e);
-				}
-				this.start();
-			} else {
-				if (updateThread.isAlive()) {
-					updateThread.interrupt();
-				}
-			}
+			reconnect();
 		}
 	}
 
@@ -125,6 +119,7 @@ public abstract class RTMPControlClient extends RTMPClient implements ClientExce
 		case connect:
 			log.info("connect");
 			getActiveRoomIds();
+			updateThread = new Thread(updateTask, "RTMPControlClient updateThread");
 			updateThread.start();
 			break;
 		case getActiveRoomIds:
