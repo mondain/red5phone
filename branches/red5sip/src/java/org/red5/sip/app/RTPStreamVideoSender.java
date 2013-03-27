@@ -21,6 +21,7 @@ public class RTPStreamVideoSender implements IMediaSender {
 	public RTPStreamVideoSender(SIPTransport sipTransport, IMediaReceiver mediaReceiver, SIPCodec codec, 
 			DatagramSocket srcSocket, String destAddr, int destPort) {
 		this.codec = codec;
+		this.sipTransport = sipTransport;
 		mediaReceiver.setVideoSender(this);
 		
 		try {

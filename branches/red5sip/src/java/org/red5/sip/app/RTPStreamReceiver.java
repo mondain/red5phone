@@ -96,8 +96,6 @@ public class RTPStreamReceiver extends Thread {
 			return;
 		}
 
-		// byte[] codedBuffer = new byte[ sipCodec.getIncomingEncodedFrameSize()
-		// ];
 		byte[] internalBuffer = new byte[sipCodec.getIncomingEncodedFrameSize() + RTP_HEADER_SIZE];
 
 		RtpPacket rtpPacket = new RtpPacket(internalBuffer, 0);
@@ -153,7 +151,7 @@ public class RTPStreamReceiver extends Thread {
 					Thread.yield();
 				}
 			}
-		});
+		}, "RTPStreamReceiver sendThread");
 
 		sendThread.start();
 

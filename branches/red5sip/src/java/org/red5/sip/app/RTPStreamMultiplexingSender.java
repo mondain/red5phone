@@ -79,7 +79,7 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 	private Resampler resampler;
 	private double factor = 1;
 
-	private Thread sendThread = new Thread(this);
+	private Thread sendThread = new Thread(this, "RTPStreamMultiplexingSender sendThread");
 
 	ConcurrentHashSet<WeakReference<RTPStreamForMultiplex>> streamSet = new ConcurrentHashSet<WeakReference<RTPStreamForMultiplex>>();
 	// Set<RTPStreamForMultiplex> streamSet = Collections.synchronizedSet(new
