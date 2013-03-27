@@ -66,14 +66,14 @@ public class SIPVideoConverter {
 	public List<RtpPacket> rtmp2rtp(byte data[], long ts, SIPCodec codec) {
 		switch (codec.getCodecId()) {
 		case 35:
-			return rtmp2rtpH254(data, ts);
+			return rtmp2rtpH264(data, ts);
 		default:
 			log.error("Unsuported codec type: " + codec.getCodecName());
 			return new ArrayList<RtpPacket>();
 		}
 	}
 	
-	private List<RtpPacket> rtmp2rtpH254(byte data[], long ts) {
+	private List<RtpPacket> rtmp2rtpH264(byte data[], long ts) {
 		List<RtpPacket> result = new ArrayList<RtpPacket>();
 		long ts1 = ts * 90;
 		if (data[0] == 0x17 && data[1] == 0) {
