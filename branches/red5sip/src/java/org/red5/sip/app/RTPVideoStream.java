@@ -17,7 +17,6 @@ public class RTPVideoStream implements IMediaStream {
 	private SIPCodec codec;
 	private boolean running;
 	private ConverterThread converterThread;
-	private int kv = 0;
 	
 	public RTPVideoStream(SIPTransport sipTransport, RTPStreamVideoSender sender, SIPCodec codec) {
 		this.sender = sender;
@@ -63,8 +62,8 @@ public class RTPVideoStream implements IMediaStream {
 				try {
 					QueueItem item = queue.poll();
 					if (item != null) {
-						if (log.isDebugEnabled() && ++kv % 10 == 0) {
-							log.debug("+++ Video - ts: {} length: {} data: {}", item.ts, item.data.length, item.data);
+						if (log.isTraceEnabled()) {
+							log.trace("+++ Video - ts: {} length: {} data: {}", item.ts, item.data.length, item.data);
 						}
 						for (RtpPacket packet: converter.rtmp2rtp(item.data, item.ts, codec)) {
 							sender.send(packet);
