@@ -26,6 +26,7 @@ public class SIPVideoConverter {
 	private int lastReceivedSequenceNumber;
 	private List<RtpPacketWrapper> packetsQueue;
 	private SIPTransport sipTransport;
+	private IResetListener resetListener;
 	private boolean fuaStartedAndNotFinished;
 	
 	// rtmp => rtp
@@ -38,8 +39,9 @@ public class SIPVideoConverter {
 		resetConverter();
 		startRelativeTime = System.currentTimeMillis();
 	}
-	
-	protected void onReset() {
+
+	public void setResetListener(IResetListener resetListener) {
+		this.resetListener = resetListener;
 	}
 	
 	public void resetConverter() {
@@ -54,7 +56,9 @@ public class SIPVideoConverter {
 		spsSent = false;
 		ppsSent = false;
 		fuaStartedAndNotFinished = false;
-		onReset();
+		if (resetListener != null) {
+			resetListener.onReset();
+		}
 	}
 	
 	public List<RTMPPacketInfo> rtp2rtmp(RtpPacket packet, SIPCodec codec) {

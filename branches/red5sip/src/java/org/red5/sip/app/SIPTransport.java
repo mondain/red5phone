@@ -1,5 +1,6 @@
 package org.red5.sip.app;
 
+import org.red5.sip.net.rtmp.RTMPRoomClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zoolu.net.SocketAddress;

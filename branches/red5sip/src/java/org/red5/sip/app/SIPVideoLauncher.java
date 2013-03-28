@@ -3,6 +3,8 @@ package org.red5.sip.app;
 import java.net.DatagramSocket;
 
 import org.red5.codecs.SIPCodec;
+import org.red5.sip.net.rtp.RTPStreamVideoReceiver;
+import org.red5.sip.net.rtp.RTPStreamVideoSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

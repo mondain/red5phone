@@ -1,4 +1,4 @@
-package org.red5.sip.app;
+package org.red5.sip.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,7 @@ public class BytesBuffer {
 		start = -1;
 	}
 
-	protected int available() {
+	public int available() {
         if(start >= 0) {
 		    return (end > start) ? (end - start) : (buffersCount - start + end);
         } else {
@@ -41,7 +41,7 @@ public class BytesBuffer {
         }
 	}
 
-	protected float bufferUsage() {
+	public float bufferUsage() {
 		return available() * 1.0f / buffersCount;
 	}
 

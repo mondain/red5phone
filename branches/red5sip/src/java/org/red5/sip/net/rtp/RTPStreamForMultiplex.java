@@ -1,8 +1,10 @@
-package org.red5.sip.app;
+package org.red5.sip.net.rtp;
 
-import static org.red5.sip.app.RTPStreamMultiplexingSender.NELLYMOSER_ENCODED_PACKET_SIZE;
+import static org.red5.sip.net.rtp.RTPStreamMultiplexingSender.NELLYMOSER_ENCODED_PACKET_SIZE;
 
 import org.red5.codecs.asao.DecoderMap;
+import org.red5.sip.app.IMediaStream;
+import org.red5.sip.util.BytesBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
