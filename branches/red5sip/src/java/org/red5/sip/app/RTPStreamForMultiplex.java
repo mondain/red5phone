@@ -16,13 +16,14 @@ public class RTPStreamForMultiplex implements IMediaStream {
 		@Override
 		protected void onBufferOverflow() {
 			super.onBufferOverflow();
-			log.error("Stream {} buffer overflow. Buffer is cleared", streamId);
+			log.error("Stream {} buffer overflow. Buffer was cleared", streamId);
 		}
 
 		@Override
 		protected void onBufferEmpty() {
 			super.onBufferEmpty();
 			ready = false;
+			log.error("Stream {} buffer empty.", streamId);
 		}
 	};
 
