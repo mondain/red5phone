@@ -279,8 +279,7 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 						if (stream.ready() && disableStream != stream.getStreamId()) {
 							len = stream.read(asaoBuffer, 0);
 							bufferUsage = Math.max(bufferUsage, stream.bufferUsage());
-							log.trace(String.format("Stream id %d, buffer %f", stream.getStreamId(),
-									stream.bufferUsage()));
+							log.trace("Stream id {}, buffer {}", stream.getStreamId(), stream.bufferUsage());
 						} else {
 							continue;
 						}

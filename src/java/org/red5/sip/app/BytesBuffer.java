@@ -1,6 +1,10 @@
 package org.red5.sip.app;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class BytesBuffer {
+	private static Logger log = LoggerFactory.getLogger(BytesBuffer.class);
 	private final int buffersCount;
 	private final int arrayLength;
 	private byte[][] buffer;
@@ -40,6 +44,7 @@ public class BytesBuffer {
 	}
 
 	public void push(byte[] array, int offset, int length) {
+		log.debug("push:: start: {} end: {} offset: {} length: {} arr.length: {}", start, end, offset, length, array.length);
 		if (end == start) {
 			onBufferOverflow();
 		}
@@ -54,9 +59,11 @@ public class BytesBuffer {
 		if (start == -1) {
 			start = 0;
 		}
+		log.debug("push:: start: {} end: {}", start, end);
 	}
 
 	public int take(byte[] dst, int offset) {
+		log.debug("take:: start: {} end: {} offset: {} arr.length: {}", start, end, offset, dst.length);
 		int res = -1;
 		if (start >= 0) {
 			System.arraycopy(buffer[start], 0, dst, offset, Math.min(bufLen[start], dst.length - offset));
@@ -70,6 +77,7 @@ public class BytesBuffer {
 				onBufferEmpty();
 			}
 		}
+		log.debug("take:: start: {} end: {} ", start, end);
 		return res;
 	}
 }
