@@ -74,8 +74,7 @@ public class BytesBuffer {
 				start = 0;
 			}
 			if (start == end) {
-				start = -1;
-				end = 0;
+				clean();
 				onBufferEmpty();
 			}
 		}

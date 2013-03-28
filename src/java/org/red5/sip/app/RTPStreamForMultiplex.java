@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 public class RTPStreamForMultiplex implements IMediaStream {
 	protected static Logger log = LoggerFactory.getLogger(RTPStreamForMultiplex.class);
-
+	private static final float READY = .2f;
 	private int streamId;
 	private boolean ready = false;
 	protected DecoderMap decoderMap = null;
@@ -36,7 +36,7 @@ public class RTPStreamForMultiplex implements IMediaStream {
 	}
 
 	public void send(long timestamp, byte[] asaoBuffer, int offset, int num) {
-		log.trace("Stream {} send:: num: {}", streamId, num);
+		log.trace("Stream {} send:: num: {} ready {}", streamId, num, ready);
 		for (int i = 0; i < num; i += NELLYMOSER_ENCODED_PACKET_SIZE) {
 			synchronized (this) {
 				buffer.push(asaoBuffer, offset + i, NELLYMOSER_ENCODED_PACKET_SIZE);
@@ -44,7 +44,7 @@ public class RTPStreamForMultiplex implements IMediaStream {
 			Thread.yield();
 		}
 		synchronized (this) {
-			if (!ready && buffer.bufferUsage() > 0.2) {
+			if (!ready && buffer.bufferUsage() > READY) {
 				ready = true;
 			}
 		}
@@ -59,7 +59,10 @@ public class RTPStreamForMultiplex implements IMediaStream {
 	}
 
 	protected synchronized int read(byte[] dst, int offset) {
-		return buffer.take(dst, offset);
+		int read = buffer.take(dst, offset);
+		ready = buffer.bufferUsage() > READY;
+		log.trace("Stream {} read:: ready: {} read {}", streamId, ready, read);
+		return read;
 	}
 
 	@Override
