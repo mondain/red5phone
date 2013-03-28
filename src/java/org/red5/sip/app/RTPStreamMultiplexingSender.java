@@ -12,13 +12,13 @@ import org.apache.mina.util.ConcurrentHashSet;
 import org.red5.codecs.SIPCodec;
 import org.red5.codecs.asao.ByteStream;
 import org.red5.codecs.asao.Decoder;
-import org.red5.logging.Red5LoggerFactory;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.laszlosystems.libresample4j.Resampler;
 
 public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
-	protected static Logger log = Red5LoggerFactory.getLogger(RTPStreamMultiplexingSender.class, "sip");
+	protected static Logger log = LoggerFactory.getLogger(RTPStreamMultiplexingSender.class);
 
 	public static int RTP_HEADER_SIZE = 12;
 
