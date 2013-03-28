@@ -18,12 +18,12 @@ public class BufferUtils {
 		int origBufferIndex = startOrigBuffer;
 		int counter = 0;
 
-		println("floatBufferIndexedCopy", "destBuffer.length = " + destBuffer.length + ", startDestBuffer = "
+		log.debug("floatBufferIndexedCopy:: destBuffer.length = " + destBuffer.length + ", startDestBuffer = "
 				+ startDestBuffer + ", origBuffer.length = " + origBuffer.length + ", startOrigBuffer = "
 				+ startOrigBuffer + ", copySize = " + copySize + ".");
 
 		if (destBuffer.length < (startDestBuffer + copySize)) {
-			println("floatBufferIndexedCopy", "Size copy problem.");
+			log.debug("floatBufferIndexedCopy:: Size copy problem.");
 			return -1;
 		}
 
@@ -34,7 +34,7 @@ public class BufferUtils {
 			origBufferIndex++;
 		}
 
-		println("floatBufferIndexedCopy", counter + " bytes copied.");
+		log.debug("floatBufferIndexedCopy " + counter + " bytes copied.");
 
 		return counter;
 	}
@@ -50,12 +50,12 @@ public class BufferUtils {
 		int origBufferIndex = startOrigBuffer;
 		int counter = 0;
 
-		println("byteBufferIndexedCopy", "destBuffer.length = " + destBuffer.length + ", startDestBuffer = "
+		log.debug("byteBufferIndexedCopy:: destBuffer.length = " + destBuffer.length + ", startDestBuffer = "
 				+ startDestBuffer + ", origBuffer.length = " + origBuffer.length + ", startOrigBuffer = "
 				+ startOrigBuffer + ", copySize = " + copySize + ".");
 
 		if (destBuffer.length < (startDestBuffer + copySize)) {
-			println("byteBufferIndexedCopy", "size copy problem.");
+			log.debug("byteBufferIndexedCopy:: size copy problem.");
 			return -1;
 		}
 
@@ -66,12 +66,8 @@ public class BufferUtils {
 			origBufferIndex++;
 		}
 
-		println("byteBufferIndexedCopy", counter + " bytes copied.");
+		log.debug("byteBufferIndexedCopy:: " + counter + " bytes copied.");
 
 		return counter;
-	}
-
-	private static void println(String method, String message) {
-		// log.debug( "BufferUtils - " + method + " -> " + message );
 	}
 }
