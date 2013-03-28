@@ -12,6 +12,7 @@ public class BytesBuffer {
 		this.arrayLength = arrayLength;
 		this.buffer = new byte[buffersCount][arrayLength];
 		this.bufLen = new int[buffersCount];
+		clean();
 	}
 
 	protected void onBufferOverflow() {
