@@ -19,7 +19,8 @@ public class SIPVideoLauncher implements MediaLauncher {
 		try {
 			socket = new DatagramSocket(localPort);
 			receiver = new RTPStreamVideoReceiver(sipTransport, mediaReceiver, socket, codec);
-			sender = new RTPStreamVideoSender(sipTransport, mediaReceiver, codec, socket, remoteAddr, remotePort);
+			sender = new RTPStreamVideoSender(sipTransport, codec, socket, remoteAddr, remotePort);
+			mediaReceiver.setVideoSender(sender);
 		} catch (Exception e) {
 			log.error("", e);
 		}

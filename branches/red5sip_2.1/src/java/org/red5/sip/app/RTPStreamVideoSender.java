@@ -18,11 +18,10 @@ public class RTPStreamVideoSender implements IMediaSender {
 	private RtpSocket rtpSocket;
 	private int seqn = 0;
 	
-	public RTPStreamVideoSender(SIPTransport sipTransport, IMediaReceiver mediaReceiver, SIPCodec codec, 
+	public RTPStreamVideoSender(SIPTransport sipTransport, SIPCodec codec, 
 			DatagramSocket srcSocket, String destAddr, int destPort) {
 		this.codec = codec;
 		this.sipTransport = sipTransport;
-		mediaReceiver.setVideoSender(this);
 		
 		try {
 			rtpSocket = new RtpSocket(srcSocket, InetAddress.getByName(destAddr), destPort);

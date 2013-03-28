@@ -39,7 +39,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		IPendingServiceCallback, IMediaReceiver {
 	private static final Logger log = LoggerFactory.getLogger(RTMPRoomClient.class);
 	private static final int MAX_RETRY_NUMBER = 100;
-	private static final int UPDATE_MS = 10000;
+	private static final int UPDATE_MS = 5000;
 
 	private Set<Integer> broadcastIds = new HashSet<Integer>();
 	private Map<Long, Integer> clientStreamMap = new HashMap<Long, Integer>();
@@ -74,6 +74,8 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			}
 		}
 	};
+	private Runnable afterCallConnectedTask;
+	private boolean callConnected;
 	private Thread updateThread = null;
 
 	protected enum ServiceMethod {
@@ -87,7 +89,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	private int activeVideoStreamID = -1;
 	private String destination;
 	private int sipUsersCount;
-	private String currentVideoMode = "a";
+	private String currentVideoMode;
 
 	public RTMPRoomClient(String host, String context, int roomId) {
 		super();
@@ -208,6 +210,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	}
 
 	protected void setUserAVSettings(String mode) {
+		if (mode.equals(currentVideoMode)) return;
 		String[] remoteMessage = new String[3];
 		remoteMessage[0] = "avsettings";
 		remoteMessage[1] = "0";
@@ -386,6 +389,23 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		}
 		createPlayStream(client.getBroadCastID());
 	}
+	
+	private synchronized Runnable getAfterCallConnectedTask() {
+		return afterCallConnectedTask;
+	}
+
+	private synchronized void setAfterCallConnectedTask(
+			Runnable afterCallConnectedTask) {
+		this.afterCallConnectedTask = afterCallConnectedTask;
+	}
+
+	public void onCallConnected() {
+		Runnable task = getAfterCallConnectedTask();
+		if (task != null) {
+			task.run();
+		}
+		callConnected = true;
+	}
 
 	/******************************************************************************************************************/
 
@@ -405,9 +425,23 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			break;
 		case listRoomBroadcast:
 			log.info("listRoomBroadcast");
-			if (call.getResult() instanceof Collection)
-				this.broadcastIds.addAll((Collection<Integer>) call.getResult());
-			this.startStreaming();
+			final IPendingServiceCall fcall = call;
+			Runnable startStreamingTask = new Runnable() {
+				
+				@Override
+				public void run() {
+					log.debug("startStreamingTask.run()");
+					if (fcall.getResult() instanceof Collection)
+						RTMPRoomClient.this.broadcastIds.addAll((Collection<Integer>) fcall.getResult());
+					RTMPRoomClient.this.startStreaming();
+				}
+				
+			};
+			if (callConnected) {
+				startStreamingTask.run();
+			} else {
+				setAfterCallConnectedTask(startStreamingTask);
+			}
 			break;
 		case getBroadCastId:
 			log.info("getBroadCastId");
@@ -536,7 +570,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			log.debug("publishStreamId == null !!!");
 			return;
 		}
-		if (!videoStarted || currentVideoMode.equals("a")) {
+		if (!videoStarted || "a".equals(currentVideoMode)) {
 			setUserAVSettings("av");
 			videoStarted = true;
 		}

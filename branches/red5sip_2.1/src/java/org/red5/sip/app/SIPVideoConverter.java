@@ -74,9 +74,6 @@ public class SIPVideoConverter {
 	}
 	
 	private List<RtpPacket> rtmp2rtpH254(byte data[], long ts) {
-		if (sipTransport.getSipUsersCount() == 0) {
-			return new ArrayList<RtpPacket>();
-		}
 		List<RtpPacket> result = new ArrayList<RtpPacket>();
 		long ts1 = ts * 90;
 		if (data[0] == 0x17 && data[1] == 0) {
@@ -195,11 +192,11 @@ public class SIPVideoConverter {
 	}
 	
 	private List<RTMPPacketInfo> rtp2rtmpH264(RtpPacket packet) {
-		if (packet.getPayloadType() != 35) {
+		if (packet.getPayloadType() != 35 || sipTransport.getSipUsersCount() == 0) {
 			return new ArrayList<RTMPPacketInfo>();
 		}
 		if (lastReceivedSequenceNumber != -1 && (packet.getSequenceNumber() - lastReceivedSequenceNumber != 1)) {
-			log.debug("Missing new packet sequence number " + packet.getSequenceNumber());
+			log.debug("New packet has a wrong sequence number " + packet.getSequenceNumber());
 			resetConverter();
 			return new ArrayList<RTMPPacketInfo>();
 		}
@@ -307,15 +304,15 @@ public class SIPVideoConverter {
 				case 28:
 					boolean start = (q.packet.getPayload()[1] & 0x80) == 0x80;
 					boolean finish = (q.packet.getPayload()[1] & 0x40) == 0x40;
+					if (start && finish) {
+						log.warn("Packets with nal unit type 28 must not have start and finish bits together");
+						continue;
+					}
 					if (start) {
 						fuaStartedAndNotFinished = true;
 					}
 					if (!fuaStartedAndNotFinished) {
 						log.warn("Started packet sequence for nal unit type 28 not found");
-						continue;
-					}
-					if (start && finish) {
-						log.warn("Packets with nal unit type 28 must not have start and finish bits together");
 						continue;
 					}
 					if (newdata == null) {
