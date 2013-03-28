@@ -92,8 +92,7 @@ public class RTPStream implements IMediaStream {
 
 				copyingSize = encodingBuffer.length - encodingOffset;
 
-				BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length
-						- tempBufferRemaining, copyingSize);
+				System.arraycopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length - tempBufferRemaining, copyingSize);
 
 				encodingOffset = sender.sipCodec.getOutgoingDecodedFrameSize();
 				tempBufferRemaining -= copyingSize;
@@ -103,7 +102,7 @@ public class RTPStream implements IMediaStream {
 				// copyingSize + " bytes." );
 			} else {
 				if (tempBufferRemaining > 0) {
-					BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length
+					System.arraycopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length
 							- tempBufferRemaining, tempBufferRemaining);
 
 					encodingOffset += tempBufferRemaining;
@@ -127,7 +126,7 @@ public class RTPStream implements IMediaStream {
 					copyingSize = tempBufferRemaining;
 				}
 
-				BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer, 0, copyingSize);
+				System.arraycopy(encodingBuffer, encodingOffset, tempBuffer, 0, copyingSize);
 
 				encodingOffset += copyingSize;
 				tempBufferRemaining -= copyingSize;
@@ -137,7 +136,7 @@ public class RTPStream implements IMediaStream {
 			if (encodingOffset == encodingBuffer.length) {
 				int encodedBytes = sender.sipCodec.pcmToCodec(encodingBuffer, codedBuffer);
 				if (encodedBytes == sender.sipCodec.getOutgoingEncodedFrameSize()) {
-					BufferUtils.byteBufferIndexedCopy(packetBuffer, RTPStreamSender.RTP_HEADER_SIZE, codedBuffer, 0,
+					System.arraycopy(packetBuffer, RTPStreamSender.RTP_HEADER_SIZE, codedBuffer, 0,
 							codedBuffer.length);
 				}
 			}

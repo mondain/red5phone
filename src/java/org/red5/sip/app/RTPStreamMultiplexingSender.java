@@ -344,15 +344,14 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 
 				copyingSize = encodingBuffer.length - encodingOffset;
 
-				BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length
-						- tempBufferRemaining, copyingSize);
+				System.arraycopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length - tempBufferRemaining, copyingSize);
 
 				encodingOffset = sipCodec.getOutgoingDecodedFrameSize();
 				tempBufferRemaining -= copyingSize;
 				finalCopySize = sipCodec.getOutgoingDecodedFrameSize();
 			} else {
 				if (tempBufferRemaining > 0) {
-					BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length
+					System.arraycopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length
 							- tempBufferRemaining, tempBufferRemaining);
 
 					encodingOffset += tempBufferRemaining;
@@ -387,7 +386,7 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 					copyingSize = tempBufferRemaining;
 				}
 
-				BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer, 0, copyingSize);
+				System.arraycopy(encodingBuffer, encodingOffset, tempBuffer, 0, copyingSize);
 
 				encodingOffset += copyingSize;
 				tempBufferRemaining -= copyingSize;
@@ -399,8 +398,7 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 
 				if (encodedBytes == sipCodec.getOutgoingEncodedFrameSize()) {
 
-					BufferUtils
-							.byteBufferIndexedCopy(packetBuffer, RTP_HEADER_SIZE, codedBuffer, 0, codedBuffer.length);
+					System.arraycopy(packetBuffer, RTP_HEADER_SIZE, codedBuffer, 0, codedBuffer.length);
 				}
 			}
 

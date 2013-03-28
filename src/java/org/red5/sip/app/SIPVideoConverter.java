@@ -39,6 +39,9 @@ public class SIPVideoConverter {
 		startRelativeTime = System.currentTimeMillis();
 	}
 	
+	protected void onReset() {
+	}
+	
 	public void resetConverter() {
 		packetsQueue = new ArrayList<RtpPacketWrapper>();
 		lastFIRTime = System.currentTimeMillis();
@@ -51,6 +54,7 @@ public class SIPVideoConverter {
 		spsSent = false;
 		ppsSent = false;
 		fuaStartedAndNotFinished = false;
+		onReset();
 	}
 	
 	public List<RTMPPacketInfo> rtp2rtmp(RtpPacket packet, SIPCodec codec) {
