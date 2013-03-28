@@ -19,6 +19,7 @@ public class BytesBuffer {
 	}
 
 	protected void onBufferOverflow() {
+		log.debug("onBufferOverflow:: start: {} end: {}", start, end);
 		clean();
 	}
 
@@ -44,7 +45,7 @@ public class BytesBuffer {
 	}
 
 	public void push(byte[] array, int offset, int length) {
-		log.debug("push:: start: {} end: {} offset: {} length: {} arr.length: {}", start, end, offset, length, array.length);
+		log.trace("push:: start: {} end: {} offset: {} length: {} arr.length: {}", start, end, offset, length, array.length);
 		if (end == start) {
 			onBufferOverflow();
 		}
@@ -59,11 +60,11 @@ public class BytesBuffer {
 		if (start == -1) {
 			start = 0;
 		}
-		log.debug("push:: start: {} end: {}", start, end);
+		log.trace("push:: start: {} end: {}", start, end);
 	}
 
 	public int take(byte[] dst, int offset) {
-		log.debug("take:: start: {} end: {} offset: {} arr.length: {}", start, end, offset, dst.length);
+		log.trace("take:: start: {} end: {} offset: {} arr.length: {}", start, end, offset, dst.length);
 		int res = -1;
 		if (start >= 0) {
 			System.arraycopy(buffer[start], 0, dst, offset, Math.min(bufLen[start], dst.length - offset));
@@ -77,7 +78,7 @@ public class BytesBuffer {
 				onBufferEmpty();
 			}
 		}
-		log.debug("take:: start: {} end: {} ", start, end);
+		log.trace("take:: start: {} end: {} ", start, end);
 		return res;
 	}
 }
