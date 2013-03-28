@@ -1,4 +1,4 @@
-package org.red5.sip.app;
+package org.red5.sip.net.rtmp;
 
 import org.apache.mina.core.buffer.IoBuffer;
 import org.red5.server.api.event.IEvent;
@@ -10,10 +10,14 @@ import org.red5.server.net.rtmp.event.VideoData;
 import org.red5.server.net.rtmp.event.VideoData.FrameType;
 import org.red5.server.stream.AbstractClientStream;
 import org.red5.server.stream.IStreamData;
+import org.red5.sip.app.IMediaSender;
+import org.red5.sip.app.IMediaStream;
+import org.red5.sip.app.IResetListener;
+import org.red5.sip.net.rtp.RTPVideoStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PlayNetStream extends AbstractClientStream implements IEventDispatcher {
+public class PlayNetStream extends AbstractClientStream implements IEventDispatcher, IResetListener {
 	private static Logger logger = LoggerFactory.getLogger(PlayNetStream.class);
 
 	private int audioTs = 0;
@@ -53,6 +57,7 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 		}
 		if (videoSender != null) {
 			videoStream = (RTPVideoStream) videoSender.createStream(getStreamId());
+			videoStream.setResetListener(this);
 		}
 	}
 
@@ -69,6 +74,11 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 		if (videoStream != null) {
 			videoStream.stop();
 		}
+	}
+	
+	@Override
+	public void onReset() {
+		keyframeReceived = false;
 	}
 	
 	public void dispatchEvent(IEvent event) {
@@ -104,7 +114,6 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 			if (currentStreamID != newStreamId) {
 				logger.debug("switching video to a new stream: " + newStreamId);
 				currentStreamID = newStreamId;
-				keyframeReceived = false;
 				if (videoStream != null) {
 					videoStream.getConverter().resetConverter();
 				}

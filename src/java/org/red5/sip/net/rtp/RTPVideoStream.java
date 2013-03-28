@@ -1,9 +1,13 @@
-package org.red5.sip.app;
+package org.red5.sip.net.rtp;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.red5.codecs.SIPCodec;
+import org.red5.sip.app.IMediaStream;
+import org.red5.sip.app.IResetListener;
+import org.red5.sip.app.SIPTransport;
+import org.red5.sip.app.SIPVideoConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +29,10 @@ public class RTPVideoStream implements IMediaStream {
 		converterThread = new ConverterThread();
 		converterThread.start();
 		running = true;
+	}
+	
+	public void setResetListener(IResetListener resetListener) {
+		converter.setResetListener(resetListener);
 	}
 	
 	@Override

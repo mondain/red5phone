@@ -1,9 +1,13 @@
-package org.red5.sip.app;
+package org.red5.sip.net.rtp;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 import org.red5.codecs.SIPCodec;
+import org.red5.sip.app.IMediaReceiver;
+import org.red5.sip.app.IMediaSender;
+import org.red5.sip.app.IMediaStream;
+import org.red5.sip.app.SIPTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,4 +1,4 @@
-package org.red5.sip.app;
+package org.red5.sip.net.rtp;
 
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -10,6 +10,9 @@ import local.net.RtpSocket;
 import org.red5.codecs.SIPCodec;
 import org.red5.codecs.asao.Decoder;
 import org.red5.codecs.asao.DecoderMap;
+import org.red5.sip.app.IMediaReceiver;
+import org.red5.sip.app.IMediaSender;
+import org.red5.sip.app.IMediaStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zoolu.tools.Random;

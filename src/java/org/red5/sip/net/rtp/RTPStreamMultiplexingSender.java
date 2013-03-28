@@ -1,4 +1,4 @@
-package org.red5.sip.app;
+package org.red5.sip.net.rtp;
 
 import java.lang.ref.WeakReference;
 import java.net.DatagramSocket;
@@ -12,6 +12,10 @@ import org.apache.mina.util.ConcurrentHashSet;
 import org.red5.codecs.SIPCodec;
 import org.red5.codecs.asao.ByteStream;
 import org.red5.codecs.asao.Decoder;
+import org.red5.sip.app.IMediaReceiver;
+import org.red5.sip.app.IMediaSender;
+import org.red5.sip.app.IMediaStream;
+import org.red5.sip.util.ResampleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,10 +48,8 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 		}
 	}
 
-	protected static SAMPLE_RATE sampling = SAMPLE_RATE.SAMPLING_22050;
-
+	public static SAMPLE_RATE sampling = SAMPLE_RATE.SAMPLING_22050;
 	protected static final int NELLYMOSER_DECODED_PACKET_SIZE = 256;// *
-																	// sampling.blocks;
 	protected static final int NELLYMOSER_ENCODED_PACKET_SIZE = 64;// *
 																	// sampling.blocks;
 

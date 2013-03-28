@@ -1,8 +1,9 @@
-package org.red5.sip.app;
+package org.red5.sip.net.rtp;
 
 import local.net.RtpPacket;
 
 import org.red5.codecs.asao.ByteStream;
+import org.red5.sip.app.IMediaStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
