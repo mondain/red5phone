@@ -36,7 +36,7 @@ public class RTPStreamForMultiplex implements IMediaStream {
 	}
 
 	public void send(long timestamp, byte[] asaoBuffer, int offset, int num) {
-		log.trace("Stream " + streamId + " send");
+		log.trace("Stream {} send:: num: {}", streamId, num);
 		for (int i = 0; i < num; i += NELLYMOSER_ENCODED_PACKET_SIZE) {
 			synchronized (this) {
 				buffer.push(asaoBuffer, offset + i, NELLYMOSER_ENCODED_PACKET_SIZE);
