@@ -52,9 +52,9 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	private IMediaSender audioSender;
 	private IMediaSender videoSender;
 	private IoBuffer audioBuffer;
-	private Object audioSync = new Object();
+	private final Object audioSync = new Object();
 	private IoBuffer videoBuffer;
-	private Object videoSync = new Object();
+	private final Object videoSync = new Object();
 	private Integer publishStreamId = null;
 	private boolean reconnect = true;
 	private int retryNumber = 0;

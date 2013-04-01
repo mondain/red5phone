@@ -5,6 +5,8 @@ import org.slf4j.LoggerFactory;
 
 public class BytesBuffer {
 	private static Logger log = LoggerFactory.getLogger(BytesBuffer.class);
+	public static final float READY = .2f;
+	
 	private final int buffersCount;
 	private final int arrayLength;
 	private byte[][] buffer;
@@ -25,7 +27,7 @@ public class BytesBuffer {
 	}
 
 	protected void onBufferEmpty() {
-
+		log.debug("onBufferEmpty:: start: {} end: {}", start, end);
 	}
 
 	public void clean() {
