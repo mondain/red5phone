@@ -24,6 +24,7 @@ public class RTPStreamForMultiplex implements IMediaStream {
 		@Override
 		protected void onBufferEmpty() {
 			super.onBufferEmpty();
+            /* Not ready only after buffer empty */
 			ready = false;
 			log.error("Stream {} buffer empty.", streamId);
 		}
@@ -62,7 +63,6 @@ public class RTPStreamForMultiplex implements IMediaStream {
 
 	protected synchronized int read(byte[] dst, int offset) {
 		int read = buffer.take(dst, offset);
-		ready = buffer.bufferUsage() > READY;
 		log.trace("Stream {} read:: ready: {} read {}", streamId, ready, read);
 		return read;
 	}

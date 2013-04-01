@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 public class BytesBuffer {
 	private static Logger log = LoggerFactory.getLogger(BytesBuffer.class);
-	public static final float READY = .2f;
+	public static final float READY = .05f;
 	
 	private final int buffersCount;
 	private final int arrayLength;

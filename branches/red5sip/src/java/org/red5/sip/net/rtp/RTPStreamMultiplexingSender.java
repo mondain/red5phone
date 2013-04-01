@@ -15,11 +15,14 @@ import org.red5.codecs.asao.Decoder;
 import org.red5.sip.app.IMediaReceiver;
 import org.red5.sip.app.IMediaSender;
 import org.red5.sip.app.IMediaStream;
+import org.red5.sip.util.BytesBuffer;
 import org.red5.sip.util.ResampleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.laszlosystems.libresample4j.Resampler;
+
+import static org.red5.sip.util.BytesBuffer.READY;
 
 public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 	protected static Logger log = LoggerFactory.getLogger(RTPStreamMultiplexingSender.class);
@@ -239,7 +242,7 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 			if (bufferUsage > .5f) {
 				pause -= 5;
 			}
-			if (bufferUsage > .2f) {
+			if (bufferUsage > READY) {
 				pause -= 1;
 			}
 			log.trace("Sleep pause: " + pause);
