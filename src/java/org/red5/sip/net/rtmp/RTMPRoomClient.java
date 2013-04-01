@@ -51,8 +51,10 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	private RTMPConnection conn;
 	private IMediaSender audioSender;
 	private IMediaSender videoSender;
-//	private IoBuffer audioBuffer = IoBuffer.allocate(1024);
-//	private IoBuffer videoBuffer;
+	private IoBuffer audioBuffer;
+	private Object audioSync = new Object();
+	private IoBuffer videoBuffer;
+	private Object videoSync = new Object();
 	private Integer publishStreamId = null;
 	private boolean reconnect = true;
 	private int retryNumber = 0;
@@ -500,26 +502,27 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		if (publishStreamId == null) {
 			return;
 		}
-		IoBuffer audioBuffer;
-		/*if (audioBuffer == null || (audioBuffer.capacity() < audio.length + 1 && !audioBuffer.isAutoExpand()))*/ {
-			audioBuffer = IoBuffer.allocate(1 + audio.length);
-			audioBuffer.setAutoExpand(true);
+		synchronized (audioSync) {
+			if (audioBuffer == null || (audioBuffer.capacity() < audio.length + 1 && !audioBuffer.isAutoExpand())) {
+				audioBuffer = IoBuffer.allocate(1 + audio.length);
+				audioBuffer.setAutoExpand(true);
+			}
+	
+			audioBuffer.clear();
+	
+			audioBuffer.put((byte) codec); // first byte 2 mono 5500; 6 mono 11025; 22
+			// mono 11025 adpcm 82 nellymoser 8000 178
+			// speex 8000
+			audioBuffer.put(audio);
+	
+			audioBuffer.flip();
+	
+			RTMPMessage message = RTMPMessage.build(new AudioData(audioBuffer), (int)ts);
+			if (log.isTraceEnabled()) {
+				log.trace("+++ " + message.getBody());
+			}
+			publishStreamData(publishStreamId, message);
 		}
-
-		audioBuffer.clear();
-
-		audioBuffer.put((byte) codec); // first byte 2 mono 5500; 6 mono 11025; 22
-		// mono 11025 adpcm 82 nellymoser 8000 178
-		// speex 8000
-		audioBuffer.put(audio);
-
-		audioBuffer.flip();
-
-		RTMPMessage message = RTMPMessage.build(new AudioData(audioBuffer), (int)ts);
-		if (log.isTraceEnabled()) {
-			log.trace("+++ " + message.getBody());
-		}
-		publishStreamData(publishStreamId, message);
 	}
 	
 	@Override
@@ -532,21 +535,22 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			setUserAVSettings("av");
 			videoStarted = true;
 		}
-		IoBuffer videoBuffer;
-		/*if (videoBuffer == null || (videoBuffer.capacity() < video.length && !videoBuffer.isAutoExpand()))*/ {
-			videoBuffer = IoBuffer.allocate(video.length);
-			videoBuffer.setAutoExpand(true);
+		synchronized (videoSync) {
+			if (videoBuffer == null || (videoBuffer.capacity() < video.length && !videoBuffer.isAutoExpand())) {
+				videoBuffer = IoBuffer.allocate(video.length);
+				videoBuffer.setAutoExpand(true);
+			}
+			
+			videoBuffer.clear();
+			videoBuffer.put(video);
+			videoBuffer.flip();
+			
+			RTMPMessage message = RTMPMessage.build(new VideoData(videoBuffer), (int)ts);
+			if (log.isTraceEnabled()) {
+				log.trace("+++ {} data: {}", message.getBody(), video);
+			}
+			publishStreamData(publishStreamId, message);
 		}
-		
-		videoBuffer.clear();
-		videoBuffer.put(video);
-		videoBuffer.flip();
-		
-		RTMPMessage message = RTMPMessage.build(new VideoData(videoBuffer), (int)ts);
-		if (log.isTraceEnabled()) {
-			log.trace("+++ {} data: {}", message.getBody(), video);
-		}
-		publishStreamData(publishStreamId, message);
 	}
 
 	public String getDestination() {

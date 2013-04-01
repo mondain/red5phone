@@ -45,6 +45,7 @@ public class SIPVideoConverter {
 	}
 	
 	public void resetConverter() {
+		log.debug("::resetConverter::");
 		packetsQueue = new ArrayList<RtpPacketWrapper>();
 		lastFIRTime = System.currentTimeMillis();
 		sps = new byte[0];

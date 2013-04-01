@@ -144,7 +144,7 @@ public class RTPStreamReceiver extends Thread {
 								log.trace("Sleep pause: " + pause);
 								Thread.sleep(pause, 800000);
 							} catch (InterruptedException e) {
-
+								log.debug("InterruptedException: ", e);
 							}
 						} catch (IOException e) {
 							log.error("rtmpUser.pushAudio", e);

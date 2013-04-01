@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PlayNetStream extends AbstractClientStream implements IEventDispatcher, IResetListener {
-	private static Logger logger = LoggerFactory.getLogger(PlayNetStream.class);
+	private static Logger log = LoggerFactory.getLogger(PlayNetStream.class);
 
 	private int audioTs = 0;
 
@@ -78,25 +78,26 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 	
 	@Override
 	public void onReset() {
+		log.debug("::onReset get called::");
 		keyframeReceived = false;
 	}
 	
 	public void dispatchEvent(IEvent event) {
 
 		if (!(event instanceof IRTMPEvent)) {
-			logger.debug("skipping non rtmp event: " + event);
+			log.debug("skipping non rtmp event: " + event);
 			return;
 		}
 
 		IRTMPEvent rtmpEvent = (IRTMPEvent) event;
 
 		if (!(rtmpEvent instanceof IStreamData)) {
-			logger.debug("skipping non stream data");
+			log.debug("skipping non stream data");
 			return;
 		}
 
 		if (rtmpEvent.getHeader().getSize() == 0) {
-			logger.debug("skipping event where size == 0");
+			log.debug("skipping event where size == 0");
 			return;
 		}
 
@@ -107,12 +108,12 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 				client.setActiveVideoStreamID(newStreamId);
 			}
 			if (rtmpEvent.getHeader().getStreamId() != newStreamId) {
-				logger.trace("ignoring stream id=" + rtmpEvent.getHeader().getStreamId() + " current stream is " + newStreamId);
+				log.trace("ignoring stream id=" + rtmpEvent.getHeader().getStreamId() + " current stream is " + newStreamId);
 				return;
 			}
 			
 			if (currentStreamID != newStreamId) {
-				logger.debug("switching video to a new stream: " + newStreamId);
+				log.debug("switching video to a new stream: " + newStreamId);
 				currentStreamID = newStreamId;
 				if (videoStream != null) {
 					videoStream.getConverter().resetConverter();
@@ -124,7 +125,7 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 			}
 			
 			if (!keyframeReceived) {
-				logger.debug("Keyframe is not received. Packet is ignored.");
+				log.debug("Keyframe is not received. Packet is ignored.");
 				return;
 			}
 			
@@ -138,7 +139,7 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 					videoStream.send(videoTs, data, 0, data.length);
 				}
 			} catch (Exception e) {
-				logger.error("PlayNetStream dispatchEvent exception ", e);
+				log.error("PlayNetStream dispatchEvent exception ", e);
 			}
 		} else if (rtmpEvent instanceof AudioData) {
 			audioTs = rtmpEvent.getTimestamp();
@@ -151,7 +152,7 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 					audioStream.send(audioTs, data, 1, data.length - 1);
 				}
 			} catch (Exception e) {
-				logger.error("PlayNetStream dispatchEvent exception ", e);
+				log.error("PlayNetStream dispatchEvent exception ", e);
 			}
 		}
 	}
