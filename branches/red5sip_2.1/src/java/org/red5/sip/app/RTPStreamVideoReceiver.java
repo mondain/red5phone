@@ -20,11 +20,13 @@ public class RTPStreamVideoReceiver extends Thread {
 	protected SIPCodec codec;
 	private boolean running;
 	private ConverterThread converterThread;
+	private SIPTransport sipTransport;
 	
 	public RTPStreamVideoReceiver(SIPTransport sipTransport, IMediaReceiver mediaReceiver, DatagramSocket socket, SIPCodec codec) {
 		this.mediaReceiver = mediaReceiver;
 		rtpSocket = new RtpSocket(socket);
 		this.codec = codec;
+		this.sipTransport = sipTransport;
 		converterThread = new ConverterThread(sipTransport);
 	}
 
@@ -72,11 +74,17 @@ public class RTPStreamVideoReceiver extends Thread {
 			running = true;
 			while(running) {
 				try {
-					RtpPacket packet = packetQueue.poll();
-					if (packet != null) {
-						for (RTMPPacketInfo packetInfo: converter.rtp2rtmp(packet, codec)) {
-							mediaReceiver.pushVideo(packetInfo.data, packetInfo.ts);
+					if (sipTransport.getSipUsersCount() > 0) {
+						RtpPacket packet = packetQueue.poll();
+						if (packet != null) {
+							mediaReceiver.setVideoReceivingEnabled(true);
+							for (RTMPPacketInfo packetInfo: converter.rtp2rtmp(packet, codec)) {
+								mediaReceiver.pushVideo(packetInfo.data, packetInfo.ts);
+							}
 						}
+					} else {
+						mediaReceiver.setVideoReceivingEnabled(false);
+						packetQueue.clear();
 					}
 					if (packetQueue.size() == 0) {
 						Thread.sleep(50);

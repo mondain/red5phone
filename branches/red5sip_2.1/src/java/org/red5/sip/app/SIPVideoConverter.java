@@ -192,7 +192,7 @@ public class SIPVideoConverter {
 	}
 	
 	private List<RTMPPacketInfo> rtp2rtmpH264(RtpPacket packet) {
-		if (packet.getPayloadType() != 35 || sipTransport.getSipUsersCount() == 0) {
+		if (packet.getPayloadType() != 35) {
 			return new ArrayList<RTMPPacketInfo>();
 		}
 		if (lastReceivedSequenceNumber != -1 && (packet.getSequenceNumber() - lastReceivedSequenceNumber != 1)) {

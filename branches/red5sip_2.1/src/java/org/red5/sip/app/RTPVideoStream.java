@@ -15,12 +15,16 @@ public class RTPVideoStream implements IMediaStream {
 	private RTPStreamVideoSender sender;
 	private SIPVideoConverter converter;
 	private SIPCodec codec;
+	private SIPTransport sipTransport;
 	private boolean running;
 	private ConverterThread converterThread;
+	private IMediaReceiver mediaReceiver;
 	
-	public RTPVideoStream(SIPTransport sipTransport, RTPStreamVideoSender sender, SIPCodec codec) {
+	public RTPVideoStream(SIPTransport sipTransport, IMediaReceiver mediaReceiver, RTPStreamVideoSender sender, SIPCodec codec) {
 		this.sender = sender;
 		this.codec = codec;
+		this.sipTransport = sipTransport;
+		this.mediaReceiver = mediaReceiver;
 		converter = new SIPVideoConverter(sipTransport);
 		converterThread = new ConverterThread();
 		converterThread.start();
@@ -30,7 +34,7 @@ public class RTPVideoStream implements IMediaStream {
 	@Override
 	public void send(long timestamp, byte[] data, int offset, int num) {
 		if (!running) {
-			throw new IllegalStateException("Steam is not started");
+			throw new IllegalStateException("Stream is not started");
 		}
 		converterThread.addData(data, timestamp);
 	}
@@ -60,11 +64,15 @@ public class RTPVideoStream implements IMediaStream {
 		public void run() {
 			while (running) {
 				try {
-					QueueItem item = queue.poll();
-					if (item != null) {
-						for (RtpPacket packet: converter.rtmp2rtp(item.data, item.ts, codec)) {
-							sender.send(packet);
+					if (sipTransport.getSipUsersCount() > 0 && mediaReceiver.isVideoReceivingEnabled()) {
+						QueueItem item = queue.poll();
+						if (item != null) {
+							for (RtpPacket packet: converter.rtmp2rtp(item.data, item.ts, codec)) {
+								sender.send(packet);
+							}
 						}
+					} else {
+						queue.clear();
 					}
 					
 					if (queue.size() == 0) {
