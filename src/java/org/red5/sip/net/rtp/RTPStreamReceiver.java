@@ -112,23 +112,21 @@ public class RTPStreamReceiver extends Thread {
 		Thread sendThread = new Thread(new Runnable() {
 			public void run() {
 				boolean ready = false;
-				int avail = 0;
+                float bufferUsage = 0;
 				byte[] codedBuffer = null;
 				while (running) {
 					synchronized (sync) {
-						avail = buffer.available();
-						ready = buffer.bufferUsage() > READY;
-						/*
+                        bufferUsage = buffer.bufferUsage();
 						if (!ready) {
-							if (avail > 30) {
+							if (bufferUsage > READY) {
 								ready = true;
 							}
 						} else {
-							if (avail == 0) {
+							if (bufferUsage == 0) {
+                                /* Sending while buffer not empty */
 								ready = false;
 							}
 						}
-						*/
 						if (ready) {
 							codedBuffer = new byte[sipCodec.getIncomingEncodedFrameSize()];
 							buffer.take(codedBuffer, 0);
@@ -141,10 +139,10 @@ public class RTPStreamReceiver extends Thread {
 							try {
 
 								long pause = sipCodec.getOutgoingPacketization();
-								if (avail > BUFFER_LENGTH / 2) {
+								if (bufferUsage > .5f) {
 									pause -= 5;
 								}
-								if (avail > BUFFER_LENGTH / 5) {
+								if (bufferUsage > READY) {
 									pause -= 1;
 								}
 								log.trace("Sleep pause: " + pause);
