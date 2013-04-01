@@ -6,6 +6,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.red5.codecs.SIPCodec;
 import org.red5.sip.app.IMediaReceiver;
+import org.red5.sip.app.IResetListener;
 import org.red5.sip.app.SIPTransport;
 import org.red5.sip.app.SIPVideoConverter;
 import org.red5.sip.app.SIPVideoConverter.RTMPPacketInfo;
@@ -54,15 +55,17 @@ public class RTPStreamVideoReceiver extends Thread {
 		rtpSocket.close();
 	}
 	
-	private class ConverterThread extends Thread {
+	private class ConverterThread extends Thread implements IResetListener {
 
 		private final Queue<RtpPacket> packetQueue;
 		private boolean running;
+		private boolean dropRestPackets;
 		private SIPVideoConverter converter;
 		
 		public ConverterThread(SIPTransport sipTransport) {
 			packetQueue = new ConcurrentLinkedQueue<RtpPacket>();
 			converter = new SIPVideoConverter(sipTransport);
+			converter.setResetListener(this);
 		}
 		
 		public void addPacket(RtpPacket packet) {
@@ -78,6 +81,10 @@ public class RTPStreamVideoReceiver extends Thread {
 					RtpPacket packet = packetQueue.poll();
 					if (packet != null) {
 						for (RTMPPacketInfo packetInfo: converter.rtp2rtmp(packet, codec)) {
+							if (dropRestPackets) {
+								dropRestPackets = false;
+								break;
+							}
 							mediaReceiver.pushVideo(packetInfo.data, packetInfo.ts);
 						}
 					}
@@ -94,6 +101,11 @@ public class RTPStreamVideoReceiver extends Thread {
 		public void interrupt() {
 			running = false;
 			packetQueue.clear();
+		}
+
+		@Override
+		public void onReset() {
+			dropRestPackets = true;
 		}
 		
 	}
