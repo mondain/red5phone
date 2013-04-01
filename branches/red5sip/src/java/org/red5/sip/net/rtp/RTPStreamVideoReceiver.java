@@ -82,6 +82,7 @@ public class RTPStreamVideoReceiver extends Thread {
 					if (packet != null) {
 						for (RTMPPacketInfo packetInfo: converter.rtp2rtmp(packet, codec)) {
 							if (dropRestPackets) {
+								log.error("::dropping broken packets::");
 								dropRestPackets = false;
 								break;
 							}
@@ -105,6 +106,7 @@ public class RTPStreamVideoReceiver extends Thread {
 
 		@Override
 		public void onReset() {
+			log.error("::onReset::");
 			dropRestPackets = true;
 		}
 		
