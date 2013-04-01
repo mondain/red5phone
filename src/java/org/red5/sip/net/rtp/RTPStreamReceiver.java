@@ -1,5 +1,7 @@
 package org.red5.sip.net.rtp;
 
+import static org.red5.sip.util.BytesBuffer.READY;
+
 import java.io.IOException;
 import java.net.DatagramSocket;
 
@@ -94,7 +96,7 @@ public class RTPStreamReceiver extends Thread {
 
 	public void run() {
 		if (rtp_socket == null) {
-			println("run", "RTP socket is null.");
+			log.debug("run:: RTP socket is null.");
 			return;
 		}
 
@@ -111,10 +113,12 @@ public class RTPStreamReceiver extends Thread {
 			public void run() {
 				boolean ready = false;
 				int avail = 0;
+				byte[] codedBuffer = null;
 				while (running) {
-					byte[] codedBuffer = new byte[sipCodec.getIncomingEncodedFrameSize()];
 					synchronized (sync) {
 						avail = buffer.available();
+						ready = buffer.bufferUsage() > READY;
+						/*
 						if (!ready) {
 							if (avail > 30) {
 								ready = true;
@@ -124,7 +128,9 @@ public class RTPStreamReceiver extends Thread {
 								ready = false;
 							}
 						}
+						*/
 						if (ready) {
+							codedBuffer = new byte[sipCodec.getIncomingEncodedFrameSize()];
 							buffer.take(codedBuffer, 0);
 						}
 					}
@@ -199,12 +205,7 @@ public class RTPStreamReceiver extends Thread {
 		// Free all.
 		rtp_socket = null;
 
-		println("run", "Terminated.");
-		println("run", "Frames = " + frameCounter + ".");
-	}
-
-	/** Debug output */
-	private static void println(String method, String message) {
-		// log.debug( "RtpStreamReceiver - " + method + " -> " + message );
+		log.debug("run:: Terminated.");
+		log.debug("run:: Frames = {}.", frameCounter);
 	}
 }

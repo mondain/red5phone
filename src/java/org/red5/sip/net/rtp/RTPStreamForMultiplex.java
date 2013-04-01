@@ -1,6 +1,7 @@
 package org.red5.sip.net.rtp;
 
 import static org.red5.sip.net.rtp.RTPStreamMultiplexingSender.NELLYMOSER_ENCODED_PACKET_SIZE;
+import static org.red5.sip.util.BytesBuffer.READY;
 
 import org.red5.codecs.asao.DecoderMap;
 import org.red5.sip.app.IMediaStream;
@@ -10,7 +11,6 @@ import org.slf4j.LoggerFactory;
 
 public class RTPStreamForMultiplex implements IMediaStream {
 	protected static Logger log = LoggerFactory.getLogger(RTPStreamForMultiplex.class);
-	private static final float READY = .2f;
 	private int streamId;
 	private boolean ready = false;
 	protected DecoderMap decoderMap = null;
