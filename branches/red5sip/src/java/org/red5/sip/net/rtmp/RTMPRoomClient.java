@@ -42,7 +42,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		IPendingServiceCallback, IMediaReceiver {
 	private static final Logger log = LoggerFactory.getLogger(RTMPRoomClient.class);
 	private static final int MAX_RETRY_NUMBER = 100;
-	private static final int UPDATE_MS = 10000;
+	private static final int UPDATE_MS = 3000;
 
 	private Set<Integer> broadcastIds = new HashSet<Integer>();
 	private Map<Long, Integer> clientStreamMap = new HashMap<Long, Integer>();
@@ -63,7 +63,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	private String sipNumber = null;
 	private ISipNumberListener sipNumberListener = null;
 	private long lastSendActivityMS = 0L;
-	private boolean videoStarted = false;
+	private boolean videoReceivingEnabled = false;
 	private boolean streamCreated = false;
 	private final Runnable updateTask = new Runnable() {
 		public void run() {
@@ -78,6 +78,8 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			}
 		}
 	};
+	private Runnable afterCallConnectedTask;
+	private boolean callConnected;
 	private Thread updateThread = null;
 
 	protected enum ServiceMethod {
@@ -91,7 +93,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	private int activeVideoStreamID = -1;
 	private String destination;
 	private int sipUsersCount;
-	private String currentVideoMode = "a";
 
 	public RTMPRoomClient(String host, String context, int roomId) {
 		super();
@@ -145,7 +146,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			disconnect();
 		}
 		publishStreamId = null;
-		videoStarted = false;
 	}
 
 	public void setAudioSender(IMediaSender audioSender) {
@@ -217,7 +217,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		remoteMessage[0] = "avsettings";
 		remoteMessage[1] = "0";
 		remoteMessage[2] = mode;
-		currentVideoMode = mode;
 		conn.invoke("setUserAVSettings", new Object[] { mode, remoteMessage, 120, 90, Long.valueOf(roomId), publicSID, -1 }, this);
 	}
 
@@ -231,9 +230,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	
 	private void setSipUsersCount(int sipUsersCount) {
 		this.sipUsersCount = sipUsersCount;
-		if (sipUsersCount == 0) {
-			setUserAVSettings("a");
-		}
 	}
 
 	protected void startStreaming() {
@@ -384,6 +380,22 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		createPlayStream(client.getBroadCastID());
 	}
 
+	private synchronized Runnable getAfterCallConnectedTask() {
+		return afterCallConnectedTask;
+	}
+
+	private synchronized void setAfterCallConnectedTask(Runnable afterCallConnectedTask) {
+		this.afterCallConnectedTask = afterCallConnectedTask;
+	}
+
+	public void onCallConnected() {
+		Runnable task = getAfterCallConnectedTask();
+		if (task != null) {
+			task.run();
+		}
+		callConnected = true;
+	}
+
 	/******************************************************************************************************************/
 
 	public void resultReceived(IPendingServiceCall call) {
@@ -402,9 +414,23 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			break;
 		case listRoomBroadcast:
 			log.info("listRoomBroadcast");
-			if (call.getResult() instanceof Collection)
-				this.broadcastIds.addAll((Collection<Integer>) call.getResult());
-			this.startStreaming();
+			final IPendingServiceCall fcall = call;
+			Runnable startStreamingTask = new Runnable() {
+				
+				@Override
+				public void run() {
+					log.debug("startStreamingTask.run()");
+					if (fcall.getResult() instanceof Collection)
+						RTMPRoomClient.this.broadcastIds.addAll((Collection<Integer>) fcall.getResult());
+					RTMPRoomClient.this.startStreaming();
+				}
+				
+			};
+			if (callConnected) {
+				startStreamingTask.run();
+			} else {
+				setAfterCallConnectedTask(startStreamingTask);
+			}
 			break;
 		case getBroadCastId:
 			log.info("getBroadCastId");
@@ -476,6 +502,21 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		}
 	}
 
+	@Override
+	public synchronized void setVideoReceivingEnabled(boolean enable) {
+		if (enable && !videoReceivingEnabled) {
+			setUserAVSettings("av");
+		} else if (!enable && videoReceivingEnabled) {
+			setUserAVSettings("a");
+		}
+		this.videoReceivingEnabled = enable;
+	}
+
+	@Override
+	public synchronized boolean isVideoReceivingEnabled() {
+		return videoReceivingEnabled;
+	}
+	
 	public void pushAudio(byte[] audio, long ts, int codec) throws IOException {
 		if (micMuted) {
 			return;
@@ -530,10 +571,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		if(publishStreamId == null) {
 			log.debug("publishStreamId == null !!!");
 			return;
-		}
-		if (!videoStarted || currentVideoMode.equals("a")) {
-			setUserAVSettings("av");
-			videoStarted = true;
 		}
 		synchronized (videoSync) {
 			if (videoBuffer == null || (videoBuffer.capacity() < video.length && !videoBuffer.isAutoExpand())) {

@@ -3,15 +3,15 @@ package org.red5.sip.net.rtp;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import local.net.RtpPacket;
+
 import org.red5.codecs.SIPCodec;
+import org.red5.sip.app.IMediaReceiver;
 import org.red5.sip.app.IMediaStream;
-import org.red5.sip.app.IResetListener;
 import org.red5.sip.app.SIPTransport;
 import org.red5.sip.app.SIPVideoConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import local.net.RtpPacket;
 
 public class RTPVideoStream implements IMediaStream {
 
@@ -19,26 +19,26 @@ public class RTPVideoStream implements IMediaStream {
 	private RTPStreamVideoSender sender;
 	private SIPVideoConverter converter;
 	private SIPCodec codec;
+	private SIPTransport sipTransport;
 	private boolean running;
 	private ConverterThread converterThread;
+	private IMediaReceiver mediaReceiver;
 	
-	public RTPVideoStream(SIPTransport sipTransport, RTPStreamVideoSender sender, SIPCodec codec) {
+	public RTPVideoStream(SIPTransport sipTransport, IMediaReceiver mediaReceiver, RTPStreamVideoSender sender, SIPCodec codec) {
 		this.sender = sender;
 		this.codec = codec;
+		this.sipTransport = sipTransport;
+		this.mediaReceiver = mediaReceiver;
 		converter = new SIPVideoConverter(sipTransport);
 		converterThread = new ConverterThread();
 		converterThread.start();
 		running = true;
 	}
 	
-	public void setResetListener(IResetListener resetListener) {
-		converter.setResetListener(resetListener);
-	}
-	
 	@Override
 	public void send(long timestamp, byte[] data, int offset, int num) {
 		if (!running) {
-			throw new IllegalStateException("Steam is not started");
+			throw new IllegalStateException("Stream is not started");
 		}
 		converterThread.addData(data, timestamp);
 	}
@@ -68,14 +68,18 @@ public class RTPVideoStream implements IMediaStream {
 		public void run() {
 			while (running) {
 				try {
-					QueueItem item = queue.poll();
-					if (item != null) {
-						if (log.isTraceEnabled()) {
-							log.trace("+++ Video - ts: {} length: {} data: {}", item.ts, item.data.length, item.data);
+					if (sipTransport.getSipUsersCount() > 0 && mediaReceiver.isVideoReceivingEnabled()) {
+						QueueItem item = queue.poll();
+						if (item != null) {
+							if (log.isTraceEnabled()) {
+								log.trace("+++ Video - ts: {} length: {} data: {}", item.ts, item.data.length, item.data);
+							}
+							for (RtpPacket packet: converter.rtmp2rtp(item.data, item.ts, codec)) {
+								sender.send(packet);
+							}
 						}
-						for (RtpPacket packet: converter.rtmp2rtp(item.data, item.ts, codec)) {
-							sender.send(packet);
-						}
+					} else {
+						queue.clear();
 					}
 					
 					if (queue.size() == 0) {

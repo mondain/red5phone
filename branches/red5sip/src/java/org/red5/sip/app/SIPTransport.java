@@ -86,8 +86,6 @@ public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterA
 		p("Calling " + destination);
 
 		try {
-			roomClient.init(destination);
-
 			ua.setMedia(roomClient);
 			ua.hangup();
 
@@ -100,6 +98,7 @@ public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterA
 			}
 
 			ua.call(destination);
+			roomClient.init(destination);
 		} catch (Exception e) {
 			p("call: Exception:>\n" + e);
 		}
@@ -239,6 +238,7 @@ public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterA
 
 	public void onUaCallConnected(SIPUserAgent ua) {
 		log.info("Call connected");
+		roomClient.onCallConnected();
 	}
 
 	public void onSipNumber(String number) {
