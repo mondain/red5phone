@@ -8,6 +8,10 @@ public interface IMediaReceiver {
 
 	void pushVideo(byte[] video, long ts) throws IOException;
 	
+	void setVideoReceivingEnabled(boolean enable);
+	
+	boolean isVideoReceivingEnabled();
+	
 	void setAudioSender(IMediaSender sender);
 	
 	void setVideoSender(IMediaSender sender);

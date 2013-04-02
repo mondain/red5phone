@@ -19,6 +19,7 @@ public class RTPStreamVideoSender implements IMediaSender {
 	private static Logger log = LoggerFactory.getLogger(RTPStreamVideoSender.class);
 	private SIPCodec codec;
 	private SIPTransport sipTransport;
+	private IMediaReceiver mediaReceiver;
 	private RtpSocket rtpSocket;
 	private int seqn = 0;
 	
@@ -26,7 +27,7 @@ public class RTPStreamVideoSender implements IMediaSender {
 			DatagramSocket srcSocket, String destAddr, int destPort) {
 		this.codec = codec;
 		this.sipTransport = sipTransport;
-		mediaReceiver.setVideoSender(this);
+		this.mediaReceiver = mediaReceiver;
 		
 		try {
 			rtpSocket = new RtpSocket(srcSocket, InetAddress.getByName(destAddr), destPort);
@@ -37,7 +38,7 @@ public class RTPStreamVideoSender implements IMediaSender {
 	
 	@Override
 	public IMediaStream createStream(int streamId) {
-		return new RTPVideoStream(sipTransport, this, codec);
+		return new RTPVideoStream(sipTransport, mediaReceiver, this, codec);
 	}
 
 	@Override

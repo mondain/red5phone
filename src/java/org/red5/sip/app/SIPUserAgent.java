@@ -362,11 +362,6 @@ public class SIPUserAgent extends CallListenerAdapter {
 			return;
 		}
 
-		if (listener != null) {
-
-			listener.onUaCallConnected(this);
-		}
-
 		SessionDescriptor localSdp = new SessionDescriptor(call.getLocalSessionDescriptor());
 
 		int localAudioPort = 0;
@@ -444,6 +439,10 @@ public class SIPUserAgent extends CallListenerAdapter {
             if (videoApp != null) {
             	videoApp.startMedia();
             }
+		}
+		
+		if (listener != null) {
+			listener.onUaCallConnected(this);
 		}
 	}
 

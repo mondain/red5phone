@@ -12,12 +12,11 @@ import org.red5.server.stream.AbstractClientStream;
 import org.red5.server.stream.IStreamData;
 import org.red5.sip.app.IMediaSender;
 import org.red5.sip.app.IMediaStream;
-import org.red5.sip.app.IResetListener;
 import org.red5.sip.net.rtp.RTPVideoStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PlayNetStream extends AbstractClientStream implements IEventDispatcher, IResetListener {
+public class PlayNetStream extends AbstractClientStream implements IEventDispatcher {
 	private static Logger log = LoggerFactory.getLogger(PlayNetStream.class);
 
 	private int audioTs = 0;
@@ -57,7 +56,6 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 		}
 		if (videoSender != null) {
 			videoStream = (RTPVideoStream) videoSender.createStream(getStreamId());
-			videoStream.setResetListener(this);
 		}
 	}
 
@@ -74,12 +72,6 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 		if (videoStream != null) {
 			videoStream.stop();
 		}
-	}
-	
-	@Override
-	public void onReset() {
-		log.debug("::onReset get called::");
-		keyframeReceived = false;
 	}
 	
 	public void dispatchEvent(IEvent event) {
