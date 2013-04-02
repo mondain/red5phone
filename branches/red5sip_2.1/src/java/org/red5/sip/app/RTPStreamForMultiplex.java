@@ -1,6 +1,7 @@
 package org.red5.sip.app;
 
 import static org.red5.sip.app.RTPStreamMultiplexingSender.NELLYMOSER_ENCODED_PACKET_SIZE;
+import static org.red5.sip.app.BytesBuffer.READY;
 
 import org.red5.codecs.asao.DecoderMap;
 import org.slf4j.Logger;
@@ -43,7 +44,7 @@ public class RTPStreamForMultiplex implements IMediaStream {
 			Thread.yield();
 		}
 		synchronized (this) {
-			if (!ready && buffer.bufferUsage() > 0.2) {
+			if (!ready && buffer.bufferUsage() > READY) {
 				ready = true;
 			}
 		}
