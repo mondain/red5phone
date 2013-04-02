@@ -6,6 +6,7 @@ public class BytesBuffer {
 	private byte[][] buffer;
 	private int[] bufLen;
 	private int start, end;
+	public static final float READY = .05f;
 
 	public BytesBuffer(int arrayLength, int buffersCount) {
 		this.buffersCount = buffersCount;

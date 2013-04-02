@@ -1,5 +1,7 @@
 package org.red5.sip.app;
 
+import static org.red5.sip.app.BytesBuffer.READY;
+
 import java.lang.ref.WeakReference;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -237,7 +239,7 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 			if (bufferUsage > .5f) {
 				pause -= 5;
 			}
-			if (bufferUsage > .2f) {
+			if (bufferUsage > READY) {
 				pause -= 1;
 			}
 			log.trace("Sleep pause: " + pause);

@@ -1,5 +1,7 @@
 package org.red5.sip.app;
 
+import static org.red5.sip.app.BytesBuffer.READY;
+
 import java.io.IOException;
 import java.net.DatagramSocket;
 
@@ -135,10 +137,10 @@ public class RTPStreamReceiver extends Thread {
 							try {
 
 								long pause = sipCodec.getOutgoingPacketization();
-								if (avail > BUFFER_LENGTH / 2) {
+								if (avail > .5f) {
 									pause -= 5;
 								}
-								if (avail > BUFFER_LENGTH / 5) {
+								if (avail > READY) {
 									pause -= 1;
 								}
 								log.trace("Sleep pause: " + pause);
