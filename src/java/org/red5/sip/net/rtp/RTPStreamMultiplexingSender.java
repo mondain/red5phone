@@ -130,31 +130,6 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 	/**
 	 * Constructs a RtpStreamSender.
 	 * 
-	 * @param IMediaReceiver
-	 *            the RTMP stream source
-	 * @param do_sync
-	 *            whether time synchronization must be performed by the RtpStreamSender, or it is performed by the
-	 *            InputStream (e.g. the system audio input)
-	 * @param sipCodec
-	 *            codec to be used on audio session
-	 * @param src_port
-	 *            the source port
-	 * @param dest_addr
-	 *            the destination address
-	 * @param dest_port
-	 *            the destination port
-	 */
-	// public RtpStreamSender(IMediaReceiver mediaReceiver, boolean do_sync, int
-	// payloadType, long frame_rate, int frame_size, int src_port, String
-	// dest_addr, int dest_port)
-	// {
-	// init( mediaReceiver, do_sync, payloadType, frame_rate, frame_size, null,
-	// src_port, dest_addr, dest_port);
-	// }
-
-	/**
-	 * Constructs a RtpStreamSender.
-	 * 
 	 * @param mediaReceiver
 	 *            the RTMP stream source
 	 * @param do_sync

@@ -24,8 +24,9 @@ public class RTPStreamVideoReceiver extends Thread {
 	private boolean running;
 	private ConverterThread converterThread;
 	private SIPTransport sipTransport;
-	
-	public RTPStreamVideoReceiver(SIPTransport sipTransport, IMediaReceiver mediaReceiver, DatagramSocket socket, SIPCodec codec) {
+
+	public RTPStreamVideoReceiver(SIPTransport sipTransport, IMediaReceiver mediaReceiver, SIPCodec codec,
+			DatagramSocket socket) {
 		this.mediaReceiver = mediaReceiver;
 		rtpSocket = new RtpSocket(socket);
 		this.codec = codec;
@@ -44,7 +45,7 @@ public class RTPStreamVideoReceiver extends Thread {
 		running = true;
 		converterThread.start();
 		try {
-			while(running) {
+			while (running) {
 				byte[] sourceBuffer = new byte[codec.getIncomingDecodedFrameSize()];
 				RtpPacket rtpPacket = new RtpPacket(sourceBuffer, 0);
 				rtpSocket.receive(rtpPacket);
@@ -55,34 +56,35 @@ public class RTPStreamVideoReceiver extends Thread {
 		}
 		rtpSocket.close();
 	}
-	
+
 	private class ConverterThread extends Thread {
 
 		private final Queue<RtpPacket> packetQueue;
 		private boolean running;
 		private boolean dropRestPackets;
 		private SIPVideoConverter converter;
-		
+
 		public ConverterThread(SIPTransport sipTransport) {
 			packetQueue = new ConcurrentLinkedQueue<RtpPacket>();
 			converter = new SIPVideoConverter(sipTransport);
 		}
-		
+
 		public void addPacket(RtpPacket packet) {
-			if (isInterrupted()) return;
+			if (isInterrupted())
+				return;
 			packetQueue.add(packet);
 		}
-		
+
 		@Override
 		public void run() {
 			running = true;
-			while(running) {
+			while (running) {
 				try {
 					if (sipTransport.getSipUsersCount() > 0) {
 						RtpPacket packet = packetQueue.poll();
 						if (packet != null) {
 							mediaReceiver.setVideoReceivingEnabled(true);
-							for (RTMPPacketInfo packetInfo: converter.rtp2rtmp(packet, codec)) {
+							for (RTMPPacketInfo packetInfo : converter.rtp2rtmp(packet, codec)) {
 								if (dropRestPackets) {
 									log.error("::dropping broken packets::");
 									dropRestPackets = false;

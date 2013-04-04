@@ -60,12 +60,7 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 	}
 
 	public void stop() {
-		if (audioSender != null) {
-			audioSender.deleteStream(getStreamId());
-		}
-		if (videoSender != null) {
-			videoSender.deleteStream(getStreamId());
-		}
+		close();
 		if (audioStream != null) {
 			audioStream.stop();
 		}
