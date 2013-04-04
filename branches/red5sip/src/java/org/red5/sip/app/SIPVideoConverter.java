@@ -56,21 +56,21 @@ public class SIPVideoConverter {
 	
 	public List<RTMPPacketInfo> rtp2rtmp(RtpPacket packet, SIPCodec codec) {
 		switch (codec.getCodecId()) {
-		case 35:
-			return rtp2rtmpH264(packet);
-		default:
-			log.error("Unsuported codec type: " + codec.getCodecName());
-			return new ArrayList<RTMPPacketInfo>();
+			case 35:
+				return rtp2rtmpH264(packet, codec);
+			default:
+				log.error("Unsuported codec type: " + codec.getCodecName());
+				return new ArrayList<RTMPPacketInfo>();
 		}
 	}
 	
 	public List<RtpPacket> rtmp2rtp(byte data[], long ts, SIPCodec codec) {
 		switch (codec.getCodecId()) {
-		case 35:
-			return rtmp2rtpH264(data, ts);
-		default:
-			log.error("Unsuported codec type: " + codec.getCodecName());
-			return new ArrayList<RtpPacket>();
+			case 35:
+				return rtmp2rtpH264(data, ts);
+			default:
+				log.error("Unsuported codec type: " + codec.getCodecName());
+				return new ArrayList<RtpPacket>();
 		}
 	}
 	
@@ -192,18 +192,18 @@ public class SIPVideoConverter {
 		return result;
 	}
 	
-	private List<RTMPPacketInfo> rtp2rtmpH264(RtpPacket packet) {
+	private List<RTMPPacketInfo> rtp2rtmpH264(RtpPacket packet, SIPCodec codec) {
+		List<RTMPPacketInfo> result = new ArrayList<RTMPPacketInfo>();
 		if (packet.getPayloadType() != 35) {
-			return new ArrayList<RTMPPacketInfo>();
+			return result;
 		}
 		if (lastReceivedSequenceNumber != -1 && (packet.getSequenceNumber() - lastReceivedSequenceNumber != 1)) {
 			log.debug("New packet has a wrong sequence number " + packet.getSequenceNumber());
 			resetConverter();
-			return new ArrayList<RTMPPacketInfo>();
+			return result;
 		}
 		lastReceivedSequenceNumber = packet.getSequenceNumber();
 
-		List<RTMPPacketInfo> result = new ArrayList<RTMPPacketInfo>();
 		byte[] payload = packet.getPayload();
 		int nalType = payload[0] & 0x1f;
 		switch (nalType) {
@@ -366,7 +366,7 @@ public class SIPVideoConverter {
 					startTm = System.currentTimeMillis() - startRelativeTime;
 				}
 
-				long tm = startTm + (packet.getTimestamp() - startTs) / 132;
+				long tm = startTm + (packet.getTimestamp() - startTs) / (codec.getSampleRate() / 1000);
 				if (nalType == 5 && payloads.size() > 0) {
 					ByteArrayBuilder data = new ByteArrayBuilder();
 					// first byte: 0x17 for intra-frame
