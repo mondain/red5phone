@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RTPStreamVideoReceiver extends Thread {
-
 	protected static Logger log = LoggerFactory.getLogger(RTPStreamVideoReceiver.class);
 	protected RtpSocket rtpSocket;
 	protected IMediaReceiver mediaReceiver;
@@ -28,6 +27,7 @@ public class RTPStreamVideoReceiver extends Thread {
 
 	public RTPStreamVideoReceiver(SIPTransport sipTransport, IMediaReceiver mediaReceiver, SIPCodec codec,
 			DatagramSocket socket) {
+		log.debug("... constructor !!!");
 		this.mediaReceiver = mediaReceiver;
 		this.socket = socket;
 		this.codec = codec;
@@ -61,13 +61,13 @@ public class RTPStreamVideoReceiver extends Thread {
 	}
 
 	private class ConverterThread extends Thread {
-
 		private final Queue<RtpPacket> packetQueue;
 		private boolean running;
 		private boolean dropRestPackets;
 		private SIPVideoConverter converter;
 
 		public ConverterThread(SIPTransport sipTransport) {
+			log.debug("... constructor !!!");
 			packetQueue = new ConcurrentLinkedQueue<RtpPacket>();
 			converter = new SIPVideoConverter(sipTransport);
 		}
