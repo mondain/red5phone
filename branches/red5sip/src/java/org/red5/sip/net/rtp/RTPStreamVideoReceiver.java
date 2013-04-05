@@ -24,25 +24,28 @@ public class RTPStreamVideoReceiver extends Thread {
 	private boolean running;
 	private ConverterThread converterThread;
 	private SIPTransport sipTransport;
+	private DatagramSocket socket;
 
 	public RTPStreamVideoReceiver(SIPTransport sipTransport, IMediaReceiver mediaReceiver, SIPCodec codec,
 			DatagramSocket socket) {
 		this.mediaReceiver = mediaReceiver;
-		rtpSocket = new RtpSocket(socket);
+		this.socket = socket;
 		this.codec = codec;
 		this.sipTransport = sipTransport;
-		converterThread = new ConverterThread(sipTransport);
 	}
 
 	@Override
 	public void interrupt() {
 		running = false;
 		converterThread.interrupt();
+		rtpSocket.close();
 	}
 
 	@Override
 	public void run() {
 		running = true;
+		rtpSocket = new RtpSocket(socket);
+		converterThread = new ConverterThread(sipTransport);
 		converterThread.start();
 		try {
 			while (running) {
@@ -52,9 +55,9 @@ public class RTPStreamVideoReceiver extends Thread {
 				converterThread.addPacket(rtpPacket);
 			}
 		} catch (Exception e) {
-			log.error("", e);
+			log.error("Unexpected exception while running, shutting down", e);
+			interrupt();
 		}
-		rtpSocket.close();
 	}
 
 	private class ConverterThread extends Thread {
@@ -70,8 +73,9 @@ public class RTPStreamVideoReceiver extends Thread {
 		}
 
 		public void addPacket(RtpPacket packet) {
-			if (isInterrupted())
+			if (!running) {
 				return;
+			}
 			packetQueue.add(packet);
 		}
 
