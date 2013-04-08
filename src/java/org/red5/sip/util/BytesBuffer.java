@@ -22,12 +22,12 @@ public class BytesBuffer {
 	}
 
 	protected void onBufferOverflow() {
-		log.debug("onBufferOverflow:: start: {} end: {}", start, end);
+		log.debug("onBufferOverflow:: start: {} end: {} buffersCount: {}", start, end, buffersCount);
 		clean();
 	}
 
 	protected void onBufferEmpty() {
-		log.debug("onBufferEmpty:: start: {} end: {}", start, end);
+		log.debug("onBufferEmpty:: start: {} end: {} buffersCount: {}", start, end, buffersCount);
 	}
 
 	public void clean() {

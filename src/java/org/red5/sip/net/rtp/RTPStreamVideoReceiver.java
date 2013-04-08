@@ -49,8 +49,7 @@ public class RTPStreamVideoReceiver extends Thread {
 		converterThread.start();
 		try {
 			while (running) {
-				byte[] sourceBuffer = new byte[codec.getIncomingDecodedFrameSize()];
-				RtpPacket rtpPacket = new RtpPacket(sourceBuffer, 0);
+				RtpPacket rtpPacket = new RtpPacket(new byte[codec.getIncomingDecodedFrameSize()], 0);
 				rtpSocket.receive(rtpPacket);
 				converterThread.addPacket(rtpPacket);
 			}
@@ -63,11 +62,10 @@ public class RTPStreamVideoReceiver extends Thread {
 	private class ConverterThread extends Thread {
 		private final Queue<RtpPacket> packetQueue;
 		private boolean running;
-		private boolean dropRestPackets;
 		private SIPVideoConverter converter;
 
 		public ConverterThread(SIPTransport sipTransport) {
-			log.debug("... constructor !!!");
+			log.debug("... ConverterThread constructor !!!");
 			packetQueue = new ConcurrentLinkedQueue<RtpPacket>();
 			converter = new SIPVideoConverter(sipTransport);
 		}
@@ -89,11 +87,6 @@ public class RTPStreamVideoReceiver extends Thread {
 						if (packet != null) {
 							mediaReceiver.setVideoReceivingEnabled(true);
 							for (RTMPPacketInfo packetInfo : converter.rtp2rtmp(packet, codec)) {
-								if (dropRestPackets) {
-									log.error("::dropping broken packets::");
-									dropRestPackets = false;
-									break;
-								}
 								mediaReceiver.pushVideo(packetInfo.data, packetInfo.ts);
 							}
 						}
