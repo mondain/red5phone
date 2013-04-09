@@ -4,6 +4,7 @@ import local.net.RtpPacket;
 
 import org.red5.codecs.asao.ByteStream;
 import org.red5.sip.app.IMediaStream;
+import org.red5.sip.util.BufferUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,7 +94,7 @@ public class RTPStream implements IMediaStream {
 
 				copyingSize = encodingBuffer.length - encodingOffset;
 
-				System.arraycopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length - tempBufferRemaining, copyingSize);
+				BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length - tempBufferRemaining, copyingSize);
 
 				encodingOffset = sender.sipCodec.getOutgoingDecodedFrameSize();
 				tempBufferRemaining -= copyingSize;
@@ -103,7 +104,7 @@ public class RTPStream implements IMediaStream {
 				// copyingSize + " bytes." );
 			} else {
 				if (tempBufferRemaining > 0) {
-					System.arraycopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length
+					BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length
 							- tempBufferRemaining, tempBufferRemaining);
 
 					encodingOffset += tempBufferRemaining;
@@ -127,7 +128,7 @@ public class RTPStream implements IMediaStream {
 					copyingSize = tempBufferRemaining;
 				}
 
-				System.arraycopy(encodingBuffer, encodingOffset, tempBuffer, 0, copyingSize);
+				BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer, 0, copyingSize);
 
 				encodingOffset += copyingSize;
 				tempBufferRemaining -= copyingSize;
@@ -137,7 +138,7 @@ public class RTPStream implements IMediaStream {
 			if (encodingOffset == encodingBuffer.length) {
 				int encodedBytes = sender.sipCodec.pcmToCodec(encodingBuffer, codedBuffer);
 				if (encodedBytes == sender.sipCodec.getOutgoingEncodedFrameSize()) {
-					System.arraycopy(packetBuffer, RTPStreamSender.RTP_HEADER_SIZE, codedBuffer, 0,
+					BufferUtils.byteBufferIndexedCopy(packetBuffer, RTPStreamSender.RTP_HEADER_SIZE, codedBuffer, 0,
 							codedBuffer.length);
 				}
 			}
