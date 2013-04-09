@@ -17,6 +17,7 @@ import org.red5.codecs.asao.Decoder;
 import org.red5.sip.app.IMediaReceiver;
 import org.red5.sip.app.IMediaSender;
 import org.red5.sip.app.IMediaStream;
+import org.red5.sip.util.BufferUtils;
 import org.red5.sip.util.ResampleUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -323,14 +324,14 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 
 				copyingSize = encodingBuffer.length - encodingOffset;
 
-				System.arraycopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length - tempBufferRemaining, copyingSize);
+				BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length - tempBufferRemaining, copyingSize);
 
 				encodingOffset = sipCodec.getOutgoingDecodedFrameSize();
 				tempBufferRemaining -= copyingSize;
 				finalCopySize = sipCodec.getOutgoingDecodedFrameSize();
 			} else {
 				if (tempBufferRemaining > 0) {
-					System.arraycopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length
+					BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length
 							- tempBufferRemaining, tempBufferRemaining);
 
 					encodingOffset += tempBufferRemaining;
@@ -365,7 +366,7 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 					copyingSize = tempBufferRemaining;
 				}
 
-				System.arraycopy(encodingBuffer, encodingOffset, tempBuffer, 0, copyingSize);
+				BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer, 0, copyingSize);
 
 				encodingOffset += copyingSize;
 				tempBufferRemaining -= copyingSize;
@@ -374,10 +375,8 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 
 			if (encodingOffset == encodingBuffer.length) {
 				int encodedBytes = sipCodec.pcmToCodec(encodingBuffer, codedBuffer);
-
 				if (encodedBytes == sipCodec.getOutgoingEncodedFrameSize()) {
-
-					System.arraycopy(packetBuffer, RTP_HEADER_SIZE, codedBuffer, 0, codedBuffer.length);
+					BufferUtils.byteBufferIndexedCopy(packetBuffer, RTP_HEADER_SIZE, codedBuffer, 0, codedBuffer.length);
 				}
 			}
 
