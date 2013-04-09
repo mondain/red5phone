@@ -67,16 +67,16 @@ public class SIPVideoConverter {
 	public List<RtpPacket> rtmp2rtp(byte data[], long ts, SIPCodec codec) {
 		switch (codec.getCodecId()) {
 			case 35:
-				return rtmp2rtpH264(data, ts);
+				return rtmp2rtpH264(data, ts, codec);
 			default:
 				log.error("Unsuported codec type: " + codec.getCodecName());
 				return new ArrayList<RtpPacket>();
 		}
 	}
 	
-	private List<RtpPacket> rtmp2rtpH264(byte data[], long ts) {
+	private List<RtpPacket> rtmp2rtpH264(byte data[], long ts, SIPCodec codec) {
 		List<RtpPacket> result = new ArrayList<RtpPacket>();
-		long ts1 = ts * 90;
+		long ts1 = ts * codec.getSampleRate() / 1000;
 		if (data[0] == 0x17 && data[1] == 0) {
 			byte[] pdata = Arrays.copyOfRange(data, 2, data.length);
 			int cfgVer = pdata[3];
@@ -209,11 +209,11 @@ public class SIPVideoConverter {
 		switch (nalType) {
 		case 7: // SPS
 			sps = payload;
-			log.debug("SPS received: " + Arrays.toString(sps));
+			log.debug("SPS received: {}", sps);
 			break;
 		case 8: // PPS
 			pps = payload;
-			log.debug("PPS received: " + Arrays.toString(pps));
+			log.debug("PPS received: {}", pps);
 			break;
 		default:
 			if (payload.length > 1) {
@@ -228,11 +228,11 @@ public class SIPVideoConverter {
 						switch (nt) {
 						case 7:
 							sps = naldata;
-							log.debug("SPS received: " + Arrays.toString(sps));
+							log.debug("SPS received: {}", sps);
 							break;
 						case 8:
 							pps = naldata;
-							log.debug("PPS received: " + Arrays.toString(pps));
+							log.debug("PPS received: {}", pps);
 							break;
 						default:
 							break;
@@ -366,7 +366,7 @@ public class SIPVideoConverter {
 					startTm = System.currentTimeMillis() - startRelativeTime;
 				}
 
-				long tm = startTm + (packet.getTimestamp() - startTs) / (codec.getSampleRate() / 1000);
+				long tm = startTm + (packet.getTimestamp() - startTs) / (codec.getSampleRate() / 1000); //FIXME was 132
 				if (nalType == 5 && payloads.size() > 0) {
 					ByteArrayBuilder data = new ByteArrayBuilder();
 					// first byte: 0x17 for intra-frame
