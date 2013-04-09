@@ -100,10 +100,6 @@ public class RTPStreamReceiver extends Thread {
 			return;
 		}
 
-		byte[] internalBuffer = new byte[sipCodec.getIncomingEncodedFrameSize() + RTP_HEADER_SIZE];
-
-		RtpPacket rtpPacket = new RtpPacket(internalBuffer, 0);
-
 		running = true;
 
 		final int BUFFER_LENGTH = 100;
@@ -164,7 +160,7 @@ public class RTPStreamReceiver extends Thread {
 		try {
 
 			rtp_socket.getDatagramSocket().setSoTimeout(SO_TIMEOUT);
-
+			RtpPacket rtpPacket = new RtpPacket(new byte[sipCodec.getIncomingEncodedFrameSize() + RTP_HEADER_SIZE], 0);
 			while (running) {
 
 				try {
