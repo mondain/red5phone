@@ -1,10 +1,10 @@
 package org.red5.sip.net.rtp;
 
+import static org.red5.sip.net.rtp.RTPStreamSender.RTP_HEADER_SIZE;
 import local.net.RtpPacket;
 
 import org.red5.codecs.asao.ByteStream;
 import org.red5.sip.app.IMediaStream;
-import org.red5.sip.util.BufferUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,7 +94,7 @@ public class RTPStream implements IMediaStream {
 
 				copyingSize = encodingBuffer.length - encodingOffset;
 
-				BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length - tempBufferRemaining, copyingSize);
+				System.arraycopy(tempBuffer, tempBuffer.length - tempBufferRemaining, encodingBuffer, encodingOffset, copyingSize);
 
 				encodingOffset = sender.sipCodec.getOutgoingDecodedFrameSize();
 				tempBufferRemaining -= copyingSize;
@@ -104,8 +104,8 @@ public class RTPStream implements IMediaStream {
 				// copyingSize + " bytes." );
 			} else {
 				if (tempBufferRemaining > 0) {
-					BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer, tempBuffer.length
-							- tempBufferRemaining, tempBufferRemaining);
+					System.arraycopy(tempBuffer, tempBuffer.length - tempBufferRemaining
+							, encodingBuffer, encodingOffset, tempBufferRemaining);
 
 					encodingOffset += tempBufferRemaining;
 					finalCopySize += tempBufferRemaining;
@@ -128,7 +128,7 @@ public class RTPStream implements IMediaStream {
 					copyingSize = tempBufferRemaining;
 				}
 
-				BufferUtils.floatBufferIndexedCopy(encodingBuffer, encodingOffset, tempBuffer, 0, copyingSize);
+				System.arraycopy(tempBuffer, 0, encodingBuffer, encodingOffset, copyingSize);
 
 				encodingOffset += copyingSize;
 				tempBufferRemaining -= copyingSize;
@@ -138,8 +138,7 @@ public class RTPStream implements IMediaStream {
 			if (encodingOffset == encodingBuffer.length) {
 				int encodedBytes = sender.sipCodec.pcmToCodec(encodingBuffer, codedBuffer);
 				if (encodedBytes == sender.sipCodec.getOutgoingEncodedFrameSize()) {
-					BufferUtils.byteBufferIndexedCopy(packetBuffer, RTPStreamSender.RTP_HEADER_SIZE, codedBuffer, 0,
-							codedBuffer.length);
+					System.arraycopy(codedBuffer, 0, packetBuffer, RTP_HEADER_SIZE, codedBuffer.length);
 				}
 			}
 		} catch (Exception e) {
