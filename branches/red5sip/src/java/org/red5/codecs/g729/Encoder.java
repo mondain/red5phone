@@ -1,6 +1,5 @@
 package org.red5.codecs.g729;
 
-import org.red5.sip.util.BufferUtils;
 
 
 public class Encoder {
@@ -33,11 +32,11 @@ public class Encoder {
 			float[] tempBufferIn = new float[LD8KConstants.L_FRAME];
 
 			// Encode bufferIn
-			BufferUtils.floatBufferIndexedCopy(tempBufferIn, 0, bufferIn, inOffset, LD8KConstants.L_FRAME);
+			System.arraycopy(bufferIn, inOffset, tempBufferIn, 0, LD8KConstants.L_FRAME);
 			tempBufferOut = process(tempBufferIn);
 
 			// Copy encoded data to bufferOut
-			BufferUtils.byteBufferIndexedCopy(bufferOut, outOffset, tempBufferOut, 0, LD8KConstants.L_ENC_FRAME);
+			System.arraycopy(tempBufferOut, 0, bufferOut, outOffset, LD8KConstants.L_ENC_FRAME);
 
 			inOffset += LD8KConstants.L_FRAME;
 			outOffset += LD8KConstants.L_ENC_FRAME;
