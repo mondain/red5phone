@@ -52,7 +52,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	private IMediaSender audioSender;
 	private IMediaSender videoSender;
 	private IoBuffer audioBuffer;
-	private IoBuffer videoBuffer;
+	private Object videoSync = new Object();
 	private Integer publishStreamId = null;
 	private boolean reconnect = true;
 	private int retryNumber = 0;
@@ -568,20 +568,18 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			log.debug("publishStreamId == null !!!");
 			return;
 		}
-		if (videoBuffer == null || (videoBuffer.capacity() < video.length && !videoBuffer.isAutoExpand())) {
-			videoBuffer = IoBuffer.allocate(video.length);
+		synchronized (videoSync) {
+			IoBuffer videoBuffer = IoBuffer.allocate(video.length);
 			videoBuffer.setAutoExpand(true);
+			videoBuffer.put(video);
+			videoBuffer.flip();
+			
+			RTMPMessage message = RTMPMessage.build(new VideoData(videoBuffer), (int)ts);
+			if (log.isTraceEnabled()) {
+				log.trace("+++ {} data: {}", message.getBody(), video);
+			}
+			publishStreamData(publishStreamId, message);
 		}
-		
-		videoBuffer.clear();
-		videoBuffer.put(video);
-		videoBuffer.flip();
-		
-		RTMPMessage message = RTMPMessage.build(new VideoData(videoBuffer), (int)ts);
-		if (log.isTraceEnabled()) {
-			log.trace("+++ {} data: {}", message.getBody(), video);
-		}
-		publishStreamData(publishStreamId, message);
 	}
 
 	public String getDestination() {
