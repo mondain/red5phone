@@ -26,6 +26,7 @@ import org.red5.client.net.rtmp.RTMPClient;
 import org.red5.server.net.rtmp.RTMPConnection;
 import org.red5.server.net.rtmp.codec.RTMP;
 import org.red5.server.net.rtmp.event.AudioData;
+import org.red5.server.net.rtmp.event.ChunkSize;
 import org.red5.server.net.rtmp.event.Notify;
 import org.red5.server.net.rtmp.event.VideoData;
 import org.red5.server.net.rtmp.message.Header;
@@ -52,7 +53,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	private IMediaSender audioSender;
 	private IMediaSender videoSender;
 	private IoBuffer audioBuffer;
-	private Object videoSync = new Object();
+	private IoBuffer videoBuffer;
 	private Integer publishStreamId = null;
 	private boolean reconnect = true;
 	private int retryNumber = 0;
@@ -568,18 +569,30 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			log.debug("publishStreamId == null !!!");
 			return;
 		}
-		synchronized (videoSync) {
-			IoBuffer videoBuffer = IoBuffer.allocate(video.length);
+		if (videoBuffer == null || (videoBuffer.capacity() < video.length && !videoBuffer.isAutoExpand())) {
+			videoBuffer = IoBuffer.allocate(video.length);
 			videoBuffer.setAutoExpand(true);
-			videoBuffer.put(video);
-			videoBuffer.flip();
-			
-			RTMPMessage message = RTMPMessage.build(new VideoData(videoBuffer), (int)ts);
-			if (log.isTraceEnabled()) {
-				log.trace("+++ {} data: {}", message.getBody(), video);
-			}
-			publishStreamData(publishStreamId, message);
 		}
+		
+		videoBuffer.clear();
+		videoBuffer.put(video);
+		videoBuffer.flip();
+		
+		RTMPMessage message = RTMPMessage.build(new VideoData(videoBuffer), (int)ts);
+		if (log.isTraceEnabled()) {
+			log.trace("+++ {} data: {}", message.getBody(), video);
+		}
+		publishStreamData(publishStreamId, message);
+	}
+
+	// this method is overrided to avoid red5 chunkSize issue
+	@Override
+	protected void onChunkSize(RTMPConnection conn, Channel channel, Header source, ChunkSize chunkSize) {
+		log.debug("onChunkSize");
+		// set read and write chunk sizes
+		RTMP state = conn.getState();
+		state.setReadChunkSize(chunkSize.getSize());
+		log.info("ChunkSize is not fully implemented: {}", chunkSize);
 	}
 
 	public String getDestination() {
