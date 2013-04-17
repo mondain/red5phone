@@ -90,7 +90,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	private int activeVideoStreamID = -1;
 	private String destination;
 	private int sipUsersCount;
-	private String currentVideoMode;
 
 	public RTMPRoomClient(String host, String context, int roomId) {
 		super();
@@ -215,8 +214,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		remoteMessage[0] = "avsettings";
 		remoteMessage[1] = "0";
 		remoteMessage[2] = mode;
-		currentVideoMode = mode;
-		conn.invoke("setUserAVSettings", new Object[] { mode, remoteMessage, 120, 90, Long.valueOf(roomId), publicSID, -1 }, this);
+		conn.invoke("setUserAVSettings", new Object[] { mode, remoteMessage, 176, 144, Long.valueOf(roomId), publicSID, -1 }, this);
 	}
 
 	protected void getSipNumber() {

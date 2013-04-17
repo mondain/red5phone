@@ -58,7 +58,7 @@ public class SIPVideoConverter {
 		case 35:
 			return rtp2rtmpH264(packet);
 		default:
-			log.error("Unsuported codec type: " + codec.getCodecName());
+			log.error("Unsuported codec type: {}", codec.getCodecName());
 			return new ArrayList<RTMPPacketInfo>();
 		}
 	}
@@ -68,7 +68,7 @@ public class SIPVideoConverter {
 		case 35:
 			return rtmp2rtpH254(data, ts);
 		default:
-			log.error("Unsuported codec type: " + codec.getCodecName());
+			log.error("Unsuported codec type: {}", codec.getCodecName());
 			return new ArrayList<RtpPacket>();
 		}
 	}
@@ -123,7 +123,7 @@ public class SIPVideoConverter {
 					result.add(packet);
 				}
 			} else {
-				log.debug("Unsuported cfgVer=" + cfgVer);
+				log.warn("Unsuported cfgVer: {}", cfgVer);
 			}
 		} else if ((data[0] == 0x17 || data[0] == 0x27) && data[1] == 1) {
 			if (spsSent && ppsSent) {
@@ -186,7 +186,7 @@ public class SIPVideoConverter {
 				}
 			}
 		} else {
-			log.debug("Missing rtmp data");
+			log.error("Missing rtmp data");
 		}
 		return result;
 	}
@@ -241,6 +241,8 @@ public class SIPVideoConverter {
 				
 				if (nalType == 1 || nalType == 5 || nalType == 28 || nalType == 24) {
 					packetsQueue.add(new RtpPacketWrapper(packet, nalType));
+				} else {
+					log.warn("Unsuported NAL unit type: {}", nalType);
 				}
 			}
 			break;

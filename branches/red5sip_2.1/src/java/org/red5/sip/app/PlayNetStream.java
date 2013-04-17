@@ -72,7 +72,7 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 	}
 	
 	public void dispatchEvent(IEvent event) {
-
+		logger.trace("dispatchEvent: " + event);
 		if (!(event instanceof IRTMPEvent)) {
 			logger.debug("skipping non rtmp event: " + event);
 			return;

@@ -29,8 +29,8 @@ public class Application implements Daemon {
 		RTPStreamSender.useASAO = prop.getProperty("red5.codec", "asao").equals("asao");
 		RTMPRoomClient roomClient = new RTMPRoomClient(prop.getProperty("red5.host"), prop.getProperty("om.context",
 				"openmeetings"), room_id);
-
-		SIPTransport sipTransport = new SIPTransport(roomClient, sipPort++, soundPort++, videoPort++) {
+		boolean enableVideo = "yes".equals(prop.getProperty("sip.enable_video"));
+		SIPTransport sipTransport = new SIPTransport(roomClient, sipPort++, soundPort++, videoPort++, enableVideo) {
 			public void onUaRegistrationSuccess(SIPRegisterAgent ra, NameAddress target, NameAddress contact,
 					String result) {
 				log.info("Registered successfully");

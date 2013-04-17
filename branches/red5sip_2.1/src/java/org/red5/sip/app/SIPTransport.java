@@ -27,14 +27,16 @@ public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterA
 	private int rtpVideoPort;
 	private String proxy;
 	private String number;
+	private boolean enableVideo;
 
 	private void p(String s) {
 		log.debug(s);
 	}
 
-	public SIPTransport(RTMPRoomClient roomClient, int sipPort, int rtpAudioPort, int rtpVideoPort) {
+	public SIPTransport(RTMPRoomClient roomClient, int sipPort, int rtpAudioPort, int rtpVideoPort, boolean enableVideo) {
 		this.roomClient = roomClient;
 		this.sipPort = sipPort;
+		this.enableVideo = enableVideo;
 		this.rtpAudioPort = rtpAudioPort;
 		this.rtpVideoPort = rtpVideoPort;
 	}
@@ -75,6 +77,7 @@ public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterA
 			userProfile.hangupTime = 20;
 
 			ua = new SIPUserAgent(sipProvider, userProfile, this, roomClient);
+			ua.setVideo(enableVideo);
 
 			ua.listen();
 
