@@ -26,6 +26,7 @@ import org.red5.client.net.rtmp.RTMPClient;
 import org.red5.server.net.rtmp.RTMPConnection;
 import org.red5.server.net.rtmp.codec.RTMP;
 import org.red5.server.net.rtmp.event.AudioData;
+import org.red5.server.net.rtmp.event.ChunkSize;
 import org.red5.server.net.rtmp.event.Notify;
 import org.red5.server.net.rtmp.event.VideoData;
 import org.red5.server.net.rtmp.message.Header;
@@ -509,6 +510,16 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		}
 	}
 
+	// this method is overrided to avoid red5 chunkSize issue
+	@Override
+	protected void onChunkSize(RTMPConnection conn, Channel channel, Header source, ChunkSize chunkSize) {
+		log.debug("onChunkSize");
+		// set read and write chunk sizes
+		RTMP state = conn.getState();
+		state.setReadChunkSize(chunkSize.getSize());
+		log.info("ChunkSize is not fully implemented: {}", chunkSize);
+	}
+	
 	@Override
 	public synchronized void setVideoReceivingEnabled(boolean enable) {
 		if (enable && !videoReceivingEnabled) {
