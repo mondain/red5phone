@@ -97,7 +97,7 @@ public class PlayNetStream extends AbstractClientStream implements IEventDispatc
 				client.setActiveVideoStreamID(newStreamId);
 			}
 			if (rtmpEvent.getHeader().getStreamId() != newStreamId) {
-				logger.debug("ignoring stream id=" + rtmpEvent.getHeader().getStreamId() + " current stream is " + newStreamId);
+				logger.trace("ignoring stream id=" + rtmpEvent.getHeader().getStreamId() + " current stream is " + newStreamId);
 				return;
 			}
 			

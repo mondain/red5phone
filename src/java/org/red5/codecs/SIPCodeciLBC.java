@@ -89,8 +89,9 @@ public class SIPCodeciLBC implements SIPCodec {
 					incomingPacketization = remoteMode;
 				} else if (null == localAttributeValue) {
 
-					finalAttributeValue = remoteAttributeValue.substring(0, remoteAttributeValue.indexOf(" mode=") + 6);
-					finalAttributeValue.concat(localMode.toString());
+					finalAttributeValue = remoteAttributeValue
+							.substring(0, remoteAttributeValue.indexOf(" mode=") + 6)
+							.concat(localMode.toString());
 				}
 			}
 		}

@@ -41,6 +41,8 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	private static final Logger log = LoggerFactory.getLogger(RTMPRoomClient.class);
 	private static final int MAX_RETRY_NUMBER = 100;
 	private static final int UPDATE_MS = 3000;
+	private static final int VIDEO_WINDOW_WIDTH = 176;
+	private static final int VIDEO_WINDOW_HEIGHT = 144;
 
 	private Set<Integer> broadcastIds = new HashSet<Integer>();
 	private Map<Long, Integer> clientStreamMap = new HashMap<Long, Integer>();
@@ -214,7 +216,8 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		remoteMessage[0] = "avsettings";
 		remoteMessage[1] = "0";
 		remoteMessage[2] = mode;
-		conn.invoke("setUserAVSettings", new Object[] { mode, remoteMessage, 176, 144, Long.valueOf(roomId), publicSID, -1 }, this);
+		conn.invoke("setUserAVSettings", new Object[] {mode, remoteMessage, VIDEO_WINDOW_WIDTH, VIDEO_WINDOW_HEIGHT, 
+				Long.valueOf(roomId), publicSID, -1}, this);
 	}
 
 	protected void getSipNumber() {
@@ -549,11 +552,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			lastSendActivityMS = System.currentTimeMillis();
 			this.silence = silence;
 			soundActivity();
-		}
-
-		if (silence) {
-			log.trace("Silence...");
-			return;
 		}
 
 		if (publishStreamId == null) {
