@@ -68,8 +68,8 @@ public class NameAddress
 
    /** Indicates whether some other Object is "equal to" this NameAddress */
    public boolean equals(Object obj)
-   {  NameAddress naddr=(NameAddress)obj;
-      return url.equals(naddr.getAddress());
+   {  if (!(obj instanceof NameAddress)) return false;
+      return this.equals((NameAddress) obj);
    }
 
    /** Gets address of NameAddress */
@@ -104,7 +104,8 @@ public class NameAddress
 
    /** Whether two NameAddresses are equals */
    public boolean equals(NameAddress naddr)
-   {  return (name==naddr.name && url==naddr.url);
+   {  return (name == null && naddr.name == null || name != null && name.equals(naddr.name)) &&
+		     (url == null && naddr.url == null || url != null && url.equals(naddr.url));
    }
 
    /** Gets string representation of NameAddress */

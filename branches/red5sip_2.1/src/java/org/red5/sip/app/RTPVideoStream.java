@@ -1,5 +1,6 @@
 package org.red5.sip.app;
 
+import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -36,7 +37,11 @@ public class RTPVideoStream implements IMediaStream {
 		if (!running) {
 			throw new IllegalStateException("Stream is not started");
 		}
-		converterThread.addData(data, timestamp);
+		if (offset == 0 && num == data.length) {
+			converterThread.addData(data, timestamp);
+		} else {
+			converterThread.addData(Arrays.copyOfRange(data, offset, offset + num), timestamp);
+		}
 	}
 
 	@Override

@@ -268,8 +268,7 @@ public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterA
 				" <media_control>\n" +
 				"  <vc_primitive>\n" +
 				"   <to_encoder>\n" +
-				"    <picture_fast_update>\n" +
-				"    </picture_fast_update>\n" +
+				"    <picture_fast_update/>\n" +
 				"   </to_encoder>\n" +
 				"  </vc_primitive>\n" +
 				" </media_control>\n");
