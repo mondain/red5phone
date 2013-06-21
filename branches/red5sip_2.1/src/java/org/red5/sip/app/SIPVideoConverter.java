@@ -249,12 +249,13 @@ public class SIPVideoConverter {
 		}
 		
 		if (packetsQueue.size() > 1) {
-			RtpPacket last = packetsQueue.get(packetsQueue.size() - 1).packet;
-			RtpPacket preLast = packetsQueue.get(packetsQueue.size() - 2).packet;
-			if (last.getTimestamp() != preLast.getTimestamp()) {
-				log.debug("Clearing queue since new packet has different ts. old ts=" + preLast.getTimestamp() + 
-						" new ts=" + last.getTimestamp());
+			RtpPacketWrapper last = packetsQueue.get(packetsQueue.size() - 1);
+			RtpPacketWrapper preLast = packetsQueue.get(packetsQueue.size() - 2);
+			if (last.packet.getTimestamp() != preLast.packet.getTimestamp()) {
+				log.debug("Clearing queue since new packet has different ts. old ts=" + preLast.packet.getTimestamp() + 
+						" new ts=" + last.packet.getTimestamp());
 				packetsQueue.clear();
+				packetsQueue.add(last);
 			}
 		}
 		
