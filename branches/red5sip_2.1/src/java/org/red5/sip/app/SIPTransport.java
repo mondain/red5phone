@@ -39,6 +39,7 @@ public abstract class SIPTransport implements SIPUserAgentListener, SIPRegisterA
 		this.enableVideo = enableVideo;
 		this.rtpAudioPort = rtpAudioPort;
 		this.rtpVideoPort = rtpVideoPort;
+		roomClient.setSipTransport(this);
 	}
 
 	public void login(String obproxy, String phone, String username, String password, String realm, String proxy) {

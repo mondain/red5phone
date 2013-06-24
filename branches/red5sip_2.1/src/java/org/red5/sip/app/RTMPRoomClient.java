@@ -92,6 +92,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	private int activeVideoStreamID = -1;
 	private String destination;
 	private int sipUsersCount;
+	private SIPTransport sipTransport;
 
 	public RTMPRoomClient(String host, String context, int roomId) {
 		super();
@@ -229,6 +230,9 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	}
 	
 	private void setSipUsersCount(int sipUsersCount) {
+		if (sipUsersCount > this.sipUsersCount && sipTransport != null) {
+			sipTransport.requestFIR();
+		}
 		this.sipUsersCount = sipUsersCount;
 	}
 
@@ -536,6 +540,14 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		return videoReceivingEnabled;
 	}
 	
+	public SIPTransport getSipTransport() {
+		return sipTransport;
+	}
+
+	public void setSipTransport(SIPTransport sipTransport) {
+		this.sipTransport = sipTransport;
+	}
+
 	public void pushAudio(byte[] audio, long ts, int codec) throws IOException {
 		if (micMuted) {
 			return;
