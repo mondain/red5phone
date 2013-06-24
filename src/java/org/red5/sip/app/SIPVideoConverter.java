@@ -36,7 +36,7 @@ public class SIPVideoConverter {
 	public SIPVideoConverter(SIPTransport sipTransport) {
 		this.sipTransport = sipTransport;
 		resetConverter();
-		startRelativeTime = System.currentTimeMillis();
+		startRelativeTime = System.currentTimeMillis() - 30; // decrease start time to avoid hangs in bad networks
 	}
 	
 	public void resetConverter() {
