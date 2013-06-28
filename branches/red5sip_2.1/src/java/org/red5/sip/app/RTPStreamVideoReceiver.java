@@ -1,6 +1,7 @@
 package org.red5.sip.app;
 
 import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -47,6 +48,8 @@ public class RTPStreamVideoReceiver extends Thread {
 				rtpSocket.receive(rtpPacket);
 				converterThread.addPacket(rtpPacket);
 			}
+		} catch (SocketException e) {
+			// ignored
 		} catch (Exception e) {
 			log.error("", e);
 		}

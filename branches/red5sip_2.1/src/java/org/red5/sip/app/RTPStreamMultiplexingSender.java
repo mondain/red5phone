@@ -231,20 +231,24 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 		}
 	}
 
-	private void doRtpDelay(float bufferUsage) {
-		// TODO: make proper pause correction.
-		// Pause should not exceed packetization and prevent emtying of buffer
+	private void doRtpDelay(float bufferUsage, long processingTime) {
 		try {
-			long pause = sipCodec.getOutgoingPacketization() - 1;
+			long pause = sipCodec.getOutgoingPacketization();
 			if (bufferUsage > .5f) {
 				pause -= 5;
 			}
 			if (bufferUsage > READY) {
 				pause -= 1;
 			}
-			log.trace("Sleep pause: " + pause);
+			if (processingTime > pause) {
+				log.warn("Too high audio data processing time. Something is going wrong...");
+			}
+			pause -= processingTime;
+			if (pause < 0) pause = 0;
+			log.trace("Sleep pause: " + pause + " decrementTime: " + processingTime);
 			Thread.sleep(pause, 800000);
 		} catch (Exception e) {
+			log.debug("[doRtpDelay]", e);
 		}
 	}
 
@@ -270,6 +274,7 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 		int disableStream = 0;
 
 		while (rtpSocket != null) {
+			long startIterationTime = System.currentTimeMillis();
 			float bufferUsage = 0;
 			int multiplexingCount = 0;
 			try {
@@ -320,7 +325,8 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 						}
 						if (encodingOffset == sipCodec.getOutgoingDecodedFrameSize()) {
 							rtpSocketSend(rtpPacket);
-							doRtpDelay(bufferUsage);
+							doRtpDelay(bufferUsage, System.currentTimeMillis() - startIterationTime);
+							startIterationTime = System.currentTimeMillis();
 							encodingOffset = 0;
 						}
 					} while (!asao_buffer_processed);
@@ -328,7 +334,6 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 					log.error("Error preparing RTP packet", e);
 				}
 			}
-
 		}
 	}
 

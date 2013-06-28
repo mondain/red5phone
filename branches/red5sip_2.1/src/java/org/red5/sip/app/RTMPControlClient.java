@@ -129,27 +129,29 @@ public abstract class RTMPControlClient extends RTMPClient implements ClientExce
 			break;
 		case getActiveRoomIds:
 			log.debug("getActiveRoomIds");
-			if (call.getResult() instanceof Collection) {
-				Collection<Integer> newActiveRooms = ((Collection<Integer>) call.getResult());
-				for (Integer id : newActiveRooms) {
-					if (!this.activeRooms.contains(id)) {
-						this.activeRooms.add(id);
-						log.debug("Start room client, id: " + id);
-						startRoomClient(id);
+			synchronized (this.activeRooms) {
+				if (call.getResult() instanceof Collection) {
+					Collection<Integer> newActiveRooms = ((Collection<Integer>) call.getResult());
+					for (Integer id : newActiveRooms) {
+						if (!this.activeRooms.contains(id)) {
+							this.activeRooms.add(id);
+							log.debug("Start room client, id: " + id);
+							startRoomClient(id);
+						}
 					}
-				}
-				for (Integer id : this.activeRooms) {
-					if (!newActiveRooms.contains(id)) {
+					for (Integer id : this.activeRooms) {
+						if (!newActiveRooms.contains(id)) {
+							log.info("Stop room client, id: " + id);
+							this.activeRooms.remove(id);
+							stopRoomClient(id);
+						}
+					}
+				} else {
+					for (Integer id : this.activeRooms) {
 						log.info("Stop room client, id: " + id);
 						this.activeRooms.remove(id);
 						stopRoomClient(id);
 					}
-				}
-			} else {
-				for (Integer id : this.activeRooms) {
-					log.info("Stop room client, id: " + id);
-					this.activeRooms.remove(id);
-					stopRoomClient(id);
 				}
 			}
 			break;
