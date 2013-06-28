@@ -498,6 +498,10 @@ public class SdpUtils {
 						AttributeField localAttribute = (AttributeField) atributesEnum.nextElement();
 						MediaDescriptor newLocalDescriptor = newSdp.getMediaDescriptor(localDescriptor.getMedia()
 								.getMedia());
+						if (newLocalDescriptor == null) {
+							log.error("Media descriptor not found for media type = " + localDescriptor.getMedia()
+									.getMedia());
+						}
 
 						if (isPayloadRelatedAttribute(localAttribute)) {
 

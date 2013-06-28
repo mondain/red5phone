@@ -93,6 +93,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	private String destination;
 	private int sipUsersCount;
 	private SIPTransport sipTransport;
+	private Object avSettingLock = new Object();
 
 	public RTMPRoomClient(String host, String context, int roomId) {
 		super();
@@ -225,11 +226,11 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		conn.invoke("getSipNumber", new Object[] { Integer.valueOf(roomId).longValue() }, this);
 	}
 
-	public int getSipUsersCount() {
+	public synchronized int getSipUsersCount() {
 		return sipUsersCount;
 	}
 	
-	private void setSipUsersCount(int sipUsersCount) {
+	private synchronized void setSipUsersCount(int sipUsersCount) {
 		if (sipUsersCount > this.sipUsersCount && sipTransport != null) {
 			sipTransport.requestFIR();
 		}
@@ -465,9 +466,11 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 		case setUserAVSettings:
 			log.info("setUserAVSettings");
 			// SIP -> red5
-			if (!streamCreated) {
-				createStream(this);
-				streamCreated = true;
+			synchronized (avSettingLock) {
+				if (!streamCreated) {
+					createStream(this);
+					streamCreated = true;
+				}
 			}
 			break;
 		case setSipTransport:
