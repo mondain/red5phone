@@ -62,7 +62,7 @@ public class SIPUserAgentProfile {
 	public boolean doUnregisterAll = false;
 
 	/** Expires time (in seconds). */
-	public int expires = 3600;
+	public int expires = 60 * 60 * 12;
 
 	/**
 	 * Rate of keep-alive packets sent toward the registrar server (in milliseconds). Set keepalive_time=0 to disable
