@@ -480,7 +480,9 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 			break;
 		case updateSipTransport:
 			log.debug("updateSipTransport");
-			setSipUsersCount(((Number) call.getResult()).intValue());
+			if (call.getResult() instanceof Number) {
+				setSipUsersCount(((Number) call.getResult()).intValue());
+			}
 			break;
 		case getSipNumber:
 			log.info("getSipNumber");
@@ -552,6 +554,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	}
 
 	public void pushAudio(byte[] audio, long ts, int codec) throws IOException {
+		if (!conn.isConnected()) return;
 		if (micMuted) {
 			return;
 		}
@@ -599,6 +602,7 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	
 	@Override
 	public void pushVideo(byte[] video, long ts) throws IOException {
+		if (!conn.isConnected()) return;
 		if(publishStreamId == null) {
 			log.debug("publishStreamId == null !!!");
 			return;

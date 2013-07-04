@@ -492,29 +492,30 @@ public class SdpUtils {
 
 					Vector<AttributeField> localAttributes = localDescriptor.getAttributes();
 
-					for (Enumeration<AttributeField> atributesEnum = localAttributes.elements(); atributesEnum
-							.hasMoreElements();) {
-
-						AttributeField localAttribute = (AttributeField) atributesEnum.nextElement();
-						MediaDescriptor newLocalDescriptor = newSdp.getMediaDescriptor(localDescriptor.getMedia()
+					MediaDescriptor newLocalDescriptor = newSdp.getMediaDescriptor(localDescriptor.getMedia()
+							.getMedia());
+					if (newLocalDescriptor == null) {
+						log.warn("Media descriptor not found for media type = " + localDescriptor.getMedia()
 								.getMedia());
-						if (newLocalDescriptor == null) {
-							log.error("Media descriptor not found for media type = " + localDescriptor.getMedia()
-									.getMedia());
-						}
-
-						if (isPayloadRelatedAttribute(localAttribute)) {
-
-							String payloadId = getPayloadIdFromAttribute(localAttribute);
-
-							if (findAttributeByPayloadId(localAttribute.getAttributeName(), payloadId,
-									newLocalDescriptor) == null) {
-
+					} else {
+						for (Enumeration<AttributeField> atributesEnum = localAttributes.elements(); atributesEnum
+								.hasMoreElements();) {
+	
+							AttributeField localAttribute = (AttributeField) atributesEnum.nextElement();
+	
+							if (isPayloadRelatedAttribute(localAttribute)) {
+	
+								String payloadId = getPayloadIdFromAttribute(localAttribute);
+	
+								if (findAttributeByPayloadId(localAttribute.getAttributeName(), payloadId,
+										newLocalDescriptor) == null) {
+	
+									newLocalDescriptor.addAttribute(localAttribute);
+								}
+							} else if (newLocalDescriptor.getAttribute(localAttribute.getAttributeName()) == null) {
+	
 								newLocalDescriptor.addAttribute(localAttribute);
 							}
-						} else if (newLocalDescriptor.getAttribute(localAttribute.getAttributeName()) == null) {
-
-							newLocalDescriptor.addAttribute(localAttribute);
 						}
 					}
 				}
