@@ -554,7 +554,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	}
 
 	public void pushAudio(byte[] audio, long ts, int codec) throws IOException {
-		if (!conn.isConnected()) return;
 		if (micMuted) {
 			return;
 		}
