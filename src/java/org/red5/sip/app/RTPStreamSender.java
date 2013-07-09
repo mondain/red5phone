@@ -26,7 +26,7 @@ public class RTPStreamSender implements IMediaSender {
 
 	protected static final int NELLYMOSER_ENCODED_PACKET_SIZE = 64;
 
-	RtpSocket rtpSocket = null;
+	private RtpSocket rtpSocket = null;
 
 	/** Sip codec to be used on audio session */
 	protected SIPCodec sipCodec = null;

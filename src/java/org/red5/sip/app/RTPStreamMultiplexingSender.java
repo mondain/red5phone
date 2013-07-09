@@ -2,7 +2,6 @@ package org.red5.sip.app;
 
 import static org.red5.sip.app.BytesBuffer.READY;
 
-import java.lang.ref.WeakReference;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Iterator;
@@ -53,16 +52,14 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 	protected static final int NELLYMOSER_ENCODED_PACKET_SIZE = 64;// *
 																	// sampling.blocks;
 
-	RtpSocket rtpSocket = null;
+	private RtpSocket rtpSocket = null;
 
 	/**
 	 * Sip codec to be used on audio session
 	 */
 	protected SIPCodec sipCodec = null;
 
-	boolean socketIsLocal = false;
-
-	boolean doSync = true;
+	private boolean socketIsLocal = false;
 
 	private Decoder decoder;
 
@@ -83,25 +80,23 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 
 	private Thread sendThread = new Thread(this, "RTPStreamMultiplexingSender sendThread");
 
-	ConcurrentHashSet<WeakReference<RTPStreamForMultiplex>> streamSet = new ConcurrentHashSet<WeakReference<RTPStreamForMultiplex>>();
-	// Set<RTPStreamForMultiplex> streamSet = Collections.synchronizedSet(new
-	// WeakHashSet<RTPStreamForMultiplex>());
+	private ConcurrentHashSet<RTPStreamForMultiplex> streamSet = new ConcurrentHashSet<RTPStreamForMultiplex>();
 
 	// Floats remaining on temporary buffer.
-	int tempBufferRemaining = 0;
+	private int tempBufferRemaining = 0;
 
 	// Encoding buffer used to encode to final codec format;
-	float[] encodingBuffer;
+	private float[] encodingBuffer;
 
 	// Offset of encoding buffer.
-	int encodingOffset = 0;
+	private int encodingOffset = 0;
 
 	// Indicates whether the current asao buffer was processed.
-	boolean asao_buffer_processed = false;
+	private boolean asao_buffer_processed = false;
 
 	// Indicates whether the handling buffers have already
 	// been initialized.
-	boolean hasInitilializedBuffers = false;
+	private boolean hasInitilializedBuffers = false;
 
 	/**
 	 * Constructs a RtpStreamSender.
@@ -119,36 +114,11 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 	 *            the destination port
 	 */
 
-	public RTPStreamMultiplexingSender(IMediaReceiver mediaReceiver, boolean do_sync, SIPCodec sipCodec,
+	public RTPStreamMultiplexingSender(IMediaReceiver mediaReceiver, SIPCodec sipCodec,
 			String dest_addr, int dest_port) {
 
-		init(mediaReceiver, do_sync, sipCodec, null, dest_addr, dest_port);
+		init(mediaReceiver, sipCodec, null, dest_addr, dest_port);
 	}
-
-	/**
-	 * Constructs a RtpStreamSender.
-	 * 
-	 * @param IMediaReceiver
-	 *            the RTMP stream source
-	 * @param do_sync
-	 *            whether time synchronization must be performed by the RtpStreamSender, or it is performed by the
-	 *            InputStream (e.g. the system audio input)
-	 * @param sipCodec
-	 *            codec to be used on audio session
-	 * @param src_port
-	 *            the source port
-	 * @param dest_addr
-	 *            the destination address
-	 * @param dest_port
-	 *            the destination port
-	 */
-	// public RtpStreamSender(IMediaReceiver mediaReceiver, boolean do_sync, int
-	// payloadType, long frame_rate, int frame_size, int src_port, String
-	// dest_addr, int dest_port)
-	// {
-	// init( mediaReceiver, do_sync, payloadType, frame_rate, frame_size, null,
-	// src_port, dest_addr, dest_port);
-	// }
 
 	/**
 	 * Constructs a RtpStreamSender.
@@ -167,21 +137,20 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 	 * @param dest_port
 	 *            the thestination port
 	 */
-	public RTPStreamMultiplexingSender(IMediaReceiver mediaReceiver, boolean do_sync, SIPCodec sipCodec,
+	public RTPStreamMultiplexingSender(IMediaReceiver mediaReceiver, SIPCodec sipCodec,
 			DatagramSocket src_socket, String dest_addr, int dest_port) {
 
-		init(mediaReceiver, do_sync, sipCodec, src_socket, dest_addr, dest_port);
+		init(mediaReceiver, sipCodec, src_socket, dest_addr, dest_port);
 	}
 
 	/**
 	 * Inits the RtpStreamSender
 	 */
-	private void init(IMediaReceiver mediaReceiver, boolean do_sync, SIPCodec sipCodec, DatagramSocket src_socket,
+	private void init(IMediaReceiver mediaReceiver, SIPCodec sipCodec, DatagramSocket src_socket,
 			String dest_addr, int dest_port) {
 
 		mediaReceiver.setAudioSender(this);
 		this.sipCodec = sipCodec;
-		this.doSync = do_sync;
 
 		try {
 			if (src_socket == null) {
@@ -212,21 +181,24 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 	}
 
 	public IMediaStream createStream(int streamId) {
-		RTPStreamForMultiplex stream = new RTPStreamForMultiplex(streamId);
-		streamSet.add(new WeakReference<RTPStreamForMultiplex>(stream));
+		RTPStreamForMultiplex stream = new RTPStreamForMultiplex(streamId) {
+
+			@Override
+			public void stop() {
+				super.stop();
+				streamSet.remove(this);
+			}
+			
+		};
+		streamSet.add(stream);
 		return stream;
 	}
 
 	public void deleteStream(int streamId) {
-		for (Iterator<WeakReference<RTPStreamForMultiplex>> iterator = streamSet.iterator(); iterator.hasNext();) {
-			WeakReference<RTPStreamForMultiplex> ref = iterator.next();
-			RTPStreamForMultiplex stream = ref.get();
-			try {
-				if (stream != null && stream.getStreamId() == streamId) {
-					iterator.remove();
-				}
-			} catch (NullPointerException ignored) {
-
+		for (Iterator<RTPStreamForMultiplex> iterator = streamSet.iterator(); iterator.hasNext();) {
+			RTPStreamForMultiplex stream = iterator.next();
+			if (stream != null && stream.getStreamId() == streamId) {
+				iterator.remove();
 			}
 		}
 	}
@@ -278,27 +250,20 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 			float bufferUsage = 0;
 			int multiplexingCount = 0;
 			try {
-				for (Iterator<WeakReference<RTPStreamForMultiplex>> i = streamSet.iterator(); i.hasNext();) {
+				for (Iterator<RTPStreamForMultiplex> i = streamSet.iterator(); i.hasNext();) {
 					int len = -1;
-					WeakReference<RTPStreamForMultiplex> ref = i.next();
-					RTPStreamForMultiplex stream = ref.get();
-					if (stream != null) {
-						if (stream.ready() && disableStream != stream.getStreamId()) {
-							len = stream.read(asaoBuffer, 0);
-							bufferUsage = Math.max(bufferUsage, stream.bufferUsage());
-							log.trace(String.format("Stream id %d, buffer %f", stream.getStreamId(),
-									stream.bufferUsage()));
-						} else {
-							continue;
-						}
+					RTPStreamForMultiplex stream = i.next();
+					if (stream.ready() && disableStream != stream.getStreamId()) {
+						len = stream.read(asaoBuffer, 0);
+						bufferUsage = Math.max(bufferUsage, stream.bufferUsage());
+						log.trace(String.format("Stream id %d, buffer %f", stream.getStreamId(),
+								stream.bufferUsage()));
 					} else {
-						i.remove();
 						continue;
 					}
 					if (len != -1) {
 						ByteStream audioStream = new ByteStream(asaoBuffer, 1, NELLYMOSER_ENCODED_PACKET_SIZE);
 						stream.decoderMap = decoder.decode(stream.decoderMap, audioStream.bytes, 0, decodedBuffer, 0);
-						// fillDecodedBuffer(asaoBuffer, decodedBuffer);
 						if (multiplexingCount > 0) {
 							ResampleUtils.multiplex(multiplexedBuffer, decodedBuffer);
 						} else {
@@ -313,8 +278,6 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 			}
 			if (multiplexingCount > 0) {
 				log.trace("Send: multiplexed: " + multiplexingCount + ", total streams: " + streamSet.size());
-				// ResampleUtils.normalize(multiplexedBuffer,
-				// 1.0f/multiplexingCount);
 				ResampleUtils.normalize(multiplexedBuffer, multiplexedBuffer.length);
 				try {
 					asao_buffer_processed = false;
@@ -377,9 +340,8 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 					resampler.process(factor, multiplexedBuffer, 0, multiplexedBuffer.length, true, tempBuffer, 0,
 							tempBuffer.length);
 				}
-				// tempBuffer = ResampleUtils.normalize(tempBuffer, 256); //
-				// normalise volume
 
+				// normalise volume
 				tempBufferRemaining = tempBuffer.length;
 
 				if (tempBuffer.length <= 0) {
@@ -388,7 +350,6 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 				}
 
 				// Try to complete the encodingBuffer with necessary data.
-
 				if ((encodingOffset + tempBufferRemaining) > sipCodec.getOutgoingDecodedFrameSize()) {
 					copyingSize = encodingBuffer.length - encodingOffset;
 				} else {
