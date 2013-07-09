@@ -19,15 +19,15 @@ public class RTPStream implements IMediaStream {
 	private RtpPacket rtpPacket;
 
 	// Temporary buffer with received PCM audio from FlashPlayer.
-	float[] tempBuffer;
+	private float[] tempBuffer;
 	// Floats remaining on temporary buffer.
-	int tempBufferRemaining = 0;
+	private int tempBufferRemaining = 0;
 	// Encoding buffer used to encode to final codec format;
-	float[] encodingBuffer;
+	private float[] encodingBuffer;
 	// Offset of encoding buffer.
-	int encodingOffset = 0;
+	private int encodingOffset = 0;
 	// Indicates whether the current asao buffer was processed.
-	boolean asao_buffer_processed = false;
+	private boolean asao_buffer_processed = false;
 
 	public RTPStream(int streamId, long syncSource, RTPStreamSender sender) {
 		this.syncSource = syncSource;

@@ -12,7 +12,7 @@ public class SIPAudioLauncher implements MediaLauncher {
 
 	protected static Logger log = LoggerFactory.getLogger(SIPAudioLauncher.class);
 
-	DatagramSocket socket = null;
+	private DatagramSocket socket = null;
 
 	public IMediaSender sender = null;
 
@@ -28,9 +28,7 @@ public class SIPAudioLauncher implements MediaLauncher {
 			printLog("SIPAudioLauncher", "sender configs: payloadType = [" + sipCodec.getCodecId()
 					+ "], payloadName = [" + sipCodec.getCodecName() + "].");
 
-			// sender = new RTPStreamSender( mediaReceiver, false,
-			// sipCodec, socket, remoteAddr, remotePort );
-			sender = new RTPStreamMultiplexingSender(mediaReceiver, false, sipCodec, socket, remoteAddr, remotePort);
+			sender = new RTPStreamMultiplexingSender(mediaReceiver, sipCodec, socket, remoteAddr, remotePort);
 
 			printLog("SIPAudioLauncher", "New audio receiver on " + localPort + ".");
 
