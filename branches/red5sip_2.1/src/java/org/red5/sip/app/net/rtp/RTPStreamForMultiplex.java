@@ -1,9 +1,11 @@
-package org.red5.sip.app;
+package org.red5.sip.app.net.rtp;
 
-import static org.red5.sip.app.RTPStreamMultiplexingSender.NELLYMOSER_ENCODED_PACKET_SIZE;
+import static org.red5.sip.app.net.rtp.RTPStreamMultiplexingSender.NELLYMOSER_ENCODED_PACKET_SIZE;
 import static org.red5.sip.app.BytesBuffer.READY;
 
 import org.red5.codecs.asao.DecoderMap;
+import org.red5.sip.app.BytesBuffer;
+import org.red5.sip.app.IMediaStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,13 +19,14 @@ public class RTPStreamForMultiplex implements IMediaStream {
 		@Override
 		protected void onBufferOverflow() {
 			super.onBufferOverflow();
-			log.error("Stream %d buffer overflow. Buffer is cleared");
+			log.error("Stream %d buffer overflow. Buffer is cleared", getStreamId());
 		}
 
 		@Override
 		protected void onBufferEmpty() {
 			super.onBufferEmpty();
 			ready = false;
+			log.error("Stream %d buffer is empty.", getStreamId());
 		}
 	};
 

@@ -1,4 +1,4 @@
-package org.red5.sip.app;
+package org.red5.sip.app.net.rtp;
 
 import static org.red5.sip.app.BytesBuffer.READY;
 
@@ -14,6 +14,11 @@ import org.red5.codecs.SIPCodec;
 import org.red5.codecs.asao.ByteStream;
 import org.red5.codecs.asao.Decoder;
 import org.red5.logging.Red5LoggerFactory;
+import org.red5.sip.app.BufferUtils;
+import org.red5.sip.app.IMediaReceiver;
+import org.red5.sip.app.IMediaSender;
+import org.red5.sip.app.IMediaStream;
+import org.red5.sip.app.ResampleUtils;
 import org.slf4j.Logger;
 
 import com.laszlosystems.libresample4j.Resampler;
@@ -45,7 +50,7 @@ public class RTPStreamMultiplexingSender implements IMediaSender, Runnable {
 		}
 	}
 
-	protected static SAMPLE_RATE sampling = SAMPLE_RATE.SAMPLING_22050;
+	public static SAMPLE_RATE sampling = SAMPLE_RATE.SAMPLING_22050;
 
 	protected static final int NELLYMOSER_DECODED_PACKET_SIZE = 256;// *
 																	// sampling.blocks;

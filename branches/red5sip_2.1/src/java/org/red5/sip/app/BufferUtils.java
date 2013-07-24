@@ -5,7 +5,7 @@ import org.slf4j.LoggerFactory;
 
 public class BufferUtils {
 
-	protected static Logger log = LoggerFactory.getLogger(RTPStreamSender.class);
+	protected static Logger log = LoggerFactory.getLogger(BufferUtils.class);
 
 	/**
 	 * Copy "copySize" floats from "origBuffer", starting on "startOrigBuffer", to "destBuffer", starting on

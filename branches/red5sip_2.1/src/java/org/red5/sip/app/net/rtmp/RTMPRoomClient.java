@@ -1,4 +1,4 @@
-package org.red5.sip.app;
+package org.red5.sip.app.net.rtmp;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -33,6 +33,10 @@ import org.red5.server.net.rtmp.message.Header;
 import org.red5.server.net.rtmp.status.StatusCodes;
 import org.red5.server.service.Call;
 import org.red5.server.stream.message.RTMPMessage;
+import org.red5.sip.app.IMediaReceiver;
+import org.red5.sip.app.IMediaSender;
+import org.red5.sip.app.ISipNumberListener;
+import org.red5.sip.app.SIPTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -601,7 +605,6 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	
 	@Override
 	public void pushVideo(byte[] video, long ts) throws IOException {
-		if (!conn.isConnected()) return;
 		if(publishStreamId == null) {
 			log.debug("publishStreamId == null !!!");
 			return;
