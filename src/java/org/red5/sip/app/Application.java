@@ -8,6 +8,9 @@ import java.util.Properties;
 import org.apache.commons.daemon.Daemon;
 import org.apache.commons.daemon.DaemonContext;
 import org.openmeetings.utils.PropertiesUtils;
+import org.red5.sip.app.net.rtmp.RTMPControlClient;
+import org.red5.sip.app.net.rtmp.RTMPRoomClient;
+import org.red5.sip.app.net.rtp.RTPStreamMultiplexingSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zoolu.sip.address.NameAddress;
@@ -26,7 +29,6 @@ public class Application implements Daemon {
 
 	private SIPTransport createSIPTransport(Properties prop, int room_id) {
 		log.info("Creating SIP trasport for room: " + room_id);
-		RTPStreamSender.useASAO = prop.getProperty("red5.codec", "asao").equals("asao");
 		RTMPRoomClient roomClient = new RTMPRoomClient(prop.getProperty("red5.host"), prop.getProperty("om.context",
 				"openmeetings"), room_id);
 		boolean enableVideo = "yes".equals(prop.getProperty("sip.enable_video"));
@@ -118,9 +120,10 @@ public class Application implements Daemon {
 		}
 		transportMap.clear();
 	}
-	
+
 	@Override
 	public void destroy() {
 
 	}
+	
 }

@@ -29,7 +29,7 @@ public class BytesBuffer {
 		start = -1;
 	}
 
-	protected int available() {
+	public int available() {
         if(start >= 0) {
 		    return (end > start) ? (end - start) : (buffersCount - start + end);
         } else {
@@ -37,7 +37,7 @@ public class BytesBuffer {
         }
 	}
 
-	protected float bufferUsage() {
+	public float bufferUsage() {
 		return available() * 1.0f / buffersCount;
 	}
 
