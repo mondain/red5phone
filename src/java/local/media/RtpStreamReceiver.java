@@ -22,12 +22,11 @@
 package local.media;
 
 
+import java.io.OutputStream;
+import java.net.DatagramSocket;
+
 import local.net.RtpPacket;
 import local.net.RtpSocket;
-
-import java.io.*;
-import java.net.InetAddress;
-import java.net.DatagramSocket;
 
 
 /** RtpStreamReceiver is a generic stream receiver.

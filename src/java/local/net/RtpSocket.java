@@ -22,11 +22,10 @@
 package local.net;
 
 
-import java.net.InetAddress;
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.io.IOException;
-import org.zoolu.tools.Random;
+import java.net.InetAddress;
 
 
 /** RtpSocket implements a RTP socket for receiving and sending RTP packets. 

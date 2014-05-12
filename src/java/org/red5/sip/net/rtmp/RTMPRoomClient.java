@@ -10,7 +10,7 @@ import java.util.Set;
 
 import org.apache.mina.core.RuntimeIoException;
 import org.apache.mina.core.buffer.IoBuffer;
-import org.apache.openmeetings.persistence.beans.room.Client;
+import org.apache.openmeetings.db.entity.room.Client;
 import org.red5.io.utils.ObjectMap;
 import org.red5.server.api.scope.IScope;
 import org.red5.server.api.event.IEvent;

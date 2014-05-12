@@ -1,23 +1,29 @@
 package local.media;
 
 
-import javax.media.*;
-import javax.media.format.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Panel;
+import java.awt.Toolkit;
+import java.awt.event.WindowEvent;
 
-import java.awt.*;
-import javax.swing.*;
-import java.awt.event.*;
-import java.util.Vector;
-import javax.swing.border.Border;
+import javax.media.ControllerEvent;
+import javax.media.RealizeCompleteEvent;
+import javax.media.format.FormatChangeEvent;
+import javax.swing.JPanel;
 
 
 
 /** JVisualReceiver is a JMF-based graphical media receiver.
   */
-public class JVisualReceiver extends Frame implements JMediaReceiverListener
-{
+public class JVisualReceiver extends Frame implements JMediaReceiverListener {
+	private static final long serialVersionUID = 1L;
 
-   JMediaReceiver receiver;
+	JMediaReceiver receiver;
 
    // GUI attributes
    Panel panel = new Panel();
@@ -116,8 +122,9 @@ public class JVisualReceiver extends Frame implements JMediaReceiverListener
   // ************************* class ImagePanel *************************
   // ********************************************************************
 
-class ImagePanel extends JPanel
-{  Image image;
+class ImagePanel extends JPanel {
+	private static final long serialVersionUID = 1L;
+	Image image;
 
    public ImagePanel(Image image) { this.image = image; }
 

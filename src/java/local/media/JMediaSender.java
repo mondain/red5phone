@@ -49,7 +49,7 @@ public class JMediaSender
                
       // #### 3) configure the processor
       processor.configure();
-      while(processor.getState()<processor.Configured)
+      while(processor.getState()<Processor.Configured)
       {  // wait..
          //synchronized (getStateLock())
          //{  try { getStateLock().wait(); } catch (InterruptedException ie) { return; }
@@ -103,7 +103,7 @@ public class JMediaSender
       
       // #### 4) realize the processor
       processor.realize();
-      while(processor.getState()<processor.Realized) ; // wait..
+      while(processor.getState()<Processor.Realized) ; // wait..
       System.out.println("Processor realized");
         
          

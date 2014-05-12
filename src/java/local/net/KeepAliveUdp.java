@@ -22,11 +22,9 @@
 package local.net;
 
 
-import org.zoolu.net.*;
-
-import org.zoolu.tools.Timer;
-import org.zoolu.tools.TimerListener;
-import java.util.Date;
+import org.zoolu.net.SocketAddress;
+import org.zoolu.net.UdpPacket;
+import org.zoolu.net.UdpSocket;
 
 
 /** KeepAliveUdp thread, for keeping the connection up toward a target node
