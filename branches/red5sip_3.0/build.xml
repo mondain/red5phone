@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="red5sip" default="all" basedir="./"
+	xmlns:ivy="antlib:org.apache.ivy.ant"
+	>
+	<loadproperties srcFile="build.properties" />
+	
+	<property name="out.dir" value="${basedir}/out" />
+	<property name="lib.dir" value="${basedir}/lib" />
+	<property name="ivy.lib.dir" value="${out.dir}/lib" />
+	<property name="ivy.jar.path" value="${ivy.lib.dir}/ivy-${ivy.install.version}.jar" />
+	<property name="red5sip.jar" value="${lib.dir}/red5sip.jar" />
+	<property name="src.dir" value="${basedir}/src/java"/>
+	<property name="classes.dir" value="${out.dir}/classes"/>
+
+	<target name="-check-ivy-installed">
+		<available file="${ivy.jar.path}" type="file" property="ivy.installed" />
+	</target>
+	<target name="-download-ivy" depends="-check-ivy-installed" unless="ivy.installed">
+		<mkdir dir="${ivy.lib.dir}"/>
+		<echo message="Downloading ivy..."/>
+		<get src="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.install.version}/ivy-${ivy.install.version}.jar"
+			dest="${ivy.jar.path}" usetimestamp="true"/>
+	</target>
+	
+	<target name="-install-ivy" depends="-download-ivy" description="Check if we need to download ivy or not">
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpath="${ivy.jar.path}"/>
+	</target>
+	
+	<target name="-retrieve" depends="-install-ivy" description="Retrieves the libraries if needed">
+		<condition property="ivy.conf.name" value="default">
+			<not>
+				<isset property="ivy.conf.name" />
+			</not>
+		</condition>
+		<condition property="ivy.lib.location" value="${mainlibs.lib.dir}">
+			<not>
+				<isset property="ivy.lib.location" />
+			</not>
+		</condition>
+		<condition property="ivy.transitive" value="false">
+			<not>
+				<isset property="ivy.transitive" />
+			</not>
+		</condition>
+		<echo message="Ivy conf name: ${ivy.conf.name}, destination: ${ivy.lib.location}" />
+		<ivy:resolve file="ivy.xml" conf="${ivy.conf.name}" checkIfChanged="false" transitive="${ivy.transitive}" />
+		<ivy:retrieve conf="${ivy.conf.name}" pattern="${ivy.lib.location}/[artifact]-[type]-[revision].[ext]" />
+	</target>
+	
+	<path id="ivy.classpath">
+		<fileset dir="${ivy.lib.dir}" includes="*.jar" />
+	</path>
+	
+	<path id="compile.classpath">
+		<path refid="ivy.classpath"/>
+		<fileset dir="${lib.dir}" includes="*.jar" >
+			<exclude name="${red5sip.jar}"/>
+		</fileset>
+	</path>
+	
+	<target name="prepare.mkdir">
+		<mkdir dir="${ivy.lib.dir}" />
+		<mkdir dir="${classes.dir}" />
+	</target>
+	
+	<target name="-availability-check" unless="libs.installed" description="Check which libraries need to be retrieved" depends="prepare.mkdir">
+		<available classpathref="ivy.classpath" classname="org.apache.mina.core.buffer.IoBuffer" property="libs.installed" />
+	</target>
+	
+	<target name="-retrieve-libs" unless="libs.installed" depends="-availability-check">
+		<antcall target="-retrieve" inheritAll="true" inheritRefs="true">
+			<param name="ivy.lib.location" value="${ivy.lib.dir}" />
+		</antcall>
+	</target>
+	
+	<!-- //clean up before build -->
+	<target name="compile.only" depends="-retrieve-libs">
+		<echo message="Compile main to ${classes.dir}" />
+		<javac debug="on" debuglevel="lines,vars,source" destdir="${classes.dir}" includeantruntime="false"
+			source="1.6" target="1.6">
+			<src path="${src.dir}" />
+			<classpath refid="compile.classpath" />
+		</javac>
+	</target>
+	
+	<target name="clean">
+		<delete includeemptydirs="true" dir="${classes.dir}" />
+		<delete file="${red5sip.jar}" />
+	</target>
+	
+	<target name="all" depends="clean,compile.only" >
+	    <jar destfile="${red5sip.jar}" filesetmanifest="mergewithoutmain">
+	      <zipfileset dir="${classes.dir}"/>
+	    </jar>
+	</target>
+</project>

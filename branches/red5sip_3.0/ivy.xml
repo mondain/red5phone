@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ -->
+<ivy-module version="2.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+	<info organisation="apache" module="red5sip" />
+	<configurations defaultconfmapping="default">
+		<conf name="default" />
+	</configurations>
+	<dependencies>
+		<dependency org="org.apache.mina" name="mina-core" rev="2.0.7" transitive="false" />
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.7.2" transitive="false"/>
+		<dependency org="commons-daemon" name="commons-daemon" rev="1.0.14" transitive="false">
+			<include type="jar" />
+		</dependency>
+		<dependency org="commons-io" name="commons-io" rev="1.4" transitive="false">
+			<include type="jar" />
+		</dependency>
+		<dependency org="org.apache.geronimo.specs" name="geronimo-jpa_2.0_spec" rev="1.1" transitive="false"/>
+		<dependency org="org.springframework" name="spring-context" rev="3.1.1.RELEASE" transitive="false"/>
+		<dependency org="org.springframework" name="spring-beans" rev="3.1.1.RELEASE"/>
+		<dependency org="org.springframework" name="spring-core" rev="3.1.1.RELEASE"/>
+		<dependency org="ch.qos.logback" name="logback-core" rev="1.0.9"/>
+		<dependency org="ch.qos.logback" name="logback-classic" rev="1.0.9"/>
+		<dependency org="org.slf4j" name="jcl-over-slf4j" rev="1.7.2"/>
+		<dependency org="org.apache.openjpa" name="openjpa" rev="2.2.1" transitive="false"/>
+		<dependency org="org.apache.commons" name="commons-beanutils" rev="1.8.3"/>
+		<dependency org="net.sf.ehcache" name="ehcache-core" rev="2.5.0"/>
+		<dependency org="org.apache.commons" name="commons-codec" rev="1.6"/>
+		<dependency org="org.apache.commons" name="commons-collections" rev="3.2.1"/>
+		<dependency org="org.bouncycastle" name="bcprov-jdk15on" rev="1.47" />
+		<dependency org="org.apache.commons" name="commons-lang3" rev="3.1"/>
+		<dependency org="javax.media" name="jmf" rev="2.1.1e"/>
+	</dependencies>
+</ivy-module>

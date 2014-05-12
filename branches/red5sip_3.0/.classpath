@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src/java"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=red5sip&amp;ivyXmlPath=ivy.xml&amp;confs=*&amp;ivySettingsPath=%24%7Bworkspace_loc%3Ared5sip%2Fivysettings.xml%7D&amp;loadSettingsOnDemand=false&amp;propertyFiles="/>
+	<classpathentry kind="lib" path="lib/red5-server.jar"/>
+	<classpathentry kind="lib" path="lib/openmeetings-3.0.0-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/red5-client-1.0.2-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="lib/libresample4j-1.0.jar"/>
+	<classpathentry kind="output" path="out/eclipse"/>
+</classpath>
