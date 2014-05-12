@@ -1,9 +1,11 @@
 package local.media;
 
 
-import javax.media.*;
-import javax.media.format.*;
-import java.util.Vector;
+import javax.media.ControllerEvent;
+import javax.media.ControllerListener;
+import javax.media.Manager;
+import javax.media.MediaLocator;
+import javax.media.Player;
 
 
 /** JMediaReceiver is a JMF-based media receiver.
@@ -40,7 +42,7 @@ public class JMediaReceiver implements ControllerListener
       try 
       {  System.out.println("Trying to realize the player");
          player.realize();
-         while(player.getState()!=player.Realized);
+         while(player.getState()!=Player.Realized);
          System.out.println("Player realized");
          player.start();
       }

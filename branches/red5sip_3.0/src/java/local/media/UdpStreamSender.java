@@ -22,11 +22,10 @@
 package local.media;
 
 
+import java.io.InputStream;
+
 import org.zoolu.net.UdpPacket;
 import org.zoolu.net.UdpSocket;
-import org.zoolu.net.IpAddress;
-
-import java.io.InputStream;
 
 
 /** UdpStreamSender is a generic stream sender.
