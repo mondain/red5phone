@@ -20,7 +20,7 @@ public class Encoder {
 
 	// Recebe um array de float de 160 ou 240 Bytes
 	// processa de 80 em 80 Bytes e retorna um array de byte de 20 ou 30
-	// posi��es
+	// posies
 	public void encode(float[] bufferIn, byte[] bufferOut) {
 
 		int inOffset = 0;
