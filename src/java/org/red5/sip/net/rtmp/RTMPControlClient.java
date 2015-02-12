@@ -64,9 +64,9 @@ public abstract class RTMPControlClient extends RTMPClient implements ClientExce
 	}
 
 	@Override
-	public void connectionOpened(RTMPConnection conn, RTMP state) {
+	public void connectionOpened(RTMPConnection conn) {
 		log.debug("RTMP Connection opened");
-		super.connectionOpened(conn, state);
+		super.connectionOpened(conn);
 		this.conn = conn;
 	}
 
@@ -88,9 +88,9 @@ public abstract class RTMPControlClient extends RTMPClient implements ClientExce
 	}
 	
 	@Override
-	public void connectionClosed(RTMPConnection conn, RTMP state) {
+	public void connectionClosed(RTMPConnection conn) {
 		log.debug("RTMP Connection closed");
-		super.connectionClosed(conn, state);
+		super.connectionClosed(conn);
 		reconnect();
 	}
 
