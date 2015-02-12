@@ -19,6 +19,7 @@ import org.red5.server.api.service.IPendingServiceCallback;
 import org.red5.server.api.service.IServiceCall;
 import org.red5.server.api.service.IServiceInvoker;
 import org.red5.client.net.rtmp.BaseRTMPClientHandler;
+import org.red5.server.net.ICommand;
 import org.red5.server.net.rtmp.Channel;
 import org.red5.client.net.rtmp.ClientExceptionHandler;
 import org.red5.client.net.rtmp.INetStreamEventHandler;
@@ -245,9 +246,9 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	}
 
 	@Override
-	public void connectionOpened(RTMPConnection conn, RTMP state) {
+	public void connectionOpened(RTMPConnection conn) {
 		log.debug("RTMP Connection opened");
-		super.connectionOpened(conn, state);
+		super.connectionOpened(conn);
 		this.conn = conn;
 		retryNumber = 0;
 	}
@@ -271,15 +272,22 @@ public class RTMPRoomClient extends RTMPClient implements INetStreamEventHandler
 	}
 	
 	@Override
-	public void connectionClosed(RTMPConnection conn, RTMP state) {
+	public void connectionClosed(RTMPConnection conn) {
 		log.debug("RTMP Connection closed");
-		super.connectionClosed(conn, state);
+		super.connectionClosed(conn);
 		reconnect();
 	}
 
 	@Override
-	protected void onInvoke(RTMPConnection conn, Channel channel, Header source, Notify invoke, RTMP rtmp) {
-		super.onInvoke(conn, channel, source, invoke, rtmp);
+	protected void onCommand(RTMPConnection conn, Channel channel, Header source, ICommand command) {
+		super.onCommand(conn, channel, source, command);
+		if (!(command instanceof Notify)) {
+			return;
+		}
+		Notify invoke = (Notify)command;
+		if (invoke.getType() == IEvent.Type.STREAM_DATA) {
+			return;
+		}
 
 		if (invoke.getType() == IEvent.Type.STREAM_DATA) {
 			return;
